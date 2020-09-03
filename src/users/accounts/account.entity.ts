@@ -17,6 +17,6 @@ export class Account {
   @Column()
   Salt: string;
 
-    @Column({ default: true })
-    IsDeleted: boolean;
+  @Column({ default: true })
+  IsDeleted: boolean;
 }
