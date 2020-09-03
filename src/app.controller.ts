@@ -9,12 +9,12 @@ export class AppController {
     private readonly authService: AuthService
   ) {}
 
-  @UseGuards(LocalAuthGuard)
-  @UseFilters(new HttpExceptionFilter())
-  @Post('auth/login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
-  }
+  // @UseGuards(LocalAuthGuard)
+  // @UseFilters(new HttpExceptionFilter())
+  // @Post('auth/login')
+  // async login(@Request() req) {
+  //   return this.authService.login(req.user);
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
