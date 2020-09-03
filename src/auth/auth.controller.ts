@@ -15,14 +15,11 @@ import { HttpExceptionFilter } from './../filters/http-exception.filter';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-
+  
   @UseGuards(LocalAuthGuard)
   @UseFilters(new HttpExceptionFilter())
   @Post('login')
   async login(@Request() req) {
-    // return this.authService.login(req.user);
-    const user = req.user;
-    user.HashPasswd = undefined;
-    return user;
-    }
+    return this.authService.login(req.user);
+  }
 }
