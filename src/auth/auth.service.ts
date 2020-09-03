@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { AccountsService } from '../users/accounts/accounts.service';
+import { AccountsService } from '../accounts/accounts.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -9,7 +9,7 @@ export class AuthService {
     private readonly accountsService: AccountsService,
     private readonly jwtService: JwtService,
   ) {}
-
+  // call when??????
   async validateUser(username: string, pass: string): Promise<any> {
     const account = await this.accountsService.findOne(username);
     // console.log(user[0]);
