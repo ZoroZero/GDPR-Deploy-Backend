@@ -11,16 +11,16 @@ export class AccountsService {
     @InjectRepository(Account) private accountsRepository: Repository<Account>,
   ) {}
 
-  async findAll(): Promise<Account | undefined> {
+  async findAll(): Promise<Account> {
     return this.accountsRepository.query('Select * from dbo.[Account]');
   }
 
-  async findOneByUsername(username: string): Promise<Account | undefined> {
+  async findOneByUsername(username: string): Promise<Account> {
     // return await this.accountsRepository.query(`Select Id, UserId, UserName, HashPasswd from dbo.[Account] where UserName = '${username}'`);
     return await this.accountsRepository.findOne({ UserName: username });
   }
 
-  async findOneByUserid(userId: string): Promise<Account | undefined> {
+  async findOneByUserid(userId: string): Promise<Account> {
     // return await this.accountsRepository.query(`Select Id, UserId, UserName, HashPasswd from dbo.[Account] where UserName = '${username}'`);
     return await this.accountsRepository.findOne({ UserId: userId });
   }
