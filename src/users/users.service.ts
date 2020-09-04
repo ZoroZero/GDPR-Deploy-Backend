@@ -23,8 +23,7 @@ export class UsersService {
   async getRoleById(id: string) {
     console.log('user service find one by id');
     const userRoleId = await getConnection().manager.query(
-      `EXECUTE [dbo].[getRoleFromId]
-      @Id ='${id}' `,
+      `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
     console.log(userRoleId);
 
