@@ -13,9 +13,10 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @UseFilters(new HttpExceptionFilter())
-  @Post('auth/login')
+  @Post('login')
+  //VALIDATION PIPE -@body? request
   async login(@Request() req) {
-    this.myLogger.log("Login");
+    console.log('IN AUTH CONTROLLER AFTER GUARD SUCCESS', req.user);
     return this.authService.login(req.user);
   }
 
