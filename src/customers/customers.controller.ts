@@ -22,6 +22,8 @@ export class CustomersController {
   constructor(private customersService: CustomersService) {}
   @Get()
   async findAll(): Promise<Customer[]> {
+    //=> okkk
+    console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
     return await this.customersService.findAll();
   }
   @Post()
