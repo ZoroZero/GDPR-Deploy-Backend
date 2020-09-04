@@ -5,6 +5,8 @@ import {
   Request,
   UseGuards,
   UseFilters,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -18,7 +20,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @UseFilters(new HttpExceptionFilter())
   @Post('login')
-  //VALIDATION PIPE -@body? request
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
