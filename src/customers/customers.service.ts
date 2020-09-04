@@ -3,6 +3,7 @@ import { Customer } from './customer.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { getDefaultSettings } from 'http2';
 
 @Injectable()
 export class CustomersService {
@@ -19,20 +20,42 @@ export class CustomersService {
     return await this.customersRepository.findOne(key);
   }
 
-  async create(customer: CreateCustomerDto): Promise<Customer> {
-    return await this.customersRepository.save(customer);
+  async create(
+    customer: CreateCustomerDto,
+    createdById: string,
+  ): Promise<Customer> {
+    return await this.customersRepository.save({
+      ...{ CreatedBy: createdById, CreatedDate: new Date() },
+      ...customer,
+    });
   }
 
-  async update(id: string, newValue: CreateCustomerDto): Promise<Customer> {
+  async update(
+    id: string,
+    newValue: CreateCustomerDto,
+    updatedById: string,
+  ): Promise<Customer> {
     const customer = await this.customersRepository.findOne({ Id: id });
     if (!customer) {
       console.error("customer doesn't exist");
     }
-    await this.customersRepository.update(id, newValue);
+    await this.customersRepository.update(id, {
+      ...{ UpdatedBy: updatedById, UpdatedDate: new Date() },
+      ...newValue,
+    });
     return await this.customersRepository.findOne({ Id: id });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.customersRepository.delete({ Id: id });
+  async remove(id: string, deletedById: string): Promise<Customer> {
+    const customer = await this.customersRepository.findOne({ Id: id });
+    if (!customer) {
+      console.error("customer doesn't exist");
+    }
+    await this.customersRepository.update(id, {
+      IsDeleted: true,
+      DeletedBy: deletedById,
+      DeletedDate: new Date(),
+    });
+    return await this.customersRepository.findOne({ Id: id });
   }
 }

@@ -1,4 +1,5 @@
-import { IsUUID } from 'class-validator';
+import { IsUUID, isUUID } from 'class-validator';
+import { IsNull } from 'typeorm';
 
 export class CreateCustomerDto {
   FirstName: string;
@@ -11,6 +12,5 @@ export class CreateCustomerDto {
 
   IsActive: boolean;
 
-  @IsUUID()
   ContactPointID: string;
 }

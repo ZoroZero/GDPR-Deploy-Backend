@@ -1,5 +1,6 @@
 import {
   Controller,
+  Request,
   UseGuards,
   Get,
   Put,
@@ -27,16 +28,26 @@ export class CustomersController {
     return await this.customersService.findAll();
   }
   @Post()
-  async create(@Body(ValidationPipe) createCustomerDto: CreateCustomerDto) {
-    return this.customersService.create(createCustomerDto);
+  async create(
+    @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
+    @Request() req,
+  ) {
+    console.log(req.user);
+    return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateCustomerDto: CreateCustomerDto,
+    @Request() req,
   ) {
-    const res = await this.customersService.update(id, updateCustomerDto);
+    const res = await this.customersService.update(
+      id,
+      updateCustomerDto,
+      req.user.UserId,
+    );
+    console.log('RETURN FROM UPDATE', res);
     if (res) {
       return res;
     } else {
@@ -51,7 +62,10 @@ export class CustomersController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id): Promise<void> {
-    return this.customersService.remove(id);
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req,
+  ): Promise<Customer> {
+    return this.customersService.remove(id, req.user.UserId);
   }
 }

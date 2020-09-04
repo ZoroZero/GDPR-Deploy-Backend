@@ -19,11 +19,19 @@ export class Customer {
   ContractEndDate: Date;
   @Column()
   IsActive: boolean;
-
+  @Column('uuid')
+  CreatedBy: string;
+  @Column('uuid')
+  UpdatedBy: string;
   @Column()
   UpdatedDate: Date;
   @Column()
   Description: string;
+  @Column('uuid')
+  DeletedBy: string;
+  @Column()
+  DeletedDate: Date;
+
   @Column()
   IsDeleted: boolean;
 }
