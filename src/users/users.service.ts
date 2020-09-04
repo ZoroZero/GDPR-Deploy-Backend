@@ -17,14 +17,11 @@ export class UsersService {
   ) {}
 
   async findOne(username: string): Promise<User> {
-    console.log('user service find one by username');
     return await this.usersRepository.findOne({ Email: username });
   }
 
   async getById(id: string) {
-    console.log('user service find one by id');
     const user = await this.usersRepository.findOne({ Id: id });
-    console.log('after find by id', user);
     if (user && !user.IsDeleted && user.IsActive) {
       return user;
     }

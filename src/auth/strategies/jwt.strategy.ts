@@ -17,15 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const accountUpdatedDate = await this.authService.validateUserById(
       payload.id,
     );
-    console.log(
-      'jwt strategy validate => account updated date',
-      accountUpdatedDate,
-    );
     if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
       return { UserId: payload.id };
     } else {
-      console.log('payload');
-      console.log(payload);
       throw new UnauthorizedException();
     }
   }
