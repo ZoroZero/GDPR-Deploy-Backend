@@ -18,4 +18,9 @@ export class UsersController {
   getProfile(@Request() req) {
     return req.user;
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  getAllProfile() {
+    return this.usersService.findAll();
+  }
 }

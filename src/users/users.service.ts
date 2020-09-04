@@ -33,4 +33,7 @@ export class UsersService {
       HttpStatus.NOT_FOUND,
     );
   }
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
+  }
 }
