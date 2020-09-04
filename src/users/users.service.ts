@@ -16,10 +16,10 @@ export class UsersService {
   }
   
   async findOne(username: string): Promise<User> {
-    return await this.usersRepository.findOne(username);
+    return await this.usersRepository.findOne({ Email: username });
   }
 
-  async getById(id: string){
+  async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
     if (user && !user.IsDeleted && user.IsActive) {
       return user;

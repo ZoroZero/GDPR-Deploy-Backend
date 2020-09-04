@@ -16,7 +16,6 @@ export class AuthController {
   @Post('login')
   //VALIDATION PIPE -@body? request
   async login(@Request() req) {
-    console.log('IN AUTH CONTROLLER AFTER GUARD SUCCESS', req.user);
     return this.authService.login(req.user);
   }
 
