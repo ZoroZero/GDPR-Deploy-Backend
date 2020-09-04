@@ -4,7 +4,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { HttpExceptionFilter } from '../filters/http-exception.filter';
 import { LoggingService } from 'src/logger/logging.service';
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

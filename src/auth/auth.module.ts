@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { AuthController } from './auth.controller';
+import { LoggingModule } from 'src/logger/logging.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthController } from './auth.controller';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60000s' },
     }),
+    LoggingModule
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
