@@ -28,13 +28,29 @@ export class UsersService {
     console.log(userRoleId);
 
     // console.log('after find by id', user);
-    // if (userRoleId) {
-    return userRoleId;
-    // }
-    // throw new HttpException(
-    //   'User with this id does not exist',
-    //   HttpStatus.NOT_FOUND,
-    // );
+    if (userRoleId) {
+      return userRoleId;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+  async getInfoById(id: string) {
+    console.log('user service find one by id');
+    const userRoleId = await getConnection().manager.query(
+      `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
+    );
+    console.log(userRoleId);
+
+    // console.log('after find by id', user);
+    if (userRoleId) {
+      return userRoleId;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
   // async getRoleById(id: string) {
   //   console.log('user service find one by id');
