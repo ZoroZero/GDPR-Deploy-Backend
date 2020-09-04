@@ -28,7 +28,6 @@ export class AuthService {
       id: user.UserId,
       createdDate: new Date(),
     };
-    // console.log(payload);
 
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {

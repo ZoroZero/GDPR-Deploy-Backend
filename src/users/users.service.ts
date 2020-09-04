@@ -27,9 +27,8 @@ export class UsersService {
     );
     console.log(userRoleId);
 
-    // console.log('after find by id', user);
     if (userRoleId) {
-      return userRoleId;
+      return userRoleId[0].Name;
     }
     throw new HttpException(
       'User with this id does not exist',
@@ -43,7 +42,6 @@ export class UsersService {
     );
     console.log(userRoleId);
 
-    // console.log('after find by id', user);
     if (userRoleId) {
       return userRoleId;
     }
@@ -52,18 +50,6 @@ export class UsersService {
       HttpStatus.NOT_FOUND,
     );
   }
-  // async getRoleById(id: string) {
-  //   console.log('user service find one by id');
-  //   const user = await this.usersRepository.findOne({ Id: id });
-  //   console.log('after find by id', user);
-  //   if (user && !user.IsDeleted && user.IsActive && !user.RoleId) {
-  //     return await this.usersRepository.query();
-  //   }
-  //   throw new HttpException(
-  //     'User with this id does not exist',
-  //     HttpStatus.NOT_FOUND,
-  //   );
-  // }
 
   async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
