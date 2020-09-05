@@ -15,10 +15,10 @@ import { HttpExceptionFilter } from './../filters/http-exception.filter';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  
   @UseGuards(LocalAuthGuard)
   @UseFilters(new HttpExceptionFilter())
   @Post('login')
+  //VALIDATION PIPE -@body? request
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
