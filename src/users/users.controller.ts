@@ -33,8 +33,8 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
-  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  // @SetMetadata('roles', ['admin', 'contact-point'])
+  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/list')
   getListUser(@Request() req) {
     return this.usersService.getListUser(1,5,'','abc',0,null,null);
