@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Customer } from 'src/customers/customer.entity';
 
 @Entity('Server')
 export class Server {
@@ -22,4 +23,9 @@ export class Server {
 
   @Column({ default: true })
   IsActive: boolean;
+  @ManyToOne(
+    type=>Customer,
+    customer=> customer.servers
+  )
+  customer: Customer
 }

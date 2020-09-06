@@ -9,6 +9,7 @@ import { CustomersModule } from './customers/customers.module';
 
 import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
+import { CustomerServersModule } from './customer-servers/customer-servers.module';
 import * as Joi from '@hapi/joi';
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import * as Joi from '@hapi/joi';
         JWT_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
+    CustomerServersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

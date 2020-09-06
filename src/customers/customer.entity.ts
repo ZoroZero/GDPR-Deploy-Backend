@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Server } from 'src/servers/server.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -34,4 +35,10 @@ export class Customer {
 
   @Column()
   IsDeleted: boolean;
+
+  @OneToMany(
+    type => Server,
+    servers=> servers.customer
+  )
+  servers: Server[]
 }
