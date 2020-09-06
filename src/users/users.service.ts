@@ -64,4 +64,19 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     return await this.usersRepository.find();
   }
+
+  async getListUser(PageNo:number, PageSize:number, SearchKey: String, SortBy: String, SortOrder: number, Role: String, IsActive: Boolean){
+    const userList = await getConnection().manager.query(
+      `EXECUTE [dbo].[GetListUser] @PageNumber ='${PageNo}', @PageSize='${PageSize}', @SearchKey='${SearchKey}', @SortBy=null, @SortOrder='${SortOrder}', @Role=null, @IsActive=null `,
+    );
+    return userList;
+  }
+
+  async deleteUser(UserId: string, DeletedBy: string){
+    const deleteResult = await getConnection().manager.query(
+      `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' `,
+    );
+    // if (deleteResult) throw new HttpException("Delete Successfully!",HttpStatus.OK)
+    // else throw new HttpException("Error: Cannot delete!", HttpStatus.BAD_REQUEST);
+  }
 }
