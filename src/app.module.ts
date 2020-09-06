@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module';
 import { CustomersModule } from './customers/customers.module';
 
+import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 @Module({
@@ -16,6 +17,7 @@ import * as Joi from '@hapi/joi';
     AccountsModule,
     CustomersModule,
     UsersModule,
+    ServersModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
