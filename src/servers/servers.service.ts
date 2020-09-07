@@ -1,10 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
-
-import { AccountsService } from '../accounts/accounts.service';
-import { Account } from '../accounts/account.entity';
 import { CreateServerDto } from './create-server-post.dto';
 // export type User = any;
 
@@ -16,7 +13,11 @@ export class ServersService {
   ) {}
 
   async listAllServer(): Promise<Server[]> {
-    return await this.serversRepository.find({ IsActive: true });
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
+  }
+
+  async getServerByPage(current: number, pageSize: number){
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${current}, @PageSize=${pageSize}`);
   }
 
   async addNewServer(_server: CreateServerDto) {

@@ -26,9 +26,9 @@ export class AuthService {
   async validateUserById(userId: string): Promise<any> {
     const user = await this.usersService.getById(userId);
 
-    console.log(user);
+    // console.log(user);
     const account = await this.accountsService.findOneByUserid(user.Id);
-    console.log('validate user by id, after find accout from user.id', account);
+    // console.log('validate user by id, after find accout from user.id', account);
     return account.UpdatedDate;
   }
 
@@ -40,7 +40,7 @@ export class AuthService {
       createdDate: new Date(),
     };
     // console.log(payload);
-    console.log();
+    // console.log();
     const role = await this.usersService.getRoleById(String(user.UserId));
 
     const Info = await this.usersService.getInfoById(String(user.UserId));
