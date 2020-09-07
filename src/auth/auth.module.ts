@@ -8,17 +8,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { AuthController } from './auth.controller';
-<<<<<<< HEAD
-import { LoggingModule } from 'src/logger/logging.module';
-
-=======
 import { ConfigModule, ConfigService } from '@nestjs/config';
->>>>>>> 3e13aaefb371bb3a7daebe7331cbacbd1662738c
+import { LoggingModule } from 'src/logger/logging.module';
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     AccountsModule,
+    LoggingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
