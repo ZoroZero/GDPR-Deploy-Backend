@@ -34,11 +34,8 @@
     "class-validator": "^0.12.2",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
-<<<<<<< HEAD
     "jwt-decode": "^2.2.0",
     "msnodesqlv8": "^2.0.5",
-=======
->>>>>>> bcb2900828bb39fd26c0b9e78274c5ee9a020f50
     "mssql": "^6.2.1",
     "nestjs-roles": "^0.4.1",
     "passport": "^0.4.1",
