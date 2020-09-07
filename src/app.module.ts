@@ -16,6 +16,7 @@ import * as Joi from '@hapi/joi';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/role.guard';
 // import { GraphQLModule } from '@nestjs/graphql';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { RolesGuard } from './auth/guards/role.guard';
       }),
     }),
     CustomerServersModule,
+    RequestsModule,
   ],
 
   controllers: [AppController],

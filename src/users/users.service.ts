@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 
 import { User } from './user.entity';
-import { AccountsService } from './accounts/accounts.service';
-import { Account } from './accounts/account.entity';
+import { AccountsService } from '../accounts/accounts.service';
+import { Account } from '../accounts/account.entity';
 
 // export type User = any;
 
