@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Customer } from './customer.entity';
-import { Repository } from 'typeorm';
+import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { getDefaultSettings } from 'http2';
@@ -12,8 +12,11 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
-  async findAll(): Promise<Customer[]> {
-    return await this.customersRepository.find();
+  async findAll(): Promise<any> {
+    const res = await createQueryBuilder('Customer')
+      .leftJoinAndSelect('Customer.CustomerServers', 'CustomerServers')
+      .getMany();
+    return res;
   }
 
   async findOne(key: object): Promise<Customer> {
