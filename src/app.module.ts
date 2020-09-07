@@ -5,11 +5,18 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module';
+
 import { CustomersModule } from './customers/customers.module';
 
 import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
+import { CustomerServersModule } from './customer-servers/customer-servers.module';
 import * as Joi from '@hapi/joi';
+
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/guards/role.guard';
+// import { GraphQLModule } from '@nestjs/graphql';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
@@ -26,8 +33,16 @@ import * as Joi from '@hapi/joi';
         JWT_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
+    CustomerServersModule,
   ],
+
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
+  ],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Customer } from './customer.entity';
-import { Repository } from 'typeorm';
+import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { getDefaultSettings } from 'http2';

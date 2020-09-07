@@ -8,7 +8,7 @@ export class Server {
   @Column()
   Name: string;
 
-  @Column({length: 15})
+  @Column({ length: 15 })
   IpAddress: string;
 
   @Column()
