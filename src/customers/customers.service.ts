@@ -13,7 +13,9 @@ export class CustomersService {
   ) {}
 
   async findAll(): Promise<Customer[]> {
-    return await this.customersRepository.find();
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerGetCustomerList]`,
+    );
   }
 
   async findOne(key: object): Promise<Customer> {
