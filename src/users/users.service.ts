@@ -1,11 +1,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+
 import { Repository, getConnection } from 'typeorm';
 
 import { User } from './user.entity';
 import { AccountsService } from './accounts/accounts.service';
 import { Account } from './accounts/account.entity';
+
 
 // export type User = any;
 
@@ -52,6 +54,8 @@ export class UsersService {
   //     HttpStatus.NOT_FOUND,
   //   );
   // }
+
+
   async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
     if (user && !user.IsDeleted && user.IsActive) {
@@ -61,8 +65,10 @@ export class UsersService {
       'User with this id does not exist',
       HttpStatus.NOT_FOUND,
     );
+
   }
   async findAll(): Promise<User[]> {
     return await this.usersRepository.find();
+
   }
 }

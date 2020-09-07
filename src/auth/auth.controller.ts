@@ -5,9 +5,10 @@ import {
   Request,
   UseGuards,
   UseFilters,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { HttpExceptionFilter } from './../filters/http-exception.filter';
 
