@@ -19,12 +19,10 @@ export class UsersService {
   ) {}
 
   async findOne(username: string): Promise<User> {
-    console.log('user service find one by username');
     return await this.usersRepository.findOne({ Email: username });
   }
 
   async getRoleById(id: string) {
-    console.log('user service find one by id');
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
@@ -39,14 +37,14 @@ export class UsersService {
     );
   }
   async getInfoById(id: string) {
-    console.log('user service find one by id');
-    const userRoleId = await getConnection().manager.query(
+    console.log('UsersService -> getInfoById -> getInfoById(');
+    const userInfo = await getConnection().manager.query(
       `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
     );
-    console.log(userRoleId);
 
-    if (userRoleId) {
-      return userRoleId;
+    if (userInfo) {
+      console.log('UsersService -> getInfoById -> userInfo)', userInfo);
+      return userInfo;
     }
     throw new HttpException(
       'User with this id does not exist',
