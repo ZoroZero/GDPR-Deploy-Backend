@@ -39,9 +39,17 @@ export class AuthService {
     console.log();
     const role = await this.usersService.getRoleById(String(user.UserId));
 
+    const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
       access_token: this.jwtService.sign(payload),
-      role: role[0].Name,
+
+      role: Info[0].RoleName,
+      firstName: Info[0].FirstName,
+      lastName: Info[0].LastName,
+      email: Info[0].Email,
+      pic: Info[0].PicName,
+      ext: Info[0].Extension,
+      path: Info[0].Path,
     };
   }
 }

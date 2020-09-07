@@ -3,9 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from '../constants';
 import { AuthService } from '../auth.service';
+import { request } from 'http';
+import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -17,21 +22,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const accountUpdatedDate = await this.authService.validateUserById(
       payload.id,
     );
-<<<<<<< HEAD
-    console.log(
-      'jwt strategy validate => account updated date',
-      accountUpdatedDate,
-    );
+
     if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
-      return { UserId: payload.id };
+      const role = await this.userService.getRoleById(payload.id);
+      console.log('Role by JWT stat ', role);
+      return { UserId: payload.id, role: String(role) };
     } else {
-      console.log('payload');
-      console.log(payload);
-=======
-    if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
-      return { UserId: payload.id };
-    } else {
->>>>>>> bcb2900828bb39fd26c0b9e78274c5ee9a020f50
       throw new UnauthorizedException();
     }
   }
