@@ -29,11 +29,16 @@ export class AuthService {
   }
   async login(user: any) {
     // console.log(user);
-    const payload = { id: user.UserId, createdDate: new Date() };
+    const payload = {
+      id: user.UserId,
+      createdDate: new Date(),
+    };
     // console.log(payload);
-
+    console.log();
+    const role = await this.usersService.getRoleById(String(user.UserId));
     return {
       access_token: this.jwtService.sign(payload),
+      role: role[0].Name,
     };
   }
 }
