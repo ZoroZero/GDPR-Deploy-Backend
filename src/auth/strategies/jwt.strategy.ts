@@ -3,10 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from '../constants';
 import { AuthService } from '../auth.service';
-import { request } from 'express';
+import { request } from 'http';
+import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -19,13 +23,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       payload.id,
     );
 
-    
     if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
-
-      return { UserId: payload.id };
+      const role = await this.userService.getRoleById(payload.id);
+      // console.log('Role by JWT stat ', role);
+      return { UserId: payload.id, role: String(role) };
     } else {
-      console.log('payload');
-      console.log(payload);
+      // console.log('payload');
+      // console.log(payload);
       throw new UnauthorizedException();
     }
   }

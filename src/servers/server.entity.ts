@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToOne,
+} from 'typeorm';
+import { Customer } from 'src/customers/customer.entity';
+import { CustomerServer } from 'src/customer-servers/customer-server.entity';
 
 @Entity('Server')
 export class Server {
@@ -8,7 +16,7 @@ export class Server {
   @Column()
   Name: string;
 
-  @Column({length: 15})
+  @Column({ length: 15 })
   IpAddress: string;
 
   @Column()
@@ -22,4 +30,9 @@ export class Server {
 
   @Column({ default: true })
   IsActive: boolean;
+  @OneToOne(
+    type => CustomerServer,
+    CustomerServer => CustomerServer.Server,
+  )
+  CustomerServer: CustomerServer;
 }

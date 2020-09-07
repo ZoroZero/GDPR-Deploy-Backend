@@ -9,7 +9,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggingModule } from 'src/logger/logging.module';
+import { LoggingModule } from '../logger/logging.module';
 @Module({
   imports: [
     UsersModule,
@@ -20,16 +20,12 @@ import { LoggingModule } from 'src/logger/logging.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),      
+        secret: configService.get('JWT_SECRET'),
         signOptions: {
           expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
         },
-      })
-    })
-    // JwtModule.register({
-    //   secret: jwtConstants.secret,
-    //   signOptions: { expiresIn: '60000s' },
-    // }),
+      }),
+    }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
