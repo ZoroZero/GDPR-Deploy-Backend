@@ -38,13 +38,13 @@ export class UsersService {
   }
   async getInfoById(id: string) {
     console.log('user service find one by id');
-    const userRoleId = await getConnection().manager.query(
+    const userInfo = await getConnection().manager.query(
       `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
     );
-    console.log(userRoleId);
+    console.log(userInfo);
 
-    if (userRoleId) {
-      return userRoleId;
+    if (userInfo) {
+      return userInfo;
     }
     throw new HttpException(
       'User with this id does not exist',
@@ -75,8 +75,36 @@ export class UsersService {
     Role: String,
     IsActive: Boolean,
   ) {
+    var qPageNo;
+    var qPageSize;
+    var qSearchKey;
+    var qSortBy;
+    var qSortOrder;
+    var qRole;
+    var qIsActive;
+    if (PageNo === undefined) qPageNo = '@PageNumber = null,';
+    else qPageNo = '@PageNumber =' + Number(PageNo) + ',';
+    if (PageSize === undefined) qPageSize = '@PageSize =null,';
+    else qPageSize = '@PageSize =' + Number(PageSize) + ',';
+    if (SearchKey === undefined) qSearchKey = '@SearchKey =null,';
+    else qSearchKey = "@SearchKey ='" + SearchKey + "',";
+    if (SortBy === undefined) qSortBy = '@SortBy =null,';
+    else qSortBy = "@SortBy ='" + SortBy + "',";
+    if (SortOrder === undefined) qSortOrder = '@SortOrder =null,';
+    else qSortOrder = '@SortOrder =' + SortOrder + ',';
+    if (Role === undefined) qRole = '@Role =null,';
+    else qRole = "@Role ='" + Role + "',";
+    if (IsActive === undefined) qIsActive = '@IsActive = null';
+    else qIsActive = '@IsActive =' + IsActive + '';
     const userList = await getConnection().manager.query(
-      `EXECUTE [dbo].[GetListUser] @PageNumber ='${PageNo}', @PageSize='${PageSize}', @SearchKey='${SearchKey}', @SortBy=null, @SortOrder='${SortOrder}', @Role=null, @IsActive=null `,
+      `EXECUTE [dbo].[GetListUser]` +
+        qPageNo +
+        qPageSize +
+        qSearchKey +
+        qSortBy +
+        qSortOrder +
+        qRole +
+        qIsActive,
     );
     return userList;
   }

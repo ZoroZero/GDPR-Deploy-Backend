@@ -36,8 +36,6 @@ export class AuthService {
       createdDate: new Date(),
     };
     // console.log(payload);
-    console.log();
-    const role = await this.usersService.getRoleById(String(user.UserId));
 
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
