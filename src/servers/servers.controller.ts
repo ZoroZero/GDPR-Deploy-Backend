@@ -24,7 +24,7 @@ export class UsersController {
     //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
     get(@Query() params) {
         //console.log(current);
-        return this.service.getServerByPage(parseInt(params.current), parseInt(params.pageSize));
+        return this.service.getServerByPage(params);
     }
 
     @Post('')

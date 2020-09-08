@@ -16,8 +16,12 @@ export class ServersService {
     return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
   }
 
-  async getServerByPage(current: number, pageSize: number){
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${current}, @PageSize=${pageSize}`);
+  async getServerByPage(params){
+    if(!parseInt(params.current) || ! parseInt(params.pageSize)){
+      throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
+    }
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.current}, @PageSize=${params.pageSize}, 
+                                              @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
   }
 
   async addNewServer(_server: CreateServerDto) {
