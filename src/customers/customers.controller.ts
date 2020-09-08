@@ -12,20 +12,26 @@ import {
   ParseUUIDPipe,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 @Controller('customers')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class CustomersController {
   constructor(private customersService: CustomersService) {}
-  @Get()
-  async findAll(): Promise<Customer[]> {
+  @Get('')
+  async findAll(@Query() query): Promise<Customer[]> {
+    console.log(query);
     //=> okkk
     console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
-    return await this.customersService.findAll();
+    return await this.customersService.findAll(
+      parseInt(query.pageSize),
+      parseInt(query.pageNumber),
+      query.sortColumn,
+    );
   }
   @Post()
   async create(
