@@ -35,7 +35,7 @@ export class UsersService {
       return userRoleId[0].Name;
     }
     throw new HttpException(
-      'User with this id does not exist',
+      'role-----User with this id does not exist',
       HttpStatus.NOT_FOUND,
     );
   }
@@ -50,17 +50,18 @@ export class UsersService {
       return userRoleId;
     }
     throw new HttpException(
-      'User with this id does not exist',
+      'info----User with this id does not exist',
       HttpStatus.NOT_FOUND,
     );
   }
 
   async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
+    // console.log(user)
     if (user && !user.IsDeleted && user.IsActive) {
       return user;
     }
-    throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND)
+    throw new HttpException('ID------User with this id does not exist', HttpStatus.NOT_FOUND)
   }
   async findAll(): Promise<User[]> {
     return await this.usersRepository.find();

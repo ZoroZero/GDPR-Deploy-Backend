@@ -36,6 +36,6 @@ export class UsersController {
     @Post('')
     post(@User() user, @Body() body: CreateServerDto){
         console.log("User:", user);
-        // return this.service.addNewServer(body, '')
+        return this.service.addNewServer(body, user.UserId)
     }
 }

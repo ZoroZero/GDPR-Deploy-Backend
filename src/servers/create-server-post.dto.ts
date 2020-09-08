@@ -11,7 +11,4 @@ export class CreateServerDto{
 
     // @IsDate()
     endDate: Date; 
-
-    // @IsUUID()
-    createdBy: string;
 }

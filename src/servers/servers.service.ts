@@ -12,8 +12,7 @@ import { Request } from 'express';
 export class ServersService {
 
   constructor(
-    @InjectRepository(Server) private serversRepository: Repository<Server>,
-    @Inject(REQUEST) private readonly request: Request
+    @InjectRepository(Server) private serversRepository: Repository<Server>
   ) {}
 
   async listAllServer(): Promise<Server[]> {
@@ -35,7 +34,7 @@ export class ServersService {
       @ServerIp= '${_server.ipAddress}',  
       @StartDate= '${_server.startDate}', 
       @EndDate= '${_server.endDate}', 
-      @CreatedBy= '${this.request.user}', 
+      @CreatedBy= '${_userId}', 
       @CreatedDate= '2020-08-20'`)
   }
 }
