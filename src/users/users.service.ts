@@ -66,6 +66,29 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
+  async insertUser(
+    Email: String,
+    PassWord: String,
+    UserName: String,
+    Role: String,
+    FirstName: String,
+    LastName: String,
+    CreatedBy: String,
+  ) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
+    else qCreatedBy = ',@CreateBy =' + CreatedBy;
+    const insertResult = await getConnection().manager.query(
+      `EXECUTE [dbo].[insertUser]   
+      @Role ='${Role}'
+      ,@UserName='${UserName}'
+      ,@PassWord='${PassWord}'
+      ,@FirstName='${FirstName}'
+      ,@LastName='${LastName}'
+      ,@Email='${Email}' ` + qCreatedBy,
+    );
+  }
+
   async getListUser(
     PageNo: number,
     PageSize: number,

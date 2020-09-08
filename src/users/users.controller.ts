@@ -36,8 +36,8 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // @SetMetadata('roles', ['admin', 'contact-point'])
-  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @SetMetadata('roles', ['admin', 'contact-point'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/list')
   getListUser(@Query() req) {
     console.log(req);
@@ -52,10 +52,26 @@ export class UsersController {
     );
   }
 
-  // @SetMetadata('roles', ['admin', 'contact-point'])
-  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @SetMetadata('roles', ['admin', 'contact-point'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete('/:UserId')
   deleteUser(@Param('UserId') UserId: string) {
     return this.usersService.deleteUser(UserId, null);
+  }
+
+  @SetMetadata('roles', ['admin', 'contact-point'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Post('')
+  insertUser(@Query() req) {
+    console.log(req);
+    return this.usersService.insertUser(
+      req.email,
+      req.password,
+      req.username,
+      'admin',
+      req.firstname,
+      req.lastname,
+      req.createdby,
+    );
   }
 }
