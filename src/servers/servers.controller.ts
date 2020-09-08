@@ -26,4 +26,9 @@ export class UsersController {
         //console.log(current);
         return this.service.getServerByPage(parseInt(params.current), parseInt(params.pageSize));
     }
+
+    @Post('')
+    post(@Body() body: CreateServerDto){
+        return this.service.addNewServer(body)
+    }
 }

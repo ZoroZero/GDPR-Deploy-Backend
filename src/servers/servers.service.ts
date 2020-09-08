@@ -22,6 +22,12 @@ export class ServersService {
 
   async addNewServer(_server: CreateServerDto) {
     // return await this.serversRepository.save(_server);
-    return this.serversRepository.query(`EXECUTE `)
+    return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
+      @ServerName='${_server.serverName}',  
+      @ServerIp= '${_server.ipAddress}',  
+      @StartDate= '${_server.startDate}', 
+      @EndDate= '${_server.endDate}', 
+      @CreatedBy= '${_server.createdBy}', 
+      @CreatedDate= '2020-08-20'`)
   }
 }

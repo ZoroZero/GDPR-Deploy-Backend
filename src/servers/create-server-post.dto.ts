@@ -6,10 +6,10 @@ export class CreateServerDto{
     @IsIP(4)
     ipAddress: string;
 
-    @IsDate()
+    // @IsDate()
     startDate: Date;
 
-    @IsDate()
+    // @IsDate()
     endDate: Date; 
 
     @IsUUID()
