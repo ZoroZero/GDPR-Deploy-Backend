@@ -59,11 +59,11 @@ export class UsersController {
     return this.usersService.deleteUser(UserId, null);
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
-  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-  @Post('')
-  insertUser(@Query() req) {
-    console.log(req);
+  // @SetMetadata('roles', ['admin', 'contact-point'])
+  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Post('/insert')
+  insertUser(@Body() req) {
+    console.log("BugReq",req);
     return this.usersService.insertUser(
       req.email,
       req.password,
