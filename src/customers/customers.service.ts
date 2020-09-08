@@ -12,11 +12,10 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
-  async findAll(): Promise<any> {
-    const res = await createQueryBuilder('Customer')
-      .leftJoinAndSelect('Customer.CustomerServers', 'CustomerServers')
-      .getMany();
-    return res;
+  async findAll(): Promise<Customer[]> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerGetCustomerList]`,
+    );
   }
 
   async findOne(key: object): Promise<Customer> {
