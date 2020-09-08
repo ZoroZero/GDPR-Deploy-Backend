@@ -9,7 +9,7 @@ import { UsersService } from './users.service';
 function getRole(context: ExecutionContext) {
   const ctxToken = context.switchToHttp().getRequest().rawHeaders[1];
   const payload = jwtDecode(ctxToken);
-  console.log(payload.id);
+  // console.log(payload.id);
   // var ctxTokenSplit = ctxToken.split(' ');
   // var decoded = ctxTokenSplit.ExtractJwt;
   // console.log(decoded);
@@ -17,7 +17,7 @@ function getRole(context: ExecutionContext) {
   //   const abc = context.getArgs();
   //   const ctx = GqlExecutionContext.create(context);
   //   console.log('session');
-  console.log(ctxToken);
+  // console.log(ctxToken);
   if (!payload.id) {
     return;
   }

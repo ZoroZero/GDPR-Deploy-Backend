@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { Request } from './request.entity';
+import { request } from 'http';
 
 @Injectable()
 export class RequestsService {
@@ -9,16 +10,33 @@ export class RequestsService {
     @InjectRepository(Request) private RequestRepository: Repository<Request>,
   ) {}
 
-  async findAll({ UserId, role }): Promise<any> {
+  async findAll({
+    UserId,
+    role,
+    PageSize,
+    PageNumber,
+    SortBy,
+    SortOrder,
+    SearchKey,
+  }): Promise<any> {
     let requests = null;
-    if (role === 'admin' || role === 'dc-member')
+    if (role === 'admin' || role === 'dc-member') {
       requests = await getConnection().manager.query(
-        'EXEC [dbo].[RequestgetListRequests]',
+        `EXEC [dbo].[RequestgetListRequests] @PageSize=${PageSize}, @SortOrder=${SortOrder}, @SortBy='${SortBy}', @PageNumber=${PageNumber}, @SearchKey='${SearchKey}'`,
       );
-    else
+    } else
       requests = await getConnection().manager.query(
-        `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}' `,
+        `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}', @PageSize=${PageSize}, @SortOrder='${SortOrder}', @SortBy='${SortBy}', @PageNumber=${PageNumber}`,
       );
-    return requests;
+    const response = {
+      data: requests,
+      TotalPage: 1,
+      CurrentPage: 1,
+    };
+    if (requests && requests.length > 0) {
+      response.TotalPage = Math.ceil(requests[0].Total / PageSize);
+      response.CurrentPage = PageNumber;
+    }
+    return response;
   }
 }

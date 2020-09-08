@@ -19,16 +19,16 @@ export class UsersService {
   ) {}
 
   async findOne(username: string): Promise<User> {
-    console.log('user service find one by username');
+    // console.log('user service find one by username');
     return await this.usersRepository.findOne({ Email: username });
   }
 
   async getRoleById(id: string) {
-    console.log('user service find one by id');
+    // console.log('user service find one by id');
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
-    console.log(userRoleId);
+    // console.log(userRoleId);
 
     if (userRoleId) {
       return userRoleId[0].Name;
@@ -39,11 +39,11 @@ export class UsersService {
     );
   }
   async getInfoById(id: string) {
-    console.log('user service find one by id');
+    // console.log('user service find one by id');
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
     );
-    console.log(userRoleId);
+    // console.log(userRoleId);
 
     if (userRoleId) {
       return userRoleId;

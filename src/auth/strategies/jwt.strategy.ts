@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
       const role = await this.userService.getRoleById(payload.id);
-      console.log('Role by JWT stat ', role);
+      // console.log('Role by JWT stat ', role);
       return { UserId: payload.id, role: String(role) };
     } else {
       throw new UnauthorizedException();

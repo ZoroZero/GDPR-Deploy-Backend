@@ -24,7 +24,7 @@ export class CustomersController {
   @Get()
   async findAll(): Promise<Customer[]> {
     //=> okkk
-    console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
+    // console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
     return await this.customersService.findAll();
   }
   @Post()
@@ -32,7 +32,7 @@ export class CustomersController {
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
-    console.log(req.user);
+    // console.log(req.user);
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
@@ -47,7 +47,7 @@ export class CustomersController {
       updateCustomerDto,
       req.user.UserId,
     );
-    console.log('RETURN FROM UPDATE', res);
+    // console.log('RETURN FROM UPDATE', res);
     if (res) {
       return res;
     } else {
