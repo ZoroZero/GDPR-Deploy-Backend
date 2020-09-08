@@ -29,7 +29,7 @@ export class UsersService {
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
-    // console.log(userRoleId);
+    // console.log("Role id", userRoleId);
 
     if (userRoleId) {
       return userRoleId[0].Name;
