@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { Request } from './request.entity';
 import { request } from 'http';
+import { ServersService } from 'src/servers/servers.service';
+import { CreateRequestDto } from './Dto/create-request.dto';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @InjectRepository(Request) private RequestRepository: Repository<Request>,
+    @Inject('ServerService') private serverService: ServersService,
   ) {}
 
   async findAll({
@@ -40,4 +43,6 @@ export class RequestsService {
     }
     return response;
   }
+
+  async createNewRequest(data: CreateRequestDto): Promise<any> {}
 }

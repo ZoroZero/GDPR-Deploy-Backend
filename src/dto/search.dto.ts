@@ -1,20 +1,17 @@
-import {
-  IsNumber,
-  IsNotEmpty,
-  IsDefined,
-  IsInt,
-  ValidateIf,
-} from 'class-validator';
+import { ValidateIf, IsNotEmpty, IsDefined } from 'class-validator';
 
 export class SearchDataDto {
-  @ValidateIf(o => (parseInt(o) ? true : false))
-  pageNumber: number;
-  @ValidateIf(o => (parseInt(o) ? true : false))
-  pageSize: number;
+  @ValidateIf(o => !parseInt(o))
+  pageNumber: string;
+
+  @ValidateIf(o => !parseInt(o))
+  pageSize: string;
 
   sortOrder: string;
+
   @IsDefined()
   sortColumn: string;
+
   @IsDefined()
   keyword: string;
 }
