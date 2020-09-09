@@ -1,18 +1,21 @@
-import {IsNumber, IsNotEmpty} from 'class-validator'
+import {
+  IsNumber,
+  IsNotEmpty,
+  IsDefined,
+  IsInt,
+  ValidateIf,
+} from 'class-validator';
+import { ParseIntPipe } from '@nestjs/common';
 
 export class SearchDataDto {
-    @IsNumber()
-    pageNumber: number
+  @ValidateIf(o => (parseInt(o) ? true : false))
+  pageNumber: number;
+  @ValidateIf(o => (parseInt(o) ? true : false))
+  pageSize: number;
 
-    @IsNumber()
-    pageSize: number
-
-    
-    sortOrder: string
-
-    @IsNotEmpty()
-    sortColumn: string
-
-    @IsNotEmpty()
-    keyword: string
-  }
+  sortOrder: string;
+  @IsDefined()
+  sortColumn: string;
+  @IsDefined()
+  keyword: string;
+}

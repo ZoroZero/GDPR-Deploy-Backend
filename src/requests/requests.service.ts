@@ -13,30 +13,33 @@ export class RequestsService {
   async findAll({
     UserId,
     role,
-    PageSize,
-    PageNumber,
-    SortBy,
-    SortOrder,
-    SearchKey,
+    pageSize,
+    pageNumber,
+    sortColumn,
+    sortOrder,
+    keyword,
   }): Promise<any> {
+    console.log(typeof pageNumber);
     let requests = null;
     if (role === 'admin' || role === 'dc-member') {
       requests = await getConnection().manager.query(
-        `EXEC [dbo].[RequestgetListRequests] @PageSize=${PageSize}, @SortOrder=${SortOrder}, @SortBy='${SortBy}', @PageNumber=${PageNumber}, @SearchKey='${SearchKey}'`,
+        `EXEC [dbo].[RequestgetListRequests] @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
       );
     } else
       requests = await getConnection().manager.query(
-        `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}', @PageSize=${PageSize}, @SortOrder='${SortOrder}', @SortBy='${SortBy}', @PageNumber=${PageNumber}`,
+        `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}', @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
       );
     const response = {
       data: requests,
       TotalPage: 1,
       CurrentPage: 1,
     };
+
     if (requests && requests.length > 0) {
-      response.TotalPage = Math.ceil(requests[0].Total / PageSize);
-      response.CurrentPage = PageNumber;
+      response.TotalPage = Math.ceil(requests[0].Total / Number(pageSize));
+      response.CurrentPage = Number(pageNumber);
     }
+    console.log(response.TotalPage);
     return response;
   }
 }
