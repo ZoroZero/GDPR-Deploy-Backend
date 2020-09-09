@@ -21,6 +21,8 @@ export class AuthService {
     }
     return null;
   }
+
+
   async validateUserById(userId: string): Promise<any> {
     const user = await this.usersService.getById(userId);
 
@@ -29,6 +31,8 @@ export class AuthService {
     // console.log('validate user by id, after find accout from user.id', account);
     return account.UpdatedDate;
   }
+
+
   async login(user: any) {
     // console.log(user);
     const payload = {

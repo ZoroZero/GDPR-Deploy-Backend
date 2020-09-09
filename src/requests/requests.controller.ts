@@ -11,11 +11,11 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequestsService } from './requests.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('/api/requests')
 export class RequestsController {
   constructor(private requestService: RequestsService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('')
   getAllRequest(
     @Request() req,

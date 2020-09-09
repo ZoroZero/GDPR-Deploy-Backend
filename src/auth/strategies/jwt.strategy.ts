@@ -5,6 +5,9 @@ import { jwtConstants } from '../constants';
 import { AuthService } from '../auth.service';
 import { request } from 'http';
 import { UsersService } from 'src/users/users.service';
+
+
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -28,6 +31,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // console.log('Role by JWT stat ', role);
       return { UserId: payload.id, role: String(role) };
     } else {
+      // console.log('payload');
+      // console.log(payload);
       throw new UnauthorizedException();
     }
   }

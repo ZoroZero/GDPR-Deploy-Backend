@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToOne,
-} from 'typeorm';
-import { Customer } from 'src/customers/customer.entity';
-import { CustomerServer } from 'src/customer-servers/customer-server.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('Server')
 export class Server {
@@ -30,9 +22,4 @@ export class Server {
 
   @Column({ default: true })
   IsActive: boolean;
-  @OneToOne(
-    type => CustomerServer,
-    CustomerServer => CustomerServer.Server,
-  )
-  CustomerServer: CustomerServer;
 }

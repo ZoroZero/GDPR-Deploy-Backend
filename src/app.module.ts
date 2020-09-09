@@ -10,7 +10,6 @@ import { CustomersModule } from './customers/customers.module';
 
 import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
-import { CustomerServersModule } from './customer-servers/customer-servers.module';
 import * as Joi from '@hapi/joi';
 
 import { APP_GUARD } from '@nestjs/core';
@@ -34,7 +33,6 @@ import { RequestsModule } from './requests/requests.module';
         JWT_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
-    CustomerServersModule,
     RequestsModule,
   ],
 
