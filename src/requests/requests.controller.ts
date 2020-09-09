@@ -19,6 +19,7 @@ export class RequestsController {
 
   @Get('')
   getAllRequest(@Query() searchQueryDto: SearchDataDto, @Request() req) {
+    console.log(req.user);
     return this.requestService.findAll({
       ...req.user,
       ...searchQueryDto,

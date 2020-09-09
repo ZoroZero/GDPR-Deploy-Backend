@@ -19,7 +19,6 @@ export class RequestsService {
     sortOrder,
     keyword,
   }): Promise<any> {
-    console.log(typeof pageNumber);
     let requests = null;
     if (role === 'admin' || role === 'dc-member') {
       requests = await getConnection().manager.query(
@@ -39,7 +38,6 @@ export class RequestsService {
       response.TotalPage = Math.ceil(requests[0].Total / Number(pageSize));
       response.CurrentPage = Number(pageNumber);
     }
-    console.log(response.TotalPage);
     return response;
   }
 }

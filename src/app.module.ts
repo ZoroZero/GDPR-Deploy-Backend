@@ -11,10 +11,6 @@ import { CustomersModule } from './customers/customers.module';
 import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
-
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/guards/role.guard';
-// import { GraphQLModule } from '@nestjs/graphql';
 import { RequestsModule } from './requests/requests.module';
 
 @Module({
@@ -37,12 +33,6 @@ import { RequestsModule } from './requests/requests.module';
   ],
 
   controllers: [AppController],
-  providers: [
-    AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

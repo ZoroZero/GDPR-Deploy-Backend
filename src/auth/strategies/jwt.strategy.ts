@@ -5,8 +5,7 @@ import { jwtConstants } from '../constants';
 import { AuthService } from '../auth.service';
 import { request } from 'http';
 import { UsersService } from 'src/users/users.service';
-
-
+import { date } from '@hapi/joi';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -25,14 +24,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const accountUpdatedDate = await this.authService.validateUserById(
       payload.id,
     );
-
-    if (!accountUpdatedDate || payload.createdDate > accountUpdatedDate) {
+    if (new Date(payload.createdDate) > accountUpdatedDate) {
       const role = await this.userService.getRoleById(payload.id);
-      // console.log('Role by JWT stat ', role);
       return { UserId: payload.id, role: String(role) };
     } else {
-      // console.log('payload');
-      // console.log(payload);
       throw new UnauthorizedException();
     }
   }

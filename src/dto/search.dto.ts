@@ -5,7 +5,6 @@ import {
   IsInt,
   ValidateIf,
 } from 'class-validator';
-import { ParseIntPipe } from '@nestjs/common';
 
 export class SearchDataDto {
   @ValidateIf(o => (parseInt(o) ? true : false))

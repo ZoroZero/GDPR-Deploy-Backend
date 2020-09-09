@@ -12,6 +12,7 @@ import {
   ParseUUIDPipe,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
@@ -22,18 +23,22 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 @UseGuards(JwtAuthGuard)
 export class CustomersController {
   constructor(private customersService: CustomersService) {}
-  @Get()
-  async findAll(): Promise<Customer[]> {
-    //=> okkk
-    // console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
-    return await this.customersService.findAll();
+  @Get('')
+  async findAll(@Query() query): Promise<Customer[]> {
+    console.log(query);
+    return await this.customersService.findAll(
+      query.pageSize,
+      query.current,
+      query.sortColumn,
+      query.sortOrder,
+      query.keyword,
+    );
   }
   @Post()
   async create(
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
-    // console.log(req.user);
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
