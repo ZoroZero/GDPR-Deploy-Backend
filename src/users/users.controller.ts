@@ -63,12 +63,12 @@ export class UsersController {
   // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/insert')
   insertUser(@Body() req) {
-    console.log("BugReq",req);
+    console.log('BugReq', req);
     return this.usersService.insertUser(
       req.email,
       req.password,
       req.username,
-      'admin',
+      req.role[0],
       req.firstname,
       req.lastname,
       req.createdby,
