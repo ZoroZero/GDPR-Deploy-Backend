@@ -178,4 +178,10 @@ export class UsersService {
     else
       throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
   }
+
+  async getContactPointList() {
+    return await getConnection().manager.query(
+      `EXECUTE [dbo].[GetListContactPoint] `,
+    );
+  }
 }
