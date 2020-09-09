@@ -3,10 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
 import { CreateServerDto } from './create-server-post.dto';
-// export type User = any;
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-
+import { SearchDataDto } from '../dto/search.dto';
 
 @Injectable()
 export class ServersService {
@@ -19,11 +16,8 @@ export class ServersService {
     return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
   }
 
-  async getServerByPage(params){
-    if(!parseInt(params.current) || ! parseInt(params.pageSize)){
-      throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
-    }
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.current}, @PageSize=${params.pageSize}, 
+  async getServerByPage(params: SearchDataDto){
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
                                               @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
   }
 
