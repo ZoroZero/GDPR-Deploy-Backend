@@ -76,7 +76,7 @@ export class UsersService {
   ) {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
-    else qCreatedBy = ',@CreateBy =' + CreatedBy;
+    else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
     const insertResult = await getConnection().manager.query(
       `EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
@@ -97,10 +97,14 @@ export class UsersService {
     FirstName: String,
     LastName: String,
     CreatedBy: String,
+    IsActive: Boolean,
   ) {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
-    else qCreatedBy = ',@UpdatedBy =' + CreatedBy;
+    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    var qIsActive;
+    if (IsActive === undefined) qIsActive = ',@IsActive = null';
+    else qIsActive = ',@IsActive =' + IsActive;
     const insertResult = await getConnection().manager.query(
       `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
@@ -109,7 +113,9 @@ export class UsersService {
       ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
-      ,@Email='${Email}' ` + qCreatedBy,
+      ,@Email='${Email}'` +
+        String(qCreatedBy) +
+        qIsActive,
     );
   }
 
@@ -139,8 +145,8 @@ export class UsersService {
     else qSortBy = "@SortBy ='" + SortBy + "',";
     if (SortOrder === undefined) qSortOrder = '@SortOrder =null,';
     else qSortOrder = '@SortOrder =' + SortOrder + ',';
-    if (Role === undefined) qRole = '@Role =null,';
-    else qRole = "@Role ='" + Role + "',";
+    if (Role === undefined) qRole = "@RoleList ='',";
+    else qRole = "@RoleList ='" + Role + "',";
     if (IsActive === undefined) qIsActive = '@IsActive = null';
     else qIsActive = '@IsActive =' + IsActive + '';
     const userList = await getConnection().manager.query(
@@ -157,8 +163,11 @@ export class UsersService {
   }
 
   async deleteUser(UserId: string, DeletedBy: string) {
+    var qDeletedBy;
+    if (DeletedBy === undefined) qDeletedBy = ',@DeletedBy = null';
+    else qDeletedBy = ",@DeletedBy ='" + DeletedBy + "'";
     const deleteResult = await getConnection().manager.query(
-      `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' `,
+      `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
     );
     // if (deleteResult) throw new HttpException("Delete Successfully!",HttpStatus.OK)
     // else throw new HttpException("Error: Cannot delete!", HttpStatus.BAD_REQUEST);

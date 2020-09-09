@@ -56,14 +56,15 @@ export class UsersController {
   @SetMetadata('roles', ['admin', 'contact-point'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete('/:UserId')
-  deleteUser(@Param('UserId') UserId: string) {
-    return this.usersService.deleteUser(UserId, null);
+  deleteUser(@Request() req1, @Param('UserId') UserId: string) {
+    return this.usersService.deleteUser(UserId, req1.user.UserId);
   }
 
   @SetMetadata('roles', ['admin', 'contact-point'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/insert')
-  insertUser(@Body() req) {
+  insertUser(@Request() req1, @Body() req) {
+    console.log(req.user);
     console.log('BugReq', req);
     return this.usersService.insertUser(
       req.email,
@@ -72,15 +73,16 @@ export class UsersController {
       req.role[0],
       req.firstname,
       req.lastname,
-      req.createdby,
+      req1.user.UserId,
     );
   }
 
   @SetMetadata('roles', ['admin', 'contact-point'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
-  update(@Param('id') userId: String, @Body() req) {
-    console.log('BugReq', req);
+  update(@Request() req1, @Param('id') userId: String, @Body() req) {
+    console.log('user', req1.user);
+    console.log('BugReq', req.IsActive);
     return this.usersService.updateUser(
       userId,
       req.email,
@@ -89,7 +91,8 @@ export class UsersController {
       req.role[0],
       req.firstname,
       req.lastname,
-      req.updatedby,
+      req1.user.UserId,
+      req.IsActive,
     );
   }
 }
