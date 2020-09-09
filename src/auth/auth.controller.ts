@@ -22,7 +22,6 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @Post('login')
   async login(@Request() req) {
-    // console.log('IN AUTH CONTROLLER AFTER GUARD SUCCESS', req.user);
     return this.authService.login(req.user);
   }
 

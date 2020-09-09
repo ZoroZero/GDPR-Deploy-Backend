@@ -20,17 +20,14 @@ import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 
 @Controller('customers')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class CustomersController {
   constructor(private customersService: CustomersService) {}
   @Get('')
   async findAll(@Query() query): Promise<Customer[]> {
     console.log(query);
-    //=> okkk
-    console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
     return await this.customersService.findAll(
       query.pageSize,
-
       query.current,
       query.sortColumn,
       query.sortOrder,
@@ -42,7 +39,6 @@ export class CustomersController {
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
-    console.log(req.user);
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 

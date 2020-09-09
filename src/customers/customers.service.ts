@@ -16,10 +16,11 @@ export class CustomersService {
     pageNumber: number,
     sortColumn = '',
     sortOrder = '',
-    keyWord = 'null',
+    keyWord = '',
   ): Promise<Customer[]> {
+    console.log(keyWord);
     return await this.customersRepository.query(
-      `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord=${keyWord}`,
+      `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}'`,
     );
   }
 
