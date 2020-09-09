@@ -117,6 +117,10 @@ export class UsersService {
         String(qCreatedBy) +
         qIsActive,
     );
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
   }
 
   async getListUser(
@@ -169,7 +173,9 @@ export class UsersService {
     const deleteResult = await getConnection().manager.query(
       `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
     );
-    // if (deleteResult) throw new HttpException("Delete Successfully!",HttpStatus.OK)
-    // else throw new HttpException("Error: Cannot delete!", HttpStatus.BAD_REQUEST);
+    if (deleteResult)
+      throw new HttpException('Delete Successfully!', HttpStatus.OK);
+    else
+      throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
   }
 }
