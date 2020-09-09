@@ -18,8 +18,6 @@ export class CustomersService {
     sortOrder = '',
     keyWord = 'null',
   ): Promise<Customer[]> {
-    console.log(sortColumn);
-    console.log(keyWord);
     return await this.customersRepository.query(
       `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord=${keyWord}`,
     );

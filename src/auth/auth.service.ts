@@ -22,7 +22,6 @@ export class AuthService {
     return null;
   }
 
-
   async validateUserById(userId: string): Promise<any> {
     const user = await this.usersService.getById(userId);
 
@@ -32,18 +31,11 @@ export class AuthService {
     return account.UpdatedDate;
   }
 
-
   async login(user: any) {
     const payload = {
       id: user.UserId,
       createdDate: new Date(),
     };
-<<<<<<< HEAD
-=======
-    // console.log(payload);
-    // console.log();
-    const role = await this.usersService.getRoleById(String(user.UserId));
->>>>>>> develop
 
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
