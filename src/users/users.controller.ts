@@ -10,6 +10,7 @@ import {
   Param,
   Body,
   Query,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -72,6 +73,21 @@ export class UsersController {
       req.firstname,
       req.lastname,
       req.createdby,
+    );
+  }
+
+  @Put('/:id')
+  update(@Param('id') userId: String, @Body() req) {
+    console.log('BugReq', req);
+    return this.usersService.updateUser(
+      userId,
+      req.email,
+      req.password,
+      req.username,
+      req.role[0],
+      req.firstname,
+      req.lastname,
+      req.updatedby,
     );
   }
 }

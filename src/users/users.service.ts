@@ -89,6 +89,31 @@ export class UsersService {
     );
   }
 
+  async updateUser(
+    Id: String,
+    Email: String,
+    PassWord: String,
+    UserName: String,
+    Role: String,
+    FirstName: String,
+    LastName: String,
+    CreatedBy: String,
+  ) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ',@UpdatedBy =' + CreatedBy;
+    const insertResult = await getConnection().manager.query(
+      `EXECUTE [dbo].[updateUser]  
+      @UserId= '${Id}'
+      ,@Role ='${Role}'
+      ,@UserName='${UserName}'
+      ,@PassWord='${PassWord}'
+      ,@FirstName='${FirstName}'
+      ,@LastName='${LastName}'
+      ,@Email='${Email}' ` + qCreatedBy,
+    );
+  }
+
   async getListUser(
     PageNo: number,
     PageSize: number,
