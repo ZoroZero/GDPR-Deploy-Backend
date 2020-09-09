@@ -8,7 +8,7 @@ import { RolesGuard } from '../auth/guards/role.guard';
 import { Reflector } from '@nestjs/core';
 import { createParamDecorator } from '@nestjs/common';
 import { User } from 'src/auth/user.decorator';
-
+import { GetInterceptor } from '../interceptors/http-get.interceptor';
 // import { Request } from 'express';
 
 
@@ -28,6 +28,7 @@ export class UsersController {
 
     @Get('')
     //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
+    @UseInterceptors(GetInterceptor)
     get(@Query() params) {
         //console.log(current);
         return this.service.getServerByPage(params);
