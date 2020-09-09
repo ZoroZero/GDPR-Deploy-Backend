@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { createParamDecorator } from '@nestjs/common';
 import { User } from 'src/auth/user.decorator';
 import { GetInterceptor } from '../interceptors/http-get.interceptor';
+import { SearchDataDto } from 'src/dto/search.dto';
 // import { Request } from 'express';
 
 
@@ -19,19 +20,19 @@ export class UsersController {
 
     constructor(private service: ServersService) { }
 
-    @Get('/all')
-    @UseFilters(new HttpExceptionFilter())
-    getAll() {
-        return this.service.listAllServer();
-        // return this.service.getUsers();
-    }
+    // @Get('/all')
+    // @UseFilters(new HttpExceptionFilter())
+    // getAll() {
+    //     return this.service.listAllServer();
+    //     // return this.service.getUsers();
+    // }
 
     @Get('')
     //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
     @UseInterceptors(GetInterceptor)
-    get(@Query() params) {
+    get(@Query() query: SearchDataDto) {
         //console.log(current);
-        return this.service.getServerByPage(params);
+        return this.service.getServerByPage(query);
     }
 
     @Post('')
