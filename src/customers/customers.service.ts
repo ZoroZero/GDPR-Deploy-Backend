@@ -3,7 +3,6 @@ import { Customer } from './customer.entity';
 import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { getDefaultSettings } from 'http2';
 
 @Injectable()
 export class CustomersService {
@@ -12,11 +11,17 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
-  async findAll(): Promise<any> {
-    const res = await createQueryBuilder('Customer')
-      .leftJoinAndSelect('Customer.CustomerServers', 'CustomerServers')
-      .getMany();
-    return res;
+  async findAll(
+    pageSize: number,
+    pageNumber: number,
+    sortColumn = '',
+    sortOrder = '',
+    keyWord = '',
+  ): Promise<Customer[]> {
+    console.log(keyWord);
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}'`,
+    );
   }
 
   async findOne(key: object): Promise<Customer> {

@@ -1,26 +1,34 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, UseGuards, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
-
-import { AccountsService } from '../accounts/accounts.service';
-import { Account } from '../accounts/account.entity';
 import { CreateServerDto } from './create-server-post.dto';
-// export type User = any;
+import { SearchDataDto } from '../dto/search.dto';
 
 @Injectable()
 export class ServersService {
 
   constructor(
-    @InjectRepository(Server) private serversRepository: Repository<Server>,
+    @InjectRepository(Server) private serversRepository: Repository<Server>
   ) {}
 
   async listAllServer(): Promise<Server[]> {
-    return await this.serversRepository.find({ IsActive: true });
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
   }
 
-  async addNewServer(_server: CreateServerDto) {
+  async getServerByPage(params: SearchDataDto){
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+                                              @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
+  }
+
+  async addNewServer(_server: CreateServerDto, _userId: string) {
     // return await this.serversRepository.save(_server);
-    return this.serversRepository.query(`EXECUTE `)
+    return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
+      @ServerName='${_server.serverName}',  
+      @ServerIp= '${_server.ipAddress}',  
+      @StartDate= '${_server.startDate}', 
+      @EndDate= '${_server.endDate}', 
+      @CreatedBy= '${_userId}', 
+      @CreatedDate= '2020-08-20'`)
   }
 }

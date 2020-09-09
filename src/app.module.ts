@@ -10,12 +10,7 @@ import { CustomersModule } from './customers/customers.module';
 
 import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
-import { CustomerServersModule } from './customer-servers/customer-servers.module';
 import * as Joi from '@hapi/joi';
-
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/guards/role.guard';
-// import { GraphQLModule } from '@nestjs/graphql';
 
 @Module({
   imports: [
@@ -33,16 +28,9 @@ import { RolesGuard } from './auth/guards/role.guard';
         JWT_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
-    CustomerServersModule,
   ],
 
   controllers: [AppController],
-  providers: [
-    AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
