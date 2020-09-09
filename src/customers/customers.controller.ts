@@ -28,9 +28,12 @@ export class CustomersController {
     //=> okkk
     console.log('DA VAO CUSTOMER CONTROLLER- FINDALL');
     return await this.customersService.findAll(
-      parseInt(query.pageSize),
-      parseInt(query.pageNumber),
+      query.pageSize,
+
+      query.current,
       query.sortColumn,
+      query.sortOrder,
+      query.keyword,
     );
   }
   @Post()
