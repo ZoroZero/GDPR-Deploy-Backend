@@ -10,7 +10,7 @@ export class SearchDataDto {
 
     sortOrder: string
 
-    @IsNotEmpty()
+    @IsDefined()
     sortColumn: string
 
     @IsDefined()

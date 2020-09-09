@@ -38,7 +38,7 @@ export class ServersService {
       @ServerIp= '${_server.ipAddress}',  
       @StartDate= '${_server.startDate}', 
       @EndDate= '${_server.endDate}', 
-      @CreatedBy= '${_userId}', 
+      @CreatedBy= '${_userId}'
     `)
   }
 
@@ -52,5 +52,14 @@ export class ServersService {
       @UpdatedBy= '${_userId}',
       @IsActive= ${_server.IsActive}
     `)
+  }
+
+  async deleteServerWithId(_id: string, _userId: string){
+    return this.serversRepository.query(
+    `EXECUTE dbo.[ServerDeleteServer]
+    @ServerId = '${_id}'
+    ,@UpdatedBy = '${_userId}'
+    ,@DeletedBy = '${_userId}'
+  `)
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete,Param, ParseIntPipe,  UseFilters, UseInterceptors, UseGuards, Query, Req, Request} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete,Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './create-server-post.dto'
@@ -28,7 +28,7 @@ export class UsersController {
     // }
 
     @Get('')
-    //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
+    @UseFilters(new HttpExceptionFilter())
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
         //console.log(current);
@@ -36,7 +36,6 @@ export class UsersController {
     }
 
     @Get('active')
-    //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
     @UseInterceptors(GetInterceptor)
     getActive(){
         //console.log(current);
@@ -52,5 +51,10 @@ export class UsersController {
     @Put('')
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
+    }
+
+    @Delete('')
+    deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) uuid: string) {
+        return this.service.deleteServerWithId(uuid, user.UserId);
     }
 }
