@@ -12,10 +12,6 @@ import { ServersModule } from './servers/servers.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/guards/role.guard';
-// import { GraphQLModule } from '@nestjs/graphql';
-
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
@@ -35,12 +31,6 @@ import { RolesGuard } from './auth/guards/role.guard';
   ],
 
   controllers: [AppController],
-  providers: [
-    AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

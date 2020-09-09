@@ -17,9 +17,6 @@ export class Server {
   @Column()
   EndDate: Date;
 
-  @Column()
-  IsDeleted: boolean;
-
   @Column({ default: true })
   IsActive: boolean;
 }
