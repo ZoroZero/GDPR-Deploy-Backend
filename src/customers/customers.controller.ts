@@ -39,6 +39,8 @@ export class CustomersController {
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
+    console.log('request', req);
+    console.log('dto', createCustomerDto);
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 

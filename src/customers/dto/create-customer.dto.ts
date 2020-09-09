@@ -1,9 +1,10 @@
-import { IsUUID, isUUID } from 'class-validator';
+import { IsUUID, isUUID, IsEmail } from 'class-validator';
 import { IsNull } from 'typeorm';
 
 export class CreateCustomerDto {
   FirstName: string;
   LastName: string;
+
   ContractBeginDate: Date;
 
   ContractEndDate: Date;
@@ -12,5 +13,5 @@ export class CreateCustomerDto {
 
   IsActive: boolean;
 
-  ContactPointID: string;
+  ContactPointEmail: string;
 }
