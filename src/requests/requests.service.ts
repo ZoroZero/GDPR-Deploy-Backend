@@ -10,7 +10,7 @@ import { CreateRequestDto } from './Dto/create-request.dto';
 export class RequestsService {
   constructor(
     @InjectRepository(Request) private RequestRepository: Repository<Request>,
-    @Inject('ServerService') private serverService: ServersService,
+    private serverService: ServersService,
   ) {}
 
   async findAll({
@@ -24,11 +24,11 @@ export class RequestsService {
   }): Promise<any> {
     let requests = null;
     if (role === 'admin' || role === 'dc-member') {
-      requests = await getConnection().manager.query(
+      requests = await this.RequestRepository.query(
         `EXEC [dbo].[RequestgetListRequests] @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
       );
     } else
-      requests = await getConnection().manager.query(
+      requests = await this.RequestRepository.query(
         `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}', @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
       );
     const response = {
@@ -44,5 +44,14 @@ export class RequestsService {
     return response;
   }
 
-  async createNewRequest(data: CreateRequestDto): Promise<any> {}
+  async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
+    const [serverName, serverIp] = data.server.split('-');
+    const serverId = this.serverService.getIdFromIpAndName(
+      serverIp,
+      serverName,
+    );
+    if (serverId) {
+      return await this.RequestRepository.query('');
+    }
+  }
 }

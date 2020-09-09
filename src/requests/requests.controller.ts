@@ -31,6 +31,6 @@ export class RequestsController {
 
   @Post('')
   postNewRequest(@Body() body: CreateRequestDto, @Request() req) {
-    return this.requestService.createNewRequest(body);
+    return this.requestService.createNewRequest(body, req.user.UserId);
   }
 }
