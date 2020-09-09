@@ -34,9 +34,22 @@ export class UsersController {
         return this.service.getServerByPage(params);
     }
 
+    @Get('active')
+    //get(@Param('current', new ParseIntPipe()) current: number, @Param('pageSize', new ParseIntPipe()) pageSize: number) {
+    @UseInterceptors(GetInterceptor)
+    getActive(){
+        //console.log(current);
+        return this.service.getAllActiveServer();
+    }
+
     @Post('')
     post(@User() user, @Body() body: CreateServerDto){
-        console.log("User:", user);
+        // console.log("User:", user);
         return this.service.addNewServer(body, user.UserId)
+    }
+
+    @Put('')
+    put(@User() user, @Body() body: Server){
+        return this.service.updateServer(body, user.UserId)
     }
 }

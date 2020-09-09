@@ -21,6 +21,16 @@ export class ServersService {
                                               @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
   }
 
+  async getAllActiveServer(){
+    return await this.serversRepository.query(`
+      EXECUTE [dbo].[ServerGetActiveServerList] 
+    `)
+  }
+
+  async getIdFromIpAndName(serverIp: string, serverName: string){
+    return await this.serversRepository.findOne({IpAddress: serverIp, Name: serverName})
+  }
+
   async addNewServer(_server: CreateServerDto, _userId: string) {
     // return await this.serversRepository.save(_server);
     return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
@@ -29,6 +39,18 @@ export class ServersService {
       @StartDate= '${_server.startDate}', 
       @EndDate= '${_server.endDate}', 
       @CreatedBy= '${_userId}', 
-      @CreatedDate= '2020-08-20'`)
+    `)
+  }
+
+  async updateServer(_server: Server, _userId: string){
+    return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
+      @ServerId = '${_server.Id}',
+      @ServerName='${_server.Name}',  
+      @ServerIp= '${_server.IpAddress}',  
+      @StartDate= '${_server.StartDate}', 
+      @EndDate= '${_server.EndDate}', 
+      @UpdatedBy= '${_userId}',
+      @IsActive= ${_server.IsActive}
+    `)
   }
 }
