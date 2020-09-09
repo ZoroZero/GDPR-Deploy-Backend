@@ -60,8 +60,8 @@ export class UsersController {
     return this.usersService.deleteUser(UserId, null);
   }
 
-  // @SetMetadata('roles', ['admin', 'contact-point'])
-  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @SetMetadata('roles', ['admin', 'contact-point'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/insert')
   insertUser(@Body() req) {
     console.log('BugReq', req);
@@ -76,6 +76,8 @@ export class UsersController {
     );
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
   update(@Param('id') userId: String, @Body() req) {
     console.log('BugReq', req);
