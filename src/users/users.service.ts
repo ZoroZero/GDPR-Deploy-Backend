@@ -128,7 +128,7 @@ export class UsersService {
     PageSize: number,
     SearchKey: String,
     SortBy: String,
-    SortOrder: number,
+    SortOrder: String,
     Role: String,
     IsActive: Boolean,
   ) {
