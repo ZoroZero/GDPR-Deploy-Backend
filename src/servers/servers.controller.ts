@@ -44,13 +44,13 @@ export class UsersController {
     }
 
     @Put('')
-    @UseInterceptors(CreateInterceptor)
+    // @UseInterceptors(CreateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
     }
 
     @Delete('')
-    @UseInterceptors(CreateInterceptor)
+    // @UseInterceptors(CreateInterceptor)
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
         return this.service.deleteServerWithId(id, user.UserId);
     }

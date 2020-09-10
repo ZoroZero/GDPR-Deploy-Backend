@@ -15,4 +15,10 @@ export class SearchDataDto {
 
     @IsDefined()
     keyword: string
+
+    @IsDefined()
+    filterColumn: string
+
+    @IsDefined()
+    filterKeys: string
   }

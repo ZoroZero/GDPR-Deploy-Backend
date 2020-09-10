@@ -17,8 +17,19 @@ export class ServersService {
   }
 
   async getServerByPage(params: SearchDataDto){
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
-                                              @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
+    console.log("Query ", `EXEC [dbo].[ServerGetServerList] 
+    @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+    @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
+    @KeyWord = '${params.keyword}',
+    @@FilterList = '${params.filterKeys}',
+    @FilterColumn= '${params.filterColumn}'`);
+    
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] 
+      @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+      @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
+      @KeyWord = '${params.keyword}',
+      @FilterList = '${params.filterKeys}',
+      @FilterColumn= '${params.filterColumn}'`);
   }
 
   async getAllActiveServer(){
