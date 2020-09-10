@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete,Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './create-server-post.dto'
@@ -10,6 +10,7 @@ import { createParamDecorator } from '@nestjs/common';
 import { User } from 'src/auth/user.decorator';
 import { GetInterceptor } from '../interceptors/http-get.interceptor';
 import { SearchDataDto } from 'src/dto/search.dto';
+import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
 // import { Request } from 'express';
 
 
@@ -19,13 +20,6 @@ import { SearchDataDto } from 'src/dto/search.dto';
 export class UsersController {
 
     constructor(private service: ServersService) { }
-
-    // @Get('/all')
-    // @UseFilters(new HttpExceptionFilter())
-    // getAll() {
-    //     return this.service.listAllServer();
-    //     // return this.service.getUsers();
-    // }
 
     @Get('')
     @UseFilters(new HttpExceptionFilter())
@@ -43,18 +37,21 @@ export class UsersController {
     }
 
     @Post('')
+    @UseInterceptors(CreateInterceptor)
     post(@User() user, @Body() body: CreateServerDto){
         // console.log("User:", user);
         return this.service.addNewServer(body, user.UserId)
     }
 
     @Put('')
+    @UseInterceptors(CreateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
     }
 
     @Delete('')
-    deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) uuid: string) {
-        return this.service.deleteServerWithId(uuid, user.UserId);
+    @UseInterceptors(CreateInterceptor)
+    deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
+        return this.service.deleteServerWithId(id, user.UserId);
     }
 }
