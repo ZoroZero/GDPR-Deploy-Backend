@@ -11,10 +11,8 @@ export class CreateRequestDto {
   @IsNotEmpty()
   title: string;
 
-  @IsDate()
   startDate: Date;
 
-  @IsDate()
   endDate: Date;
 
   @IsDefined()

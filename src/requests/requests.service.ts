@@ -1,4 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { Request } from './request.entity';
@@ -45,13 +50,37 @@ export class RequestsService {
   }
 
   async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
-    const [serverName, serverIp] = data.server.split('-');
-    const serverId = this.serverService.getIdFromIpAndName(
-      serverIp,
-      serverName,
-    );
-    if (serverId) {
-      return await this.RequestRepository.query('');
-    }
+    if (new Date(data.endDate) > new Date(data.startDate)) {
+      const [serverName, serverIp] = data.server.split('-');
+      const server = await this.serverService.getIdFromIpAndName(
+        serverIp,
+        serverName,
+      );
+      if (server && server.Id) {
+        return await this.RequestRepository.query(
+          `EXEC [dbo].[Request_alterRequest] 
+        @Title='${data.title}', 
+        @Description='${data.description}', 
+        @StartDate='${new Date(data.startDate)
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' ')}', 
+        @EndDate='${new Date(data.endDate)
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' ')}',
+        @ServerId='${server.Id}',
+        @CreatedBy='${userId}'`,
+        );
+      } else
+        throw new HttpException(
+          'Server is invalid',
+          HttpStatus.EXPECTATION_FAILED,
+        );
+    } else
+      throw new HttpException(
+        'Invalid start date and end date',
+        HttpStatus.EXPECTATION_FAILED,
+      );
   }
 }
