@@ -103,7 +103,12 @@ export class UsersService {
     const userId = await getConnection().manager.query(
       `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
     );
-    await sendEmail(Email, await confirmEmailLink(userId[0].Id));
+    await sendEmail(
+      Email,
+      await confirmEmailLink(userId[0].Id),
+      UserName,
+      PassWord,
+    );
   }
 
   async confirmEmail(id: any, res: Response) {
@@ -124,7 +129,9 @@ export class UsersService {
       @UserId= '${userId}'
       ,@IsActive =true `,
     );
-    res.send('ok');
+    res.send(
+      'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
+    );
   }
 
   async updateUser(

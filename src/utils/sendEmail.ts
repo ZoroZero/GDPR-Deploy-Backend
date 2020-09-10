@@ -1,7 +1,12 @@
 import * as nodemailer from 'nodemailer';
 
 // async..await is not allowed in global scope, must use a wrapper
-export const sendEmail = async (email: string, link: string) => {
+export const sendEmail = async (
+  email: string,
+  link: string,
+  username: string,
+  password: string,
+) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
     host: 'smtp.sendgrid.net',
@@ -17,9 +22,16 @@ export const sendEmail = async (email: string, link: string) => {
   const info = await transporter.sendMail({
     from: '"Tu Tran" <tu.tran@netpower.no>', // sender address
     to: email, // list of receivers
-    subject: 'Hello ✔', // Subject line
-    text: 'Hello world?', // plain text body
-    html: `<b>Hello world?</b> <a href="${link}">confirm Email</a>`, // html body
+    subject: 'CONFIRM EMAIL ADDRESS FOR GDPR SYSTEM', // Subject line
+    text: 'Hello ✔', // plain text body
+    html: `<h1>Welcome to GDPR system</h1>
+    <b>Your username: ${username}</b>
+    <br/>
+    <b>Your password: ${password}</b>
+    <br/>
+    <br/>
+    <b>Please click</b> <a href="${link}"> here </a>
+    <b>to confirm your email</b>`, // html body
   });
 
   console.log('Message sent: %s', info.messageId);
