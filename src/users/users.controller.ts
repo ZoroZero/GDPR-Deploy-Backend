@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Request,
+  Response,
   UseGuards,
   UseFilters,
   SetMetadata,
@@ -27,6 +28,12 @@ import { UpdateUserDto } from 'src/dto/updateUser.dto';
 @Controller('/api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
+
+  @Get('/confirm/:id')
+  async confirmEmail(@Param('id') id: any, @Response() res) {
+    return this.usersService.confirmEmail(id, res);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   getProfile(@Request() req) {

@@ -1,7 +1,17 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { User } from './user.entity';
+import { Response, json } from 'express';
+import { CONFIRM_EMAIL_PREFIX } from '../constants';
+import { redis } from '../redis';
+import { confirmEmailLink } from '../utils/confirmEmailLink';
+import { sendEmail } from '../utils/sendEmail';
 
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
@@ -66,13 +76,13 @@ export class UsersService {
   }
 
   async insertUser(
-    Email: String,
-    PassWord: String,
-    UserName: String,
-    Role: String,
-    FirstName: String,
-    LastName: String,
-    CreatedBy: String,
+    Email: string,
+    PassWord: string,
+    UserName: string,
+    Role: string,
+    FirstName: string,
+    LastName: string,
+    CreatedBy: string,
   ) {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
@@ -86,6 +96,31 @@ export class UsersService {
       ,@LastName='${LastName}'
       ,@Email='${Email}' ` + qCreatedBy,
     );
+    const userId = await getConnection().manager.query(
+      `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
+    );
+    await sendEmail(Email, await confirmEmailLink(userId[0].Id));
+  }
+
+  async confirmEmail(id: any, res: Response) {
+    const userId = await redis.get(`${id}`);
+    // , function(err, reply) {
+    //   console.log(reply);
+    // });
+    console.log(userId);
+    for (const prop in userId) {
+      console.log(`${prop} = ${userId[prop]}`);
+    }
+    // console.log('userId: ', JSON.parse(userId));
+    if (!userId) {
+      throw new NotFoundException();
+    }
+    await await getConnection().manager.query(
+      `EXECUTE [dbo].[updateUser]  
+      @UserId= '${userId}'
+      ,@IsActive =true `,
+    );
+    res.send('ok');
   }
 
   async updateUser(
