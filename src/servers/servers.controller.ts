@@ -11,6 +11,7 @@ import { User } from 'src/auth/user.decorator';
 import { GetInterceptor } from '../interceptors/http-get.interceptor';
 import { SearchDataDto } from 'src/dto/search.dto';
 import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
+import { UpdateInterceptor } from 'src/interceptors/server/http-update.interceptor';
 // import { Request } from 'express';
 
 
@@ -44,13 +45,13 @@ export class UsersController {
     }
 
     @Put('')
-    // @UseInterceptors(CreateInterceptor)
+    @UseInterceptors(UpdateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
     }
 
     @Delete('')
-    // @UseInterceptors(CreateInterceptor)
+    @UseInterceptors(UpdateInterceptor)
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
         return this.service.deleteServerWithId(id, user.UserId);
     }
