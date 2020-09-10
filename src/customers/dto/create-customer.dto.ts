@@ -13,5 +13,5 @@ export class CreateCustomerDto {
 
   IsActive: boolean;
 
-  ContactPointEmail: string;
+  ContactPointId: string;
 }

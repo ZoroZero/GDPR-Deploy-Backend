@@ -28,14 +28,15 @@ export class CustomersService {
     return await this.customersRepository.findOne(key);
   }
 
-  async create(
-    customer: CreateCustomerDto,
-    createdById: string,
-  ): Promise<Customer> {
-    return await this.customersRepository.save({
+  async create(customer: CreateCustomerDto, createdById: string): Promise<any> {
+    const res = await this.customersRepository.save({
       ...{ CreatedBy: createdById, CreatedDate: new Date() },
       ...customer,
     });
+    console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&', res);
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerGetCustomerById] @Id ='${res.Id}'`,
+    );
   }
 
   async update(

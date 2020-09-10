@@ -18,11 +18,16 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UsersService } from '../users/users.service';
+import { query } from 'express';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard)
 export class CustomersController {
-  constructor(private customersService: CustomersService) {}
+  constructor(
+    private customersService: CustomersService,
+    private usersService: UsersService,
+  ) {}
   @Get('')
   async findAll(@Query() query): Promise<Customer[]> {
     console.log(query);
@@ -69,11 +74,19 @@ export class CustomersController {
     }
   }
 
-  @Delete(':id')
+  @Delete('')
   async remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Query('Id', ParseUUIDPipe) id: string,
     @Request() req,
-  ): Promise<Customer> {
-    return this.customersService.remove(id, req.user.UserId);
+  ): Promise<any> {
+    console.log(req);
+    const res = await this.customersService.remove(id, req.user.UserId);
+    console.log('WTF', res);
+  }
+
+  @Get('/contactPoints')
+  async findAllContactPoints(@Query() query): Promise<any> {
+    console.log(query);
+    return await this.usersService.getContactPointList();
   }
 }
