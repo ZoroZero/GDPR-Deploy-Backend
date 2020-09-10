@@ -30,10 +30,10 @@ export class AuthService {
       createdDate: new Date(),
     };
 
+
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
       access_token: this.jwtService.sign(payload),
-
       role: Info[0].RoleName,
       firstName: Info[0].FirstName,
       lastName: Info[0].LastName,
