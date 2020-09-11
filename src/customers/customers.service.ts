@@ -18,7 +18,6 @@ export class CustomersService {
     sortOrder = '',
     keyWord = '',
   ): Promise<Customer[]> {
-    console.log(keyWord);
     return await this.customersRepository.query(
       `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}'`,
     );
@@ -28,14 +27,15 @@ export class CustomersService {
     return await this.customersRepository.findOne(key);
   }
 
-  async create(
-    customer: CreateCustomerDto,
-    createdById: string,
-  ): Promise<Customer> {
-    return await this.customersRepository.save({
+  async create(customer: CreateCustomerDto, createdById: string): Promise<any> {
+    const res = await this.customersRepository.save({
       ...{ CreatedBy: createdById, CreatedDate: new Date() },
       ...customer,
     });
+
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerGetCustomerById] @Id ='${res.Id}'`,
+    );
   }
 
   async update(
@@ -43,6 +43,7 @@ export class CustomersService {
     newValue: CreateCustomerDto,
     updatedById: string,
   ): Promise<Customer> {
+    console.log('DTO UPDATE : ', newValue);
     const customer = await this.customersRepository.findOne({ Id: id });
     if (!customer) {
       console.error("customer doesn't exist");

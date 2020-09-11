@@ -18,14 +18,18 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UsersService } from '../users/users.service';
+import { query } from 'express';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard)
 export class CustomersController {
-  constructor(private customersService: CustomersService) {}
+  constructor(
+    private customersService: CustomersService,
+    private usersService: UsersService,
+  ) {}
   @Get('')
   async findAll(@Query() query): Promise<Customer[]> {
-    console.log(query);
     return await this.customersService.findAll(
       query.pageSize,
       query.current,
@@ -42,9 +46,9 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
-  @Put(':id')
+  @Put('')
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Query('Id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
@@ -67,11 +71,16 @@ export class CustomersController {
     }
   }
 
-  @Delete(':id')
+  @Delete('')
   async remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Query('Id', ParseUUIDPipe) id: string,
     @Request() req,
-  ): Promise<Customer> {
-    return this.customersService.remove(id, req.user.UserId);
+  ): Promise<any> {
+    const res = await this.customersService.remove(id, req.user.UserId);
+  }
+
+  @Get('/contactPoints')
+  async findAllContactPoints(@Query() query): Promise<any> {
+    return await this.usersService.getContactPointList();
   }
 }
