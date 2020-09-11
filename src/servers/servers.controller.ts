@@ -17,7 +17,8 @@ import { ExportDto } from './dto/export-server.dto';
 
 
 @Controller('/api/servers')
-@SetMetadata('roles', ['admin'])
+@UseFilters(new HttpExceptionFilter())
+@SetMetadata('roles', ['admin', 'dc-member'])
 @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -25,7 +26,6 @@ export class UsersController {
     constructor(private service: ServersService) { }
 
     @Get('')
-    @UseFilters(new HttpExceptionFilter())
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
         //console.log(current);
@@ -42,6 +42,7 @@ export class UsersController {
     @Get('export')
     @UseInterceptors(GetInterceptor)
     getExportData(@Query() query: ExportDto){
+        // console.log('Query', query);
         return this.service.exportServerList(query);
     }
 
