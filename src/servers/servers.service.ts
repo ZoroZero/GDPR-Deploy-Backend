@@ -76,10 +76,11 @@ export class ServersService {
 
 
   async exportServerList(_request: ExportDto){
+    console.log(_request);
     return this.serversRepository.query(
     `EXECUTE [dbo].[ServerExportServerList] 
-      @ServerName = '${_request.serverName}' 
-     ,@ServerIp = '${_request.ipAddress}'
+      @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
+     ,@ServerIp =  ${_request.ipAddress? `'${_request.ipAddress}'` : `''`}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
      ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
    `

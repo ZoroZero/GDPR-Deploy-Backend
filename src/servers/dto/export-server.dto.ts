@@ -5,7 +5,7 @@ export class ExportDto{
     
     ipAddress: string;
 
-    startDate: Date;
+    startDate: any;
 
-    endDate: Date; 
+    endDate: any; 
 }

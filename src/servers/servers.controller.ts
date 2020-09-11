@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto'
@@ -17,6 +17,7 @@ import { ExportDto } from './dto/export-server.dto';
 
 
 @Controller('/api/servers')
+@SetMetadata('roles', ['admin'])
 @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
