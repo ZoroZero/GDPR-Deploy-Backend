@@ -2,9 +2,9 @@ import { Injectable, HttpException, HttpStatus, UseGuards, Inject } from '@nestj
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
-import { CreateServerDto } from './create-server-post.dto';
+import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
-
+import { ExportDto } from './dto/export-server.dto';
 @Injectable()
 export class ServersService {
 
@@ -72,5 +72,17 @@ export class ServersService {
     ,@UpdatedBy = '${_userId}'
     ,@DeletedBy = '${_userId}'
   `)
+  }
+
+
+  async exportServerList(_request: ExportDto){
+    return this.serversRepository.query(
+    `EXECUTE [dbo].[ServerExportServerList] 
+      @ServerName = '${_request.serverName}' 
+     ,@ServerIp = '${_request.ipAddress}'
+     ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
+   `
+    )
   }
 }

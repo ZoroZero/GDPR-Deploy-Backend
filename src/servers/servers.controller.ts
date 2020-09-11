@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
-import { CreateServerDto } from './create-server-post.dto'
+import { CreateServerDto } from './dto/create-server-post.dto'
 import { HttpExceptionFilter } from '../filters/http-exception.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
@@ -12,12 +12,13 @@ import { GetInterceptor } from '../interceptors/http-get.interceptor';
 import { SearchDataDto } from 'src/dto/search.dto';
 import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
 import { UpdateInterceptor } from 'src/interceptors/server/http-update.interceptor';
+import { ExportDto } from './dto/export-server.dto';
 // import { Request } from 'express';
 
 
 @Controller('/api/servers')
-// @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+// @UseGuards(JwtAuthGuard)
 export class UsersController {
 
     constructor(private service: ServersService) { }
@@ -35,6 +36,12 @@ export class UsersController {
     getActive(){
         //console.log(current);
         return this.service.getAllActiveServer();
+    }
+
+    @Get('export')
+    @UseInterceptors(GetInterceptor)
+    getExportData(@Query() query: ExportDto){
+        return this.service.exportServerList(query);
     }
 
     @Post('')
@@ -55,4 +62,7 @@ export class UsersController {
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
         return this.service.deleteServerWithId(id, user.UserId);
     }
+
+
+
 }
