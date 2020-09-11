@@ -115,10 +115,10 @@ export class UsersService {
     // , function(err, reply) {
     //   console.log(reply);
     // });
-    console.log(userId);
-    for (const prop in userId) {
-      console.log(`${prop} = ${userId[prop]}`);
-    }
+    // console.log(userId);
+    // for (const prop in userId) {
+    //   console.log(`${prop} = ${userId[prop]}`);
+    // }
     // console.log('userId: ', JSON.parse(userId));
     if (!userId) {
       throw new NotFoundException();
