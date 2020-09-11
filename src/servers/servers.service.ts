@@ -2,9 +2,9 @@ import { Injectable, HttpException, HttpStatus, UseGuards, Inject } from '@nestj
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
-import { CreateServerDto } from './create-server-post.dto';
+import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
-
+import { ExportDto } from './dto/export-server.dto';
 @Injectable()
 export class ServersService {
 
@@ -17,8 +17,19 @@ export class ServersService {
   }
 
   async getServerByPage(params: SearchDataDto){
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
-                                              @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', @KeyWord = '${params.keyword}'`);
+    console.log("Query ", `EXEC [dbo].[ServerGetServerList] 
+    @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+    @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
+    @KeyWord = '${params.keyword}',
+    @@FilterList = '${params.filterKeys}',
+    @FilterColumn= '${params.filterColumn}'`);
+    
+    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] 
+      @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+      @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
+      @KeyWord = '${params.keyword}',
+      @FilterList = '${params.filterKeys}',
+      @FilterColumn= '${params.filterColumn}'`);
   }
 
   async getAllActiveServer(){
@@ -38,7 +49,7 @@ export class ServersService {
       @ServerIp= '${_server.ipAddress}',  
       @StartDate= '${_server.startDate}', 
       @EndDate= '${_server.endDate}', 
-      @CreatedBy= '${_userId}', 
+      @CreatedBy= '${_userId}'
     `)
   }
 
@@ -52,5 +63,27 @@ export class ServersService {
       @UpdatedBy= '${_userId}',
       @IsActive= ${_server.IsActive}
     `)
+  }
+
+  async deleteServerWithId(_id: string, _userId: string){
+    return this.serversRepository.query(
+    `EXECUTE dbo.[ServerDeleteServer]
+    @ServerId = '${_id}'
+    ,@UpdatedBy = '${_userId}'
+    ,@DeletedBy = '${_userId}'
+  `)
+  }
+
+
+  async exportServerList(_request: ExportDto){
+    console.log(_request);
+    return this.serversRepository.query(
+    `EXECUTE [dbo].[ServerExportServerList] 
+      @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
+     ,@ServerIp =  ${_request.ipAddress? `'${_request.ipAddress}'` : `''`}
+     ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
+   `
+    )
   }
 }

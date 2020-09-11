@@ -12,7 +12,6 @@ import { CONFIRM_EMAIL_PREFIX } from '../constants';
 import { redis } from '../redis';
 import { confirmEmailLink } from '../utils/confirmEmailLink';
 import { sendEmail } from '../utils/sendEmail';
-
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
 // export type User = any;
