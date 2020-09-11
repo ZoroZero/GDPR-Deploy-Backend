@@ -1,7 +1,17 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { User } from './user.entity';
+import { Response, json } from 'express';
+import { CONFIRM_EMAIL_PREFIX } from '../constants';
+import { redis } from '../redis';
+import { confirmEmailLink } from '../utils/confirmEmailLink';
+import { sendEmail } from '../utils/sendEmail';
 
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
@@ -66,25 +76,61 @@ export class UsersService {
   }
 
   async insertUser(
-    Email: String,
-    PassWord: String,
-    UserName: String,
-    Role: String,
-    FirstName: String,
-    LastName: String,
-    CreatedBy: String,
+    Email: string,
+    PassWord: string,
+    UserName: string,
+    Role: string,
+    FirstName: string,
+    LastName: string,
+    CreatedBy: string,
   ) {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
-    const insertResult = await getConnection().manager.query(
-      `EXECUTE [dbo].[insertUser]   
+    const insertResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
       ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}' ` + qCreatedBy,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    const userId = await getConnection().manager.query(
+      `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
+    );
+    await sendEmail(
+      Email,
+      await confirmEmailLink(userId[0].Id),
+      UserName,
+      PassWord,
+    );
+  }
+
+  async confirmEmail(id: any, res: Response) {
+    const userId = await redis.get(`${id}`);
+    // , function(err, reply) {
+    //   console.log(reply);
+    // });
+    console.log(userId);
+    for (const prop in userId) {
+      console.log(`${prop} = ${userId[prop]}`);
+    }
+    // console.log('userId: ', JSON.parse(userId));
+    if (!userId) {
+      throw new NotFoundException();
+    }
+    await await getConnection().manager.query(
+      `EXECUTE [dbo].[updateUser]  
+      @UserId= '${userId}'
+      ,@IsActive =true `,
+    );
+    res.send(
+      'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
     );
   }
 
@@ -105,8 +151,9 @@ export class UsersService {
     var qIsActive;
     if (IsActive === undefined) qIsActive = ',@IsActive = null';
     else qIsActive = ',@IsActive =' + IsActive;
-    const insertResult = await getConnection().manager.query(
-      `EXECUTE [dbo].[updateUser]  
+    const insertResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
@@ -114,9 +161,12 @@ export class UsersService {
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
-        String(qCreatedBy) +
-        qIsActive,
-    );
+          String(qCreatedBy) +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
     // if (!insertResult) {
     //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
     // }
@@ -128,7 +178,7 @@ export class UsersService {
     PageSize: number,
     SearchKey: String,
     SortBy: String,
-    SortOrder: number,
+    SortOrder: String,
     Role: String,
     IsActive: Boolean,
   ) {
@@ -153,16 +203,20 @@ export class UsersService {
     else qRole = "@RoleList ='" + Role + "',";
     if (IsActive === undefined) qIsActive = '@IsActive = null';
     else qIsActive = '@IsActive =' + IsActive + '';
-    const userList = await getConnection().manager.query(
-      `EXECUTE [dbo].[GetListUser]` +
-        qPageNo +
-        qPageSize +
-        qSearchKey +
-        qSortBy +
-        qSortOrder +
-        qRole +
-        qIsActive,
-    );
+    const userList = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[GetListUser]` +
+          qPageNo +
+          qPageSize +
+          qSearchKey +
+          qSortBy +
+          qSortOrder +
+          qRole +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
     return userList;
   }
 
@@ -170,13 +224,17 @@ export class UsersService {
     var qDeletedBy;
     if (DeletedBy === undefined) qDeletedBy = ',@DeletedBy = null';
     else qDeletedBy = ",@DeletedBy ='" + DeletedBy + "'";
-    const deleteResult = await getConnection().manager.query(
-      `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
-    );
-    if (deleteResult)
-      throw new HttpException('Delete Successfully!', HttpStatus.OK);
-    else
-      throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
+    const deleteResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (deleteResult)
+    //   throw new HttpException('Delete Successfully!', HttpStatus.OK);
+    // else
+    //   throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
   }
 
   async getContactPointList() {
