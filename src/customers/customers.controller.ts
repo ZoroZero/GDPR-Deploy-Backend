@@ -53,7 +53,7 @@ export class CustomersController {
       updateCustomerDto,
       req.user.UserId,
     );
-    console.log('RETURN FROM UPDATE', res);
+    // console.log('RETURN FROM UPDATE', res);
     if (res) {
       return res;
     } else {

@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection } from 'typeorm';
 import { User } from './user.entity';
+<<<<<<< HEAD
 import { Response, json } from 'express';
 import { CONFIRM_EMAIL_PREFIX } from '../constants';
 import { redis } from '../redis';
@@ -14,6 +15,10 @@ import { confirmEmailLink } from '../utils/confirmEmailLink';
 import { sendEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
+=======
+import { AccountsService } from '../accounts/accounts.service';
+
+>>>>>>> feature/feature_manage_request
 // export type User = any;
 
 @Injectable()
