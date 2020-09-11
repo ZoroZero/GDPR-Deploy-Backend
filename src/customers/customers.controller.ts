@@ -30,7 +30,6 @@ export class CustomersController {
   ) {}
   @Get('')
   async findAll(@Query() query): Promise<Customer[]> {
-    console.log(query);
     return await this.customersService.findAll(
       query.pageSize,
       query.current,
@@ -44,14 +43,12 @@ export class CustomersController {
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
-    console.log('request', req);
-    console.log('dto', createCustomerDto);
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
-  @Put(':id')
+  @Put('')
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Query('Id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateCustomerDto: CreateCustomerDto,
     @Request() req,
   ) {
@@ -60,7 +57,7 @@ export class CustomersController {
       updateCustomerDto,
       req.user.UserId,
     );
-    console.log('RETURN FROM UPDATE', res);
+
     if (res) {
       return res;
     } else {
@@ -79,14 +76,11 @@ export class CustomersController {
     @Query('Id', ParseUUIDPipe) id: string,
     @Request() req,
   ): Promise<any> {
-    console.log(req);
     const res = await this.customersService.remove(id, req.user.UserId);
-    console.log('WTF', res);
   }
 
   @Get('/contactPoints')
   async findAllContactPoints(@Query() query): Promise<any> {
-    console.log(query);
     return await this.usersService.getContactPointList();
   }
 }
