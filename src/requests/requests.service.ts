@@ -61,16 +61,62 @@ export class RequestsService {
           `EXEC [dbo].[Request_alterRequest] 
         @Title='${data.title}', 
         @Description='${data.description}', 
-        @StartDate='${new Date(data.startDate)
-          .toISOString()
-          .slice(0, 19)
-          .replace('T', ' ')}', 
-        @EndDate='${new Date(data.endDate)
-          .toISOString()
-          .slice(0, 19)
-          .replace('T', ' ')}',
+        @StartDate='${data.startDate}', 
+        @EndDate='${data.endDate}',
         @ServerId='${server.Id}',
         @CreatedBy='${userId}'`,
+        );
+      } else
+        throw new HttpException(
+          'Server is invalid',
+          HttpStatus.EXPECTATION_FAILED,
+        );
+    } else
+      throw new HttpException(
+        'Invalid start date and end date',
+        HttpStatus.EXPECTATION_FAILED,
+      );
+  }
+
+  async approveRequest(requestId, userId): Promise<any> {
+    return await this.RequestRepository.query(`
+      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${true}, @ApprovedBy='${userId}'
+    `);
+  }
+
+  async closeRequest(requestId, userId): Promise<any> {
+    return await this.RequestRepository.query(`
+      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${false}, @ApprovedBy='${userId}'
+    `);
+  }
+
+  async getRequestById(requestId): Promise<any> {
+    const request = await this.RequestRepository.query(`
+      EXEC [dbo].[Request_getRequestDetail] @requestId='${requestId}'
+    `);
+    if (request) {
+      return request;
+    }
+    throw new HttpException('Request does not exists', HttpStatus.NOT_FOUND);
+  }
+
+  async updateRequestDetail(requestDetail, userId, requestId): Promise<any> {
+    if (new Date(requestDetail.startDate) < new Date(requestDetail.endDate)) {
+      const [serverName, serverIp] = requestDetail.server.split('-');
+      const server = await this.serverService.getIdFromIpAndName(
+        serverIp,
+        serverName,
+      );
+      if (server && server.Id) {
+        return await this.RequestRepository.query(
+          `EXEC [dbo].[Request_alterRequest] 
+        @Id='${requestId}',
+        @Title='${requestDetail.title}', 
+        @Description='${requestDetail.description}', 
+        @StartDate='${requestDetail.startDate}', 
+        @EndDate='${requestDetail.endDate}',
+        @ServerId='${server.Id}',
+        @UpdatedBy='${userId}'`,
         );
       } else
         throw new HttpException(
