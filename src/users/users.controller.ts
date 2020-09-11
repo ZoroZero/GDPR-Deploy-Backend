@@ -34,10 +34,12 @@ export class UsersController {
     return this.usersService.confirmEmail(id, res);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/profile')
-  getProfile(@Request() req) {
-    return req.user;
+  async getProfile(@Request() req) {
+    const Info = await this.usersService.getInfoById(String(req.user.UserId));
+    return Info[0];
   }
 
   @SetMetadata('roles', ['admin', 'contact-point'])
