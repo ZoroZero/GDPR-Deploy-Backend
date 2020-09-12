@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Param, UploadedFile, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto'
@@ -13,6 +13,9 @@ import { SearchDataDto } from 'src/dto/search.dto';
 import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
 import { UpdateInterceptor } from 'src/interceptors/server/http-update.interceptor';
 import { ExportDto } from './dto/export-server.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
+import { editFileName, csvFileFilter } from '../helper/helper';
 // import { Request } from 'express';
 
 
@@ -51,6 +54,25 @@ export class UsersController {
     post(@User() user, @Body() body: CreateServerDto){
         // console.log("User:", user);
         return this.service.addNewServer(body, user.UserId)
+    }
+
+
+    @Post('import')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+          destination: './files',
+          filename: editFileName,
+        }),
+        fileFilter: csvFileFilter,
+    }))
+    importServer(@UploadedFile() file){
+        // console.log("User:", user);
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+          };
+          return response;
+        // return this.service.importServer(file)
     }
 
     @Put('')

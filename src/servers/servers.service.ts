@@ -77,7 +77,7 @@ export class ServersService {
 
   async exportServerList(_request: ExportDto){
     console.log(_request);
-    return this.serversRepository.query(
+    return await this.serversRepository.query(
     `EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
      ,@ServerIp =  ${_request.ipAddress? `'${_request.ipAddress}'` : `''`}
@@ -85,5 +85,11 @@ export class ServersService {
      ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
    `
     )
+  }
+
+
+  async importServer(data){
+    console.log("File upload", data);
+    return null;
   }
 }
