@@ -39,7 +39,7 @@ export class UsersController {
   @Get('/profile')
   async getProfile(@Request() req) {
     const Info = await this.usersService.getInfoById(String(req.user.UserId));
-    return Info[0];
+    return {...Info[0], UserId: req.user.UserId};
   }
 
   @SetMetadata('roles', ['admin', 'contact-point'])
