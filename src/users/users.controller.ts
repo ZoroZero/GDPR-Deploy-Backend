@@ -12,6 +12,8 @@ import {
   Body,
   Query,
   Put,
+  HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -24,6 +26,7 @@ import { request } from 'express';
 import { SearchUserDto } from 'src/dto/searchUser.dto';
 import { InsertUserDto } from 'src/dto/insertUser.dto';
 import { UpdateUserDto } from 'src/dto/updateUser.dto';
+import { UpdateAccountDto } from 'src/dto/updateAccount.dto';
 
 @Controller('/api/users')
 export class UsersController {
@@ -109,5 +112,31 @@ export class UsersController {
       req1.user.UserId,
       req.IsActive,
     );
+  }
+
+  @SetMetadata('roles', ['admin', 'contact-point','dc-member','normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Put('/account/:id')
+  updateAccount(
+    @Request() req1,
+    @Param('id') userId: String,
+    @Body() req: UpdateAccountDto,
+  ) {
+    console.log('user', req1.user);
+    console.log('BugReq', req.IsActive);
+    if (userId==req1.user.UserId){
+    return this.usersService.updateAccount(
+      userId,
+      req.Email,
+      req.PassWord,
+      req.FirstName,
+      req.LastName,
+      req1.user.UserId,
+      req.IsActive,
+    );
+    }
+    else {
+      throw new HttpException("Cannot update! You only can update yourself", HttpStatus.BAD_REQUEST);
+    }
   }
 }

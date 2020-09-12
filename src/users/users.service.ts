@@ -173,6 +173,41 @@ export class UsersService {
     // console.log('insertResult', insertResult);
   }
 
+  async updateAccount(
+    Id: String,
+    Email: String,
+    PassWord: String,
+    FirstName: String,
+    LastName: String,
+    CreatedBy: String,
+    IsActive: Boolean,
+  ) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    var qIsActive;
+    if (IsActive === undefined) qIsActive = ',@IsActive = null';
+    else qIsActive = ',@IsActive =' + IsActive;
+    const insertResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[updateUser]  
+      @UserId= '${Id}'
+      ,@PassWord='${PassWord}'
+      ,@FirstName='${FirstName}'
+      ,@LastName='${LastName}'
+      ,@Email='${Email}'` +
+          String(qCreatedBy) +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
+  }
+
   async getListUser(
     PageNo: number,
     PageSize: number,
