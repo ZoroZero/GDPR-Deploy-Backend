@@ -1,21 +1,19 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  HttpCode,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getConnection } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Request } from './request.entity';
-import { request } from 'http';
 import { ServersService } from 'src/servers/servers.service';
 import { CreateRequestDto } from './Dto/create-request.dto';
+import { MailService } from 'src/mail/mail.service';
+import { RequestLogService } from './requestLog.service';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @InjectRepository(Request) private RequestRepository: Repository<Request>,
     private serverService: ServersService,
+    private readonly mailService: MailService,
+    private readonly requestLogService: RequestLogService,
   ) {}
 
   async findAll({
@@ -57,15 +55,29 @@ export class RequestsService {
         serverName,
       );
       if (server && server.Id) {
-        return await this.RequestRepository.query(
+        const result = await this.RequestRepository.query(
           `EXEC [dbo].[Request_alterRequest] 
-        @Title='${data.title}', 
-        @Description='${data.description}', 
-        @StartDate='${data.startDate}', 
-        @EndDate='${data.endDate}',
-        @ServerId='${server.Id}',
-        @CreatedBy='${userId}'`,
+          @Title='${data.title}', 
+          @Description='${data.description}', 
+          @StartDate='${data.startDate}', 
+          @EndDate='${data.endDate}',
+          @ServerId='${server.Id}',
+          @CreatedBy='${userId}'`,
         );
+        console.log(result);
+        if (result[0] && result[0].Id) {
+          this.requestLogService.logNew_Approve_Close_Request(
+            result[0].Id,
+            userId,
+            'create new request',
+          );
+          this.sendMailForNew_Approve_Close_Request(
+            'new',
+            'create new request',
+            userId,
+          );
+        }
+        return result;
       } else
         throw new HttpException(
           'Server is invalid',
@@ -79,15 +91,59 @@ export class RequestsService {
   }
 
   async approveRequest(requestId, userId): Promise<any> {
-    return await this.RequestRepository.query(`
-      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${true}, @ApprovedBy='${userId}'
-    `);
+    try {
+      const req = await this.RequestRepository.findOne(requestId);
+      if (req && !req.IsClosed) {
+        this.RequestRepository.query(
+          `
+      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${true}, @IsClosed=${false}, @ApprovedBy='${userId}'
+    `,
+        ).then(() => {
+          this.requestLogService.logNew_Approve_Close_Request(
+            requestId,
+            userId,
+            'approve request',
+          );
+          this.sendMailForNew_Approve_Close_Request(
+            'approve request',
+            'approve',
+            userId,
+            req,
+          );
+        });
+      }
+    } catch (error) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   async closeRequest(requestId, userId): Promise<any> {
-    return await this.RequestRepository.query(`
-      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${false}, @ApprovedBy='${userId}'
-    `);
+    try {
+      const req = await this.RequestRepository.findOne(requestId);
+      if (req && !req.IsClosed) {
+        this.RequestRepository.query(
+          `
+      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${
+            req.IsApproved
+          }, @IsClosed=${true}, @ApprovedBy='${userId}'
+    `,
+        ).then(() => {
+          this.requestLogService.logNew_Approve_Close_Request(
+            requestId,
+            userId,
+            'close request',
+          );
+          this.sendMailForNew_Approve_Close_Request(
+            'close request',
+            'close',
+            userId,
+            req,
+          );
+        });
+      }
+    } catch (error) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   async getRequestById(requestId): Promise<any> {
@@ -101,32 +157,133 @@ export class RequestsService {
   }
 
   async updateRequestDetail(requestDetail, userId, requestId): Promise<any> {
-    if (new Date(requestDetail.startDate) < new Date(requestDetail.endDate)) {
-      const [serverName, serverIp] = requestDetail.server.split('-');
-      const server = await this.serverService.getIdFromIpAndName(
-        serverIp,
-        serverName,
-      );
-      if (server && server.Id) {
-        return await this.RequestRepository.query(
-          `EXEC [dbo].[Request_alterRequest] 
-        @Id='${requestId}',
-        @Title='${requestDetail.title}', 
-        @Description='${requestDetail.description}', 
-        @StartDate='${requestDetail.startDate}', 
-        @EndDate='${requestDetail.endDate}',
-        @ServerId='${server.Id}',
-        @UpdatedBy='${userId}'`,
-        );
-      } else
-        throw new HttpException(
-          'Server is invalid',
-          HttpStatus.EXPECTATION_FAILED,
-        );
+    if (
+      new Date(requestDetail.startDate) < new Date(requestDetail.endDate) &&
+      new Date(requestDetail.endDate) > new Date()
+    ) {
+      const oldReq = await this.RequestRepository.findOne(requestId);
+      if (oldReq && !oldReq.IsClosed && !oldReq.IsApproved) {
+        const lstDifference = await this.compareRequest(requestDetail, oldReq);
+        if (lstDifference.length > 0) {
+          const [serverName, serverIp] = requestDetail.server.split('-');
+          const server = await this.serverService.getIdFromIpAndName(
+            serverIp,
+            serverName,
+          );
+          if (server && server.Id) {
+            return await this.RequestRepository.query(
+              `EXEC [dbo].[Request_alterRequest] 
+                @Id='${requestId}',
+                @Title='${requestDetail.title}', 
+                @Description='${requestDetail.description}', 
+                @StartDate='${requestDetail.startDate}', 
+                @EndDate='${requestDetail.endDate}',
+                @ServerId='${server.Id}',
+                @UpdatedBy='${userId}'`,
+            ).then(() => {
+              this.requestLogService.logNew_Approve_Close_Request(
+                requestId,
+                userId,
+                lstDifference.join(', '),
+              );
+              this.sendMailForNew_Approve_Close_Request(
+                'updated ' + lstDifference.join(', '),
+                'update',
+                userId,
+                oldReq,
+              );
+            });
+          } else
+            throw new HttpException(
+              'Server is invalid',
+              HttpStatus.EXPECTATION_FAILED,
+            );
+        }
+      }
     } else
       throw new HttpException(
         'Invalid start date and end date',
         HttpStatus.EXPECTATION_FAILED,
       );
+  }
+
+  async sendMailForNew_Approve_Close_Request(
+    content: string,
+    type: string,
+    userId,
+    request = null,
+  ) {
+    try {
+      const lstEmailObject = await this.RequestRepository.query(
+        `EXEC [dbo].[Request_getListEmailAdminDcmember]`,
+      );
+      let user, mailContent;
+      if (type === 'approve' || type === 'close') {
+        user = await this.RequestRepository.query(
+          `EXEC [dbo].[getInfoFromId] @Id='${request.CreatedBy}'`,
+        );
+        mailContent = content + ' ' + request.Number;
+      } else if (type === 'new') {
+        user = await this.RequestRepository.query(
+          `EXEC [dbo].[getInfoFromId] @Id='${userId}'`,
+        );
+        mailContent = content;
+      } else {
+        // type=="update"
+        user = await this.RequestRepository.query(
+          `EXEC [dbo].[getInfoFromId] @Id='${userId}'`,
+        );
+        mailContent = 'updated request ' + request.Number + ' ' + content;
+      }
+
+      if (lstEmailObject && user) {
+        const listEmailAdminDcmember = lstEmailObject.map((val, index) => {
+          return val.Email;
+        });
+        listEmailAdminDcmember.push(user[0].Email);
+        this.mailService.notifyNewRequest(
+          user[0].FirstName + ' ' + user[0].LastName,
+          listEmailAdminDcmember,
+          mailContent,
+        );
+      }
+    } catch (error) {}
+  }
+
+  async compareRequest(newReq, oldReq): Promise<any> {
+    try {
+      let listDifference = [];
+      if (newReq.title !== oldReq.Title) {
+        listDifference.push(oldReq.Title + '->' + newReq.title);
+      }
+      if (
+        new Date(newReq.startDate).toISOString() !==
+        new Date(oldReq.StartDate).toISOString()
+      ) {
+        listDifference.push(oldReq.StartDate + '->' + newReq.startDate);
+      }
+      if (
+        new Date(newReq.endDate).toISOString() !==
+        new Date(oldReq.EndDate).toISOString()
+      ) {
+        listDifference.push(oldReq.EndDate + '->' + newReq.endDate);
+      }
+      const old_ServerName_Ip = await this.RequestRepository.query(`
+        EXEC [dbo].[Request_getServerNameIpAddressById] @serverId='${oldReq.ServerId}'
+      `);
+      if (
+        old_ServerName_Ip &&
+        old_ServerName_Ip[0] &&
+        old_ServerName_Ip[0].Server !== newReq.server
+      ) {
+        listDifference.push(old_ServerName_Ip[0].Server + '->' + newReq.server);
+      }
+      if (newReq.description !== oldReq.Description) {
+        listDifference.push(oldReq.Description + '->' + newReq.description);
+      }
+      return listDifference;
+    } catch (error) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 }
