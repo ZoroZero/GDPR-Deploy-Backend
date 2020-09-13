@@ -145,7 +145,8 @@ export class UsersController {
     }
   }
 
-
+  @SetMetadata('roles', ['admin', 'contact-point','dc-member','normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('avatar')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
@@ -154,8 +155,11 @@ export class UsersController {
         }),
         fileFilter: imageFileFilter,
     }))
-    importUser(@UploadedFile() file){
+    importUser(@Request() req1,@UploadedFile() file){
         // console.log("User:", user);
+        console.log('user', req1.user);
+        this.usersService.updateAvatar(req1.user.UserId,file.filename);
+        console.log(file);
         const response = {
             originalname: file.originalname,
             filename: file.filename,

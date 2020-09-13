@@ -208,6 +208,25 @@ export class UsersService {
     // console.log('insertResult', insertResult);
   }
 
+  async updateAvatar(
+    Id: String,
+    ImagePath: String
+  ) {
+    const updateAvatarResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[updateAvatar]  
+      @UserId= '${Id}'
+      ,@AvatarPath='${ImagePath}'
+      `)
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
+  }
+
   async getListUser(
     PageNo: number,
     PageSize: number,
