@@ -13,6 +13,6 @@ export class GetInterceptor<T> implements NestInterceptor<T, GetResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<GetResponse<T>> {
     console.log(next);
     
-    return next.handle().pipe(map(data => ({ total: data[0].Total?data[0].Total: 0, data: data})));
+    return next.handle().pipe(map(data => ({ total: data[0]?data[0].Total: 0, data: data})));
   }
 }

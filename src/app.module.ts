@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module';
-
+import { MulterModule } from '@nestjs/platform-express';
 import { CustomersModule } from './customers/customers.module';
 
 import { ServersModule } from './servers/servers.module';
@@ -30,6 +30,9 @@ import { RequestsModule } from './requests/requests.module';
       }),
     }),
     RequestsModule,
+    MulterModule.register({
+      dest: './files',
+    })
   ],
 
   controllers: [AppController],

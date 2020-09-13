@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Param, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Param, UploadedFile, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto'
@@ -13,11 +13,15 @@ import { SearchDataDto } from 'src/dto/search.dto';
 import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
 import { UpdateInterceptor } from 'src/interceptors/server/http-update.interceptor';
 import { ExportDto } from './dto/export-server.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
+import { editFileName, csvFileFilter } from '../helper/helper';
 // import { Request } from 'express';
 
 
 @Controller('/api/servers')
-@SetMetadata('roles', ['admin'])
+@UseFilters(new HttpExceptionFilter())
+@SetMetadata('roles', ['admin', 'dc-member'])
 @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -25,7 +29,6 @@ export class UsersController {
     constructor(private service: ServersService) { }
 
     @Get('')
-    @UseFilters(new HttpExceptionFilter())
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
         //console.log(current);
@@ -42,6 +45,7 @@ export class UsersController {
     @Get('export')
     @UseInterceptors(GetInterceptor)
     getExportData(@Query() query: ExportDto){
+        // console.log('Query', query);
         return this.service.exportServerList(query);
     }
 
@@ -50,6 +54,25 @@ export class UsersController {
     post(@User() user, @Body() body: CreateServerDto){
         // console.log("User:", user);
         return this.service.addNewServer(body, user.UserId)
+    }
+
+
+    @Post('import')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+          destination: './files',
+          filename: editFileName,
+        }),
+        fileFilter: csvFileFilter,
+    }))
+    importServer(@UploadedFile() file){
+        // console.log("User:", user);
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+          };
+          return response;
+        // return this.service.importServer(file)
     }
 
     @Put('')
