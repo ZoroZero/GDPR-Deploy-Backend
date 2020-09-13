@@ -16,7 +16,9 @@ import { UpdateInterceptor } from 'src/interceptors/server/http-update.intercept
 import { ExportDto } from './dto/export-server.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
-import { editFileName, csvFileFilter } from '../helper/helper';
+import { editFileName, csvFileFilter, editImportServerFileName } from '../helper/helper';
+
+
 // import { Request } from 'express';
 
 
@@ -55,7 +57,7 @@ export class UsersController {
 
     // Get csv file
     @Get('import/:csvpath')
-    seeUploadedFile(@Param('csvpath') file, @Res() res) {
+    seeUploadedFile(@Param('csvpath') file) {
         return this.service.importFile(file);
         // return res.sendFile(image, { root: './files' });
     }
@@ -73,17 +75,17 @@ export class UsersController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
           destination: './files',
-          filename: editFileName,
+          filename: editImportServerFileName,
         }),
         fileFilter: csvFileFilter,
     }))
-    importServer(@UploadedFile() file){
+    importServer(@User() user, @UploadedFile() file){
         // console.log("User:", user);
         const response = {
             originalname: file.originalname,
             filename: file.filename,
-          };
-          return response;
+        };
+        return response;
         // return this.service.importServer(file)
     }
 
@@ -101,7 +103,6 @@ export class UsersController {
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
         return this.service.deleteServerWithId(id, user.UserId);
     }
-
 
 
 }

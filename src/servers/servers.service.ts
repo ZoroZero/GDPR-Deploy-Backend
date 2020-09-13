@@ -6,6 +6,9 @@ import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
 import * as XLSX from 'xlsx';
+const fs = require('fs')
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
 @Injectable()
 export class ServersService {
 
@@ -94,11 +97,12 @@ export class ServersService {
   }
 
   async importFile(file){
-   
+    // return file
     var workbook = XLSX.readFile( './files/'+ file);
     var sheet_name_list = workbook.SheetNames;
     var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
     console.log(xlData[0]);
+    
     return await Promise.all([
       xlData.forEach((data:Server) => {this.serversRepository.query(`
       SET DATEFORMAT dmy;
@@ -118,8 +122,11 @@ export class ServersService {
         ,@IsActive = ${data.IsActive}` 
       )})
     ]).then(res => {
-      return "Hello world"
+      return unlinkAsync('./files/'+ file).then(res => {
+        return "Job done"
+      })
+
     })
-    return null
+    
   }
 }
