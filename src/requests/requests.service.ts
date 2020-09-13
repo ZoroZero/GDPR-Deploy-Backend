@@ -28,11 +28,22 @@ export class RequestsService {
     let requests = null;
     if (role === 'admin' || role === 'dc-member') {
       requests = await this.RequestRepository.query(
-        `EXEC [dbo].[RequestgetListRequests] @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
+        `EXEC [dbo].[RequestgetListRequests] 
+          @PageSize=${pageSize},
+          @SortOrder='${sortOrder}',
+          @SortBy='${sortColumn}',
+          @PageNumber=${pageNumber},
+          @SearchKey='${keyword}'`,
       );
     } else
       requests = await this.RequestRepository.query(
-        `EXEC [dbo].[RequestgetListRequests] @UserId='${UserId}', @PageSize=${pageSize}, @SortOrder='${sortOrder}', @SortBy='${sortColumn}', @PageNumber=${pageNumber}, @SearchKey='${keyword}'`,
+        `EXEC [dbo].[RequestgetListRequests] 
+          @UserId='${UserId}', 
+          @PageSize=${pageSize}, 
+          @SortOrder='${sortOrder}', 
+          @SortBy='${sortColumn}', 
+          @PageNumber=${pageNumber}, 
+          @SearchKey='${keyword}'`,
       );
     const response = {
       data: requests,
@@ -48,7 +59,10 @@ export class RequestsService {
   }
 
   async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
-    if (new Date(data.endDate) > new Date(data.startDate)) {
+    if (
+      new Date(data.endDate) > new Date(data.startDate) &&
+      new Date(data.endDate) > new Date()
+    ) {
       const [serverName, serverIp] = data.server.split('-');
       const server = await this.serverService.getIdFromIpAndName(
         serverIp,
@@ -96,7 +110,11 @@ export class RequestsService {
       if (req && !req.IsClosed) {
         this.RequestRepository.query(
           `
-      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${true}, @IsClosed=${false}, @ApprovedBy='${userId}'
+      EXEC [dbo].[Request_approveOrCloseRequest] 
+        @requestId='${requestId}', 
+        @IsApproved=${true}, 
+        @IsClosed=${false}, 
+        @ApprovedBy='${userId}'
     `,
         ).then(() => {
           this.requestLogService.logNew_Approve_Close_Request(
@@ -123,10 +141,12 @@ export class RequestsService {
       if (req && !req.IsClosed) {
         this.RequestRepository.query(
           `
-      EXEC [dbo].[Request_approveOrCloseRequest] @requestId='${requestId}', @IsApproved=${
-            req.IsApproved
-          }, @IsClosed=${true}, @ApprovedBy='${userId}'
-    `,
+            EXEC [dbo].[Request_approveOrCloseRequest] 
+              @requestId='${requestId}', 
+              @IsApproved=${req.IsApproved},
+              @IsClosed=${true},
+              @ApprovedBy='${userId}'
+          `,
         ).then(() => {
           this.requestLogService.logNew_Approve_Close_Request(
             requestId,
@@ -146,12 +166,27 @@ export class RequestsService {
     }
   }
 
-  async getRequestById(requestId): Promise<any> {
-    const request = await this.RequestRepository.query(`
-      EXEC [dbo].[Request_getRequestDetail] @requestId='${requestId}'
+  async getRequestById(requestId, user): Promise<any> {
+    let request = [];
+    if (user.role === 'admin' || user.role === 'dc-memeber') {
+      request = await this.RequestRepository.query(`
+        EXEC [dbo].[Request_getRequestDetail] 
+          @requestId='${requestId}'
     `);
-    if (request) {
-      return request;
+    } else {
+      request = await this.RequestRepository.query(`
+        EXEC [dbo].[Request_getRequestDetail] 
+          @requestId='${requestId}', 
+          @userId='${user.UserId}'
+    `);
+    }
+    if (request && request.length > 0) {
+      const logs = await this.requestLogService.getLogsByRequestId(requestId);
+      let response = {
+        detail: request[0],
+        logs: logs,
+      };
+      return response;
     }
     throw new HttpException('Request does not exists', HttpStatus.NOT_FOUND);
   }
@@ -187,7 +222,7 @@ export class RequestsService {
                 lstDifference.join(', '),
               );
               this.sendMailForNew_Approve_Close_Request(
-                'updated ' + lstDifference.join(', '),
+                lstDifference.join(', '),
                 'update',
                 userId,
                 oldReq,
@@ -254,19 +289,31 @@ export class RequestsService {
     try {
       let listDifference = [];
       if (newReq.title !== oldReq.Title) {
-        listDifference.push(oldReq.Title + '->' + newReq.title);
+        listDifference.push(
+          'updated title: ' + oldReq.Title + '->' + newReq.title,
+        );
       }
       if (
         new Date(newReq.startDate).toISOString() !==
         new Date(oldReq.StartDate).toISOString()
       ) {
-        listDifference.push(oldReq.StartDate + '->' + newReq.startDate);
+        listDifference.push(
+          'updated start date: ' +
+            new Date(oldReq.StartDate).toLocaleString() +
+            '->' +
+            new Date(newReq.startDate).toLocaleString(),
+        );
       }
       if (
         new Date(newReq.endDate).toISOString() !==
         new Date(oldReq.EndDate).toISOString()
       ) {
-        listDifference.push(oldReq.EndDate + '->' + newReq.endDate);
+        listDifference.push(
+          'updated end date: ' +
+            new Date(oldReq.EndDate).toLocaleString() +
+            '->' +
+            new Date(newReq.endDate).toLocaleString(),
+        );
       }
       const old_ServerName_Ip = await this.RequestRepository.query(`
         EXEC [dbo].[Request_getServerNameIpAddressById] @serverId='${oldReq.ServerId}'
@@ -276,10 +323,20 @@ export class RequestsService {
         old_ServerName_Ip[0] &&
         old_ServerName_Ip[0].Server !== newReq.server
       ) {
-        listDifference.push(old_ServerName_Ip[0].Server + '->' + newReq.server);
+        listDifference.push(
+          'updated server: ' +
+            old_ServerName_Ip[0].Server +
+            '->' +
+            newReq.server,
+        );
       }
       if (newReq.description !== oldReq.Description) {
-        listDifference.push(oldReq.Description + '->' + newReq.description);
+        listDifference.push(
+          'updated description: ' +
+            oldReq.Description +
+            '->' +
+            newReq.description,
+        );
       }
       return listDifference;
     } catch (error) {

@@ -8,7 +8,11 @@ import { getConnection } from 'typeorm';
 
 @Injectable()
 export class RequestLogService {
-  async logNew_Approve_Close_Request(requestId, updatedBy, content) {
+  async logNew_Approve_Close_Request(
+    requestId,
+    updatedBy,
+    content,
+  ): Promise<any> {
     getConnection().manager.query(`
       EXEC [dbo].[RequestLog_InsertRequestLog]
       @RequestId='${requestId}',
@@ -17,5 +21,11 @@ export class RequestLogService {
     `);
   }
 
-  async logUpdateRequest(requestId, updatedBy, statusChange) {}
+  async logUpdateRequest(requestId, updatedBy, statusChange): Promise<any> {}
+
+  async getLogsByRequestId(requestId): Promise<any> {
+    return await getConnection().manager.query(`
+      EXEC [dbo].[RequestLog_getLogsByRequestId] @requestId='${requestId}'
+    `);
+  }
 }

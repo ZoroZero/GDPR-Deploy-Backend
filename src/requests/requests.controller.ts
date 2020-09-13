@@ -62,7 +62,7 @@ export class RequestsController {
     @Param('requestId', ParseUUIDPipe) requestId,
     @Request() req,
   ) {
-    return this.requestService.getRequestById(requestId);
+    return this.requestService.getRequestById(requestId, req.user);
   }
 
   @Put('/:requestId')
