@@ -18,8 +18,8 @@ export const imageFileFilter = (req, file, callback) => {
 };
 
 export const csvFileFilter = (req, file, callback) => {
-    if (!file.originalname.match(/\.(csv|xlxs|txt)$/)) {
-      return callback(new Error('Only image files are allowed!'), false);
+    if (!file.originalname.match(/\.(csv|xlsx|txt)$/)) {
+      return callback(new Error('Only csv, excel files are allowed!'), false);
     }
     callback(null, true);
 };

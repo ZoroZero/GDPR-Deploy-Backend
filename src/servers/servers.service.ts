@@ -5,6 +5,7 @@ import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
+import * as XLSX from 'xlsx';
 @Injectable()
 export class ServersService {
 
@@ -80,10 +81,9 @@ export class ServersService {
     return await this.serversRepository.query(
     `EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIp =  ${_request.ipAddress? `'${_request.ipAddress}'` : `''`}
+     ,@ServerIp =  ${_request.serverIp? `'${_request.serverIp}'` : `''`}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
-     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
-   `
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
     )
   }
 
@@ -91,5 +91,35 @@ export class ServersService {
   async importServer(data){
     console.log("File upload", data);
     return null;
+  }
+
+  async importFile(file){
+   
+    var workbook = XLSX.readFile( './files/'+ file);
+    var sheet_name_list = workbook.SheetNames;
+    var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    console.log(xlData[0]);
+    return await Promise.all([
+      xlData.forEach((data:Server) => {this.serversRepository.query(`
+      SET DATEFORMAT dmy;
+      EXECUTE dbo.[ServerAlter]
+        @ServerId = '${data.Id}'
+        ,@ServerName = '${data.Name}'
+        ,@ServerIp = '${data.IpAddress}'
+        ,@StartDate = '${data.StartDate}'
+        ,@EndDate = '${data.EndDate}'
+        ,@CreatedDate = '${data.CreatedDate}'
+        ,@CreatedBy = '${data.CreatedBy}'
+        ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+        ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+        ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+        ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+        ,@IsDeleted = ${data.IsDeleted}
+        ,@IsActive = ${data.IsActive}` 
+      )})
+    ]).then(res => {
+      return "Hello world"
+    })
+    return null
   }
 }

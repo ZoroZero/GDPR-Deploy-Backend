@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Put, Delete, Param, UploadedFile, UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Param, UploadedFile, Res, 
+    UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto'
@@ -28,6 +29,7 @@ export class UsersController {
 
     constructor(private service: ServersService) { }
 
+    // Get server by pagination, sort, search, filter
     @Get('')
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
@@ -35,6 +37,7 @@ export class UsersController {
         return this.service.getServerByPage(query);
     }
 
+    // Get all active server
     @Get('active')
     @UseInterceptors(GetInterceptor)
     getActive(){
@@ -42,6 +45,7 @@ export class UsersController {
         return this.service.getAllActiveServer();
     }
 
+    // Get data export by filter
     @Get('export')
     @UseInterceptors(GetInterceptor)
     getExportData(@Query() query: ExportDto){
@@ -49,6 +53,14 @@ export class UsersController {
         return this.service.exportServerList(query);
     }
 
+    // Get csv file
+    @Get('import/:csvpath')
+    seeUploadedFile(@Param('csvpath') file, @Res() res) {
+        return this.service.importFile(file);
+        // return res.sendFile(image, { root: './files' });
+    }
+
+    // Create new server
     @Post('')
     @UseInterceptors(CreateInterceptor)
     post(@User() user, @Body() body: CreateServerDto){
@@ -56,7 +68,7 @@ export class UsersController {
         return this.service.addNewServer(body, user.UserId)
     }
 
-
+    // Post csv, xlsx file
     @Post('import')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
@@ -75,12 +87,15 @@ export class UsersController {
         // return this.service.importServer(file)
     }
 
+    // Update server
     @Put('')
     @UseInterceptors(UpdateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
     }
 
+
+    // Delete server
     @Delete('')
     @UseInterceptors(UpdateInterceptor)
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {

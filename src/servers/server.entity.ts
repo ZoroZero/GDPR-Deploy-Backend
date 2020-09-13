@@ -19,4 +19,25 @@ export class Server {
 
   @Column({ default: true })
   IsActive: boolean;
+
+  @Column()
+  CreatedDate: Date
+
+  @Column('uuid')
+  CreatedBy: Date
+
+  @Column()
+  UpdatedDate: Date
+
+  @Column('uuid')
+  UpdatedBy: Date
+
+  @Column()
+  DeletedDate: Date
+
+  @Column('uuid')
+  DeletedBy: Date
+
+  @Column({ default: false })
+  IsDeleted: boolean;
 }
