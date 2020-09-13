@@ -21,8 +21,8 @@ import { editFileName, csvFileFilter } from '../helper/helper';
 
 @Controller('/api/servers')
 @UseFilters(new HttpExceptionFilter())
-@SetMetadata('roles', ['admin', 'dc-member'])
-@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+// @SetMetadata('roles', ['admin', 'dc-member'])
+// @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
 

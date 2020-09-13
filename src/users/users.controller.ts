@@ -13,7 +13,10 @@ import {
   Query,
   Put,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  UploadedFile, 
+  UseInterceptors,
+  Res
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -27,7 +30,9 @@ import { SearchUserDto } from 'src/dto/searchUser.dto';
 import { InsertUserDto } from 'src/dto/insertUser.dto';
 import { UpdateUserDto } from 'src/dto/updateUser.dto';
 import { UpdateAccountDto } from 'src/dto/updateAccount.dto';
-
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
+import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
 @Controller('/api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -139,4 +144,52 @@ export class UsersController {
       throw new HttpException("Cannot update! You only can update yourself", HttpStatus.BAD_REQUEST);
     }
   }
+
+
+  @Post('avatar')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+          destination: './files',
+          filename: editFileName,
+        }),
+        fileFilter: imageFileFilter,
+    }))
+    importUser(@UploadedFile() file){
+        // console.log("User:", user);
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+          };
+          return response;
+        // return this.service.importServer(file)
+    }
+
+
+  // @Post('multiple')
+  // @UseInterceptors(
+  //   FilesInterceptor('image', 20, {
+  //     storage: diskStorage({
+  //       destination: './files',
+  //       filename: editFileName,
+  //     }),
+  //     fileFilter: imageFileFilter,
+  //   }),
+  // )
+  // async uploadMultipleFiles(@UploadedFiles() files) {
+  //   const response = [];
+  //   files.forEach(file => {
+  //     const fileReponse = {
+  //       originalname: file.originalname,
+  //       filename: file.filename,
+  //     };
+  //     response.push(fileReponse);
+  //   });
+  //   return response;
+  // }
+
+  @Get(':imgpath')
+seeUploadedFile(@Param('imgpath') image, @Res() res) {
+  return res.sendFile(image, { root: './files' });
+}
+
 }
