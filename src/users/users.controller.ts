@@ -166,13 +166,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('avatar')
   @UseInterceptors(
-    AmazonS3FileInterceptor('file', {
-      resizeMultiple: [
-        { suffix: 'sm', width: 200, height: 200 },
-        { suffix: 'md', width: 300, height: 300 },
-        { suffix: 'lg', width: 400, height: 400 },
-      ],
-    }),
+    // AmazonS3FileInterceptor('file', {
+    //   resizeMultiple: [
+    //     { suffix: 'sm', width: 200, height: 200 },
+    //     { suffix: 'md', width: 300, height: 300 },
+    //     { suffix: 'lg', width: 400, height: 400 },
+    //   ],
+    // }),
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './files',
