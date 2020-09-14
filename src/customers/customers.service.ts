@@ -44,6 +44,13 @@ export class CustomersService {
     );
   }
 
+  async findOtherServers(filter, status, id): Promise<any> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[GetOtherServers] 
+   @Id ='${id}', @Status ='${status}'`,
+    );
+  }
+
   async update(
     id: string,
     newValue: CreateCustomerDto,
