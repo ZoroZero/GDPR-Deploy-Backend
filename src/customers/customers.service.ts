@@ -37,6 +37,12 @@ export class CustomersService {
       `EXECUTE [dbo].[CustomerGetCustomerById] @Id ='${res.Id}'`,
     );
   }
+  async findServers(id: string): Promise<any> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[GetServersCustomer] 
+   @Id ='${id}'`,
+    );
+  }
 
   async update(
     id: string,
