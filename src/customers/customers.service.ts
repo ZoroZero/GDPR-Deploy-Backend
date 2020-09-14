@@ -3,6 +3,7 @@ import { Customer } from './customer.entity';
 import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { ExportCustomerDto } from './dto/export-customer.dto';
 
 @Injectable()
 export class CustomersService {
@@ -66,5 +67,17 @@ export class CustomersService {
       DeletedDate: new Date(),
     });
     return await this.customersRepository.findOne({ Id: id });
+  }
+
+
+  async exportCustomerList(request: ExportCustomerDto){
+    return await this.customersRepository.query(`
+    [dbo].[CustomerExportCustomerList] 
+      @CustomerName = ${request.CustomerName?`'${request.CustomerName}'`:`''`}
+      ,@ContactPoint = '${request.ContactPointEmail}'
+      ,@ContractStart = ${request.ContractBeginDate?`'${request.ContractBeginDate}'`: null}
+      ,@ContractEnd = ${request.ContractEndDate?`'${request.ContractEndDate}'`: null}
+      ,@Status = ${request.IsActive}
+    `)
   }
 }
