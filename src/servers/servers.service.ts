@@ -98,7 +98,7 @@ export class ServersService {
 
   async importFile(file){
     // return file
-    var workbook = XLSX.readFile( './files/'+ file);
+    var workbook = XLSX.readFile(process.env.SERVER_FOLDER+ `/${file}`);
     var sheet_name_list = workbook.SheetNames;
     var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
     console.log(xlData[0]);
@@ -118,11 +118,11 @@ export class ServersService {
         ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
         ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
         ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-        ,@IsDeleted = ${data.IsDeleted}
-        ,@IsActive = ${data.IsActive}` 
+        ,@IsDeleted = ${data.IsDeleted?1:0}
+        ,@IsActive = ${data.IsActive?1:0}` 
       )})
     ]).then(res => {
-      return unlinkAsync('./files/'+ file).then(res => {
+      return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`).then(res => {
         return "Job done"
       })
 

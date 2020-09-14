@@ -17,7 +17,7 @@ import { ExportDto } from './dto/export-server.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
 import { editFileName, csvFileFilter, editImportServerFileName } from '../helper/helper';
-
+import { multerOptions } from './config/server.config'
 
 // import { Request } from 'express';
 
@@ -72,20 +72,16 @@ export class UsersController {
 
     // Post csv, xlsx file
     @Post('import')
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-          destination: './files',
-          filename: editImportServerFileName,
-        }),
-        fileFilter: csvFileFilter,
-    }))
+    @UseInterceptors(FileInterceptor('file', multerOptions))
     importServer(@User() user, @UploadedFile() file){
-        // console.log("User:", user);
+        console.log("File upload", file);
+        // console.log("Destination", process.env.SERVER_FOLDER)
         const response = {
             originalname: file.originalname,
             filename: file.filename,
         };
-        return response;
+        return this.service.importFile(file.filename)
+        // return response;
         // return this.service.importServer(file)
     }
 
