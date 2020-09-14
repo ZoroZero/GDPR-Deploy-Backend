@@ -208,16 +208,14 @@ export class UsersService {
     // console.log('insertResult', insertResult);
   }
 
-  async updateAvatar(
-    Id: String,
-    ImagePath: String
-  ) {
+  async updateAvatar(Id: String, ImagePath: String) {
     const updateAvatarResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[updateAvatar]  
       @UserId= '${Id}'
       ,@AvatarPath='${ImagePath}'
-      `)
+      `,
+      )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
@@ -262,6 +260,43 @@ export class UsersService {
         `EXECUTE [dbo].[GetListUser]` +
           qPageNo +
           qPageSize +
+          qSearchKey +
+          qSortBy +
+          qSortOrder +
+          qRole +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    return userList;
+  }
+
+  async getAllUser(
+    SearchKey: String,
+    SortBy: String,
+    SortOrder: String,
+    Role: String,
+    IsActive: Boolean,
+  ) {
+    var qSearchKey;
+    var qSortBy;
+    var qSortOrder;
+    var qRole;
+    var qIsActive;
+    if (SearchKey === undefined) qSearchKey = '@SearchKey =null,';
+    else qSearchKey = "@SearchKey ='" + SearchKey + "',";
+    if (SortBy === undefined) qSortBy = '@SortBy =null,';
+    else qSortBy = "@SortBy ='" + SortBy + "',";
+    if (SortOrder === undefined) qSortOrder = '@SortOrder =null,';
+    else qSortOrder = '@SortOrder =' + SortOrder + ',';
+    if (Role === undefined) qRole = "@RoleList ='',";
+    else qRole = "@RoleList ='" + Role + "',";
+    if (IsActive === undefined) qIsActive = '@IsActive = null';
+    else qIsActive = '@IsActive =' + IsActive + '';
+    const userList = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[GetAllUser]` +
           qSearchKey +
           qSortBy +
           qSortOrder +

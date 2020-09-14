@@ -73,6 +73,20 @@ export class UsersController {
     );
   }
 
+  @SetMetadata('roles', ['admin', 'dc-member'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Get('/listall')
+  getListAllUser(@Query() req) {
+    console.log(req);
+    return this.usersService.getAllUser(
+      req.SearchKey,
+      req.SortBy,
+      req.SortOrder,
+      req.Role,
+      req.IsActive,
+    );
+  }
+
   @SetMetadata('roles', ['admin', 'contact-point'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete('/:UserId')
