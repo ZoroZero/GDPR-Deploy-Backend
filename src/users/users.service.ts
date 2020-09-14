@@ -11,7 +11,7 @@ import { Response, json } from 'express';
 import { CONFIRM_EMAIL_PREFIX } from '../constants';
 import { redis } from '../redis';
 import { confirmEmailLink } from '../utils/confirmEmailLink';
-import { sendEmail } from '../utils/sendEmail';
+import { sendEmail, sendForgotPassEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
 
@@ -109,6 +109,23 @@ export class UsersService {
       UserName,
       PassWord,
     );
+  }
+
+  async forgotPassword(email: string) {
+    var randomstring = Math.random()
+      .toString(36)
+      .slice(-8);
+    const userdata = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[ForgotPassword]  
+      @Email= '${email}'
+      ,@NewPass ='${randomstring}'
+     `,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    sendForgotPassEmail(email, userdata[0].UserName, userdata[0].HashPasswd);
   }
 
   async confirmEmail(id: any, res: Response) {

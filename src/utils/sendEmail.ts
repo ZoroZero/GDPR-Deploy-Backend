@@ -37,3 +37,38 @@ export const sendEmail = async (
   console.log('Message sent: %s', info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
+
+export const sendForgotPassEmail = async (
+  email: string,
+  username: string,
+  password: string,
+) => {
+  // create reusable transporter object using the default SMTP transport
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.sendgrid.net',
+    port: 465,
+    secure: true, // true for 465, false for other ports
+    auth: {
+      user: 'apikey', // generated ethereal user
+      pass: process.env.SENDGRID_API_KEY, // generated ethereal password
+    },
+  });
+
+  // send mail with defined transport object
+  const info = await transporter.sendMail({
+    from: '"Tu Tran" <tu.tran@netpower.no>', // sender address
+    to: email, // list of receivers
+    subject: 'FORGOT PASSWORD', // Subject line
+    text: 'Hello ✔', // plain text body
+    html: `<h1>Welcome to GDPR system</h1>
+    <b>Your username: ${username}</b>
+    <br/>
+    <b>Your new password: ${password}</b>
+    <br/>
+    <br/>
+    <b>Please login into your account with the new password and change it as soon as possible!</b>`, // html body
+  });
+
+  console.log('Message sent: %s', info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+};
