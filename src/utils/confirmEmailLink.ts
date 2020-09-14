@@ -8,5 +8,5 @@ export const confirmEmailLink = async (userId: any) => {
   // await redis.set(`${CONFIRM_EMAIL_PREFIX}${id}`, userId, 'ex', 60 * 60 * 15);
   await redis.set(`${id}`, userId, 'ex', 60 * 60 * 15);
 
-  return `${process.env.BACKEND_HOST}/api/users/confirm/${id}`;
+  return `${process.env.FRONTEND_HOST}/api/users/confirm/${id}`;
 };
