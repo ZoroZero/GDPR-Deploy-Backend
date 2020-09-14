@@ -83,4 +83,10 @@ export class CustomersController {
   async findAllContactPoints(@Query() query): Promise<any> {
     return await this.usersService.getContactPointList();
   }
+  @Get('/servers')
+  async findServersByCustomerId(
+    @Query('Id', ParseUUIDPipe) id: string,
+  ): Promise<any> {
+    return await this.customersService.findServers(id);
+  }
 }
