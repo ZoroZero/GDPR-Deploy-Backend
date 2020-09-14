@@ -6,6 +6,7 @@ import { ServersService } from 'src/servers/servers.service';
 import { CreateRequestDto } from './Dto/create-request.dto';
 import { MailService } from 'src/mail/mail.service';
 import { RequestLogService } from './requestLog.service';
+import { exportQueryDto } from './Dto/exportQuery.dto';
 
 @Injectable()
 export class RequestsService {
@@ -287,7 +288,7 @@ export class RequestsService {
 
   async compareRequest(newReq, oldReq): Promise<any> {
     try {
-      let listDifference = [];
+      const listDifference = [];
       if (newReq.title !== oldReq.Title) {
         listDifference.push(
           'updated title: ' + oldReq.Title + '->' + newReq.title,
@@ -342,5 +343,26 @@ export class RequestsService {
     } catch (error) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async exportRequest(body: exportQueryDto): Promise<any> {
+    const approveParam =
+      !body.approvedBy || body.approvedBy === ''
+        ? ''
+        : `@ApprovedBy='${body.approvedBy}',`;
+    const requesterParam =
+      !body.createdBy || body.createdBy === ''
+        ? ''
+        : `@CreatedBy='${body.createdBy}',`;
+    const listServerIp = body.server.map(val => {
+      return val.split('-')[1];
+    });
+    const listServerIpParam =
+      listServerIp.length > 0
+        ? `@ListServerIp='${listServerIp.join(',')}',`
+        : '';
+    return await this.RequestRepository.query(`
+      EXEC [dbo].[Request_exportRequestByServer] ${approveParam} ${requesterParam} ${listServerIpParam} @StartDate='${body.fromDate}', @EndDate='${body.toDate}'
+    `);
   }
 }

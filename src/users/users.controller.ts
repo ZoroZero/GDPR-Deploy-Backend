@@ -14,9 +14,9 @@ import {
   Put,
   HttpException,
   HttpStatus,
-  UploadedFile, 
+  UploadedFile,
   UseInterceptors,
-  Res
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -31,7 +31,7 @@ import { InsertUserDto } from 'src/dto/insertUser.dto';
 import { UpdateUserDto } from 'src/dto/updateUser.dto';
 import { UpdateAccountDto } from 'src/dto/updateAccount.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer'
+import { diskStorage } from 'multer';
 import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
 @Controller('/api/users')
 export class UsersController {
@@ -47,7 +47,7 @@ export class UsersController {
   @Get('/profile')
   async getProfile(@Request() req) {
     const Info = await this.usersService.getInfoById(String(req.user.UserId));
-    return {...Info[0], UserId: req.user.UserId};
+    return { ...Info[0], UserId: req.user.UserId };
   }
 
   @SetMetadata('roles', ['admin', 'contact-point'])
@@ -80,8 +80,8 @@ export class UsersController {
     console.log(req);
     return this.usersService.getAllUser(
       req.SearchKey,
-      req.SortBy,
-      req.SortOrder,
+      'Email',
+      'ascend',
       req.Role,
       req.IsActive,
     );
@@ -133,7 +133,7 @@ export class UsersController {
     );
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point','dc-member','normal-user'])
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/account/:id')
   updateAccount(
@@ -143,45 +143,48 @@ export class UsersController {
   ) {
     console.log('user', req1.user);
     console.log('BugReq', req.IsActive);
-    if (userId==req1.user.UserId){
-    return this.usersService.updateAccount(
-      userId,
-      req.Email,
-      req.PassWord,
-      req.FirstName,
-      req.LastName,
-      req1.user.UserId,
-      req.IsActive,
-    );
-    }
-    else {
-      throw new HttpException("Cannot update! You only can update yourself", HttpStatus.BAD_REQUEST);
+    if (userId == req1.user.UserId) {
+      return this.usersService.updateAccount(
+        userId,
+        req.Email,
+        req.PassWord,
+        req.FirstName,
+        req.LastName,
+        req1.user.UserId,
+        req.IsActive,
+      );
+    } else {
+      throw new HttpException(
+        'Cannot update! You only can update yourself',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point','dc-member','normal-user'])
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('avatar')
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-          destination: './files',
-          filename: editFileName,
-        }),
-        fileFilter: imageFileFilter,
-    }))
-    importUser(@Request() req1,@UploadedFile() file){
-        // console.log("User:", user);
-        console.log('user', req1.user);
-        this.usersService.updateAvatar(req1.user.UserId,file.filename);
-        console.log(file);
-        const response = {
-            originalname: file.originalname,
-            filename: file.filename,
-          };
-          return response;
-        // return this.service.importServer(file)
-    }
-
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './files',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  importUser(@Request() req1, @UploadedFile() file) {
+    // console.log("User:", user);
+    console.log('user', req1.user);
+    this.usersService.updateAvatar(req1.user.UserId, file.filename);
+    console.log(file);
+    const response = {
+      originalname: file.originalname,
+      filename: file.filename,
+    };
+    return response;
+    // return this.service.importServer(file)
+  }
 
   // @Post('multiple')
   // @UseInterceptors(
@@ -206,8 +209,7 @@ export class UsersController {
   // }
 
   @Get(':imgpath')
-seeUploadedFile(@Param('imgpath') image, @Res() res) {
-  return res.sendFile(image, { root: './files' });
-}
-
+  seeUploadedFile(@Param('imgpath') image, @Res() res) {
+    return res.sendFile(image, { root: './files' });
+  }
 }
