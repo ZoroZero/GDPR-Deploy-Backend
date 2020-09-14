@@ -96,6 +96,7 @@ export class CustomersController {
       query.filter,
       query.status,
       query.id,
+      query.page,
     );
   }
 }

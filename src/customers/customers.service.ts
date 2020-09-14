@@ -44,10 +44,10 @@ export class CustomersService {
     );
   }
 
-  async findOtherServers(filter, status, id): Promise<any> {
+  async findOtherServers(filter, status, id, page): Promise<any> {
     return await this.customersRepository.query(
       `EXECUTE [dbo].[GetOtherServers] 
-   @Id ='${id}', @Status ='${status}'`,
+   @Id ='${id}', @Status ='${status}', @PageNumber='${page}'`,
     );
   }
 
