@@ -15,6 +15,7 @@ import { RequestsModule } from './requests/requests.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailService } from './mail/mail.service';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { MailService } from './mail/mail.service';
     MulterModule.register({
       dest: './files',
     }),
+    MessageModule,
   ],
 
   controllers: [AppController],
