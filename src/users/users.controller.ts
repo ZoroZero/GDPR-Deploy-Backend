@@ -12,6 +12,11 @@ import {
   Body,
   Query,
   Put,
+  HttpException,
+  HttpStatus,
+  UploadedFile,
+  UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -24,7 +29,10 @@ import { request } from 'express';
 import { SearchUserDto } from 'src/dto/searchUser.dto';
 import { InsertUserDto } from 'src/dto/insertUser.dto';
 import { UpdateUserDto } from 'src/dto/updateUser.dto';
-
+import { UpdateAccountDto } from 'src/dto/updateAccount.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
 @Controller('/api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -39,17 +47,17 @@ export class UsersController {
   @Get('/profile')
   async getProfile(@Request() req) {
     const Info = await this.usersService.getInfoById(String(req.user.UserId));
-    return Info[0];
+    return { ...Info[0], UserId: req.user.UserId };
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
+  @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('')
   getAllProfile(@Request() req) {
     return this.usersService.findAll();
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
+  @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/list')
   getListUser(@Query() req: SearchUserDto) {
@@ -65,14 +73,28 @@ export class UsersController {
     );
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
+  @SetMetadata('roles', ['admin', 'dc-member'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Get('/listall')
+  getListAllUser(@Query() req) {
+    console.log(req);
+    return this.usersService.getAllUser(
+      req.SearchKey,
+      req.SortBy,
+      req.SortOrder,
+      req.Role,
+      req.IsActive,
+    );
+  }
+
+  @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete('/:UserId')
   deleteUser(@Request() req1, @Param('UserId') UserId: string) {
     return this.usersService.deleteUser(UserId, req1.user.UserId);
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
+  @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/insert')
   insertUser(@Request() req1, @Body() req: InsertUserDto) {
@@ -88,7 +110,7 @@ export class UsersController {
     );
   }
 
-  @SetMetadata('roles', ['admin', 'contact-point'])
+  @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
   update(
@@ -109,5 +131,85 @@ export class UsersController {
       req1.user.UserId,
       req.IsActive,
     );
+  }
+
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Put('/account/:id')
+  updateAccount(
+    @Request() req1,
+    @Param('id') userId: String,
+    @Body() req: UpdateAccountDto,
+  ) {
+    console.log('user', req1.user);
+    console.log('BugReq', req.IsActive);
+    if (userId == req1.user.UserId) {
+      return this.usersService.updateAccount(
+        userId,
+        req.Email,
+        req.PassWord,
+        req.FirstName,
+        req.LastName,
+        req1.user.UserId,
+        req.IsActive,
+      );
+    } else {
+      throw new HttpException(
+        'Cannot update! You only can update yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './files',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  importUser(@Request() req1, @UploadedFile() file) {
+    // console.log("User:", user);
+    console.log('user', req1.user);
+    this.usersService.updateAvatar(req1.user.UserId, file.filename);
+    console.log(file);
+    const response = {
+      originalname: file.originalname,
+      filename: file.filename,
+    };
+    return response;
+    // return this.service.importServer(file)
+  }
+
+  // @Post('multiple')
+  // @UseInterceptors(
+  //   FilesInterceptor('image', 20, {
+  //     storage: diskStorage({
+  //       destination: './files',
+  //       filename: editFileName,
+  //     }),
+  //     fileFilter: imageFileFilter,
+  //   }),
+  // )
+  // async uploadMultipleFiles(@UploadedFiles() files) {
+  //   const response = [];
+  //   files.forEach(file => {
+  //     const fileReponse = {
+  //       originalname: file.originalname,
+  //       filename: file.filename,
+  //     };
+  //     response.push(fileReponse);
+  //   });
+  //   return response;
+  // }
+
+  @Get(':imgpath')
+  seeUploadedFile(@Param('imgpath') image, @Res() res) {
+    return res.sendFile(image, { root: './files' });
   }
 }
