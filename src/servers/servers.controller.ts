@@ -18,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
 import { editFileName, csvFileFilter, editImportServerFileName } from '../helper/helper';
 import { multerOptions } from './config/server.config'
+import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 
 // import { Request } from 'express';
 
@@ -90,6 +91,11 @@ export class UsersController {
     @UseInterceptors(UpdateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
+    }
+
+    @Put('multi')
+    updateMulti(@User() user, @Body() body: ChangeStatusListServerDto){
+        return this.service.updateMultiServer(body, user.UserId)
     }
 
 
