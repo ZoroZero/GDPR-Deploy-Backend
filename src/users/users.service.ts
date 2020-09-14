@@ -173,6 +173,58 @@ export class UsersService {
     // console.log('insertResult', insertResult);
   }
 
+  async updateAccount(
+    Id: String,
+    Email: String,
+    PassWord: String,
+    FirstName: String,
+    LastName: String,
+    CreatedBy: String,
+    IsActive: Boolean,
+  ) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    var qIsActive;
+    if (IsActive === undefined) qIsActive = ',@IsActive = null';
+    else qIsActive = ',@IsActive =' + IsActive;
+    const insertResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[updateUser]  
+      @UserId= '${Id}'
+      ,@PassWord='${PassWord}'
+      ,@FirstName='${FirstName}'
+      ,@LastName='${LastName}'
+      ,@Email='${Email}'` +
+          String(qCreatedBy) +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
+  }
+
+  async updateAvatar(Id: String, ImagePath: String) {
+    const updateAvatarResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[updateAvatar]  
+      @UserId= '${Id}'
+      ,@AvatarPath='${ImagePath}'
+      `,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
+  }
+
   async getListUser(
     PageNo: number,
     PageSize: number,
@@ -208,6 +260,43 @@ export class UsersService {
         `EXECUTE [dbo].[GetListUser]` +
           qPageNo +
           qPageSize +
+          qSearchKey +
+          qSortBy +
+          qSortOrder +
+          qRole +
+          qIsActive,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    return userList;
+  }
+
+  async getAllUser(
+    SearchKey: String,
+    SortBy: String,
+    SortOrder: String,
+    Role: String,
+    IsActive: Boolean,
+  ) {
+    var qSearchKey;
+    var qSortBy;
+    var qSortOrder;
+    var qRole;
+    var qIsActive;
+    if (SearchKey === undefined) qSearchKey = '@SearchKey =null,';
+    else qSearchKey = "@SearchKey ='" + SearchKey + "',";
+    if (SortBy === undefined) qSortBy = '@SortBy =null,';
+    else qSortBy = "@SortBy ='" + SortBy + "',";
+    if (SortOrder === undefined) qSortOrder = '@SortOrder =null,';
+    else qSortOrder = '@SortOrder =' + SortOrder + ',';
+    if (Role === undefined) qRole = "@RoleList ='',";
+    else qRole = "@RoleList ='" + Role + "',";
+    if (IsActive === undefined) qIsActive = '@IsActive = null';
+    else qIsActive = '@IsActive =' + IsActive + '';
+    const userList = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[GetAllUser]` +
           qSearchKey +
           qSortBy +
           qSortOrder +
