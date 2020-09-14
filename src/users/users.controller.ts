@@ -32,6 +32,7 @@ import { UpdateUserDto } from 'src/dto/updateUser.dto';
 import { UpdateAccountDto } from 'src/dto/updateAccount.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
 import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
 @Controller('/api/users')
 export class UsersController {
@@ -165,6 +166,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('avatar')
   @UseInterceptors(
+    AmazonS3FileInterceptor('file', {
+      resizeMultiple: [
+        { suffix: 'sm', width: 200, height: 200 },
+        { suffix: 'md', width: 300, height: 300 },
+        { suffix: 'lg', width: 400, height: 400 },
+      ],
+    }),
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './files',
