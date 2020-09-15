@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Param, UploadedFile, Res, 
+import { Controller, Post, Body, Get, Put, Delete,
     UseInterceptors, UseFilters, UseGuards, Query, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { Server } from './server.entity';
@@ -7,19 +7,14 @@ import { HttpExceptionFilter } from '../filters/http-exception.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
 import { Reflector } from '@nestjs/core';
-import { createParamDecorator } from '@nestjs/common';
 import { User } from 'src/auth/user.decorator';
 import { GetInterceptor } from '../interceptors/http-get.interceptor';
 import { SearchDataDto } from 'src/dto/search.dto';
 import { CreateInterceptor } from 'src/interceptors/server/http-create.interceptor';
 import { UpdateInterceptor } from 'src/interceptors/server/http-update.interceptor';
 import { ExportDto } from './dto/export-server.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer'
-import { editFileName, csvFileFilter, editImportServerFileName } from '../helper/helper';
-import { multerOptions } from './config/server.config'
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
-
+import { ImportServerDto } from './dto/import-server-list.dto';
 // import { Request } from 'express';
 
 
@@ -56,12 +51,12 @@ export class UsersController {
         return this.service.exportServerList(query);
     }
 
-    // Get csv file
-    @Get('import/:csvpath')
-    seeUploadedFile(@Param('csvpath') file) {
-        return this.service.importFile(file);
-        // return res.sendFile(image, { root: './files' });
-    }
+    // // Get csv file
+    // @Get('import/:csvpath')
+    // seeUploadedFile(@Param('csvpath') file) {
+    //     return this.service.importFile(file);
+    //     // return res.sendFile(image, { root: './files' });
+    // }
 
     // Create new server
     @Post('')
@@ -73,17 +68,9 @@ export class UsersController {
 
     // Post csv, xlsx file
     @Post('import')
-    @UseInterceptors(FileInterceptor('file', multerOptions))
-    importServer(@User() user, @UploadedFile() file){
-        console.log("File upload", file);
-        // console.log("Destination", process.env.SERVER_FOLDER)
-        const response = {
-            originalname: file.originalname,
-            filename: file.filename,
-        };
-        return this.service.importFile(file.filename)
-        // return response;
-        // return this.service.importServer(file)
+    importServer(@Body() body: ImportServerDto){
+        console.log("File upload", body);
+        return this.service.importServerList(body)
     }
 
     // Update server

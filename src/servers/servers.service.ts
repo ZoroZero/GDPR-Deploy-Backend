@@ -5,13 +5,9 @@ import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
-import * as XLSX from 'xlsx';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
-const fs = require('fs')
+import { ImportServerDto } from './dto/import-server-list.dto';
 // const csv = require('csv-parser');
-const { promisify } = require('util')
-const unlinkAsync = promisify(fs.unlink)
-const csv=require('csvtojson')
 
 @Injectable()
 export class ServersService {
@@ -115,79 +111,98 @@ export class ServersService {
     )
   }
 
-
-  async importFile(file){
-    if(file.includes('.csv')){
-      const converter=csv().fromFile(process.env.SERVER_FOLDER+ `/${file}`)
-      .then( async (json) =>{
-        console.log(json);
-        return await Promise.all([
-          json.forEach((data:Server) => {
-          this.serversRepository.query(`SET DATEFORMAT dmy
-          EXECUTE dbo.[ServerAlter]
-            @ServerId = '${data.Id}'
-            ,@ServerName = '${data.Name}'
-            ,@ServerIp = '${data.IpAddress}'
-            ,@StartDate = '${data.StartDate}'
-            ,@EndDate = '${data.EndDate}'
-            ,@CreatedDate = '${data.CreatedDate}'
-            ,@CreatedBy = '${data.CreatedBy}'
-            ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-            ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-            ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-            ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-            ,@IsDeleted = ${data.IsDeleted?1:0}
-            ,@IsActive = ${data.IsActive?1:0}` 
-          )})
-        ])
-        .then(res => {
-          return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
-          .then(res => {
-            return  {sucessful: true, status: HttpStatus.OK}
-          }).
-          catch(err => {console.log(err);
-          })
-        })
-        .catch(err => {
-            throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
-          })
-       });
-    }
-    else{
-      var workbook = XLSX.readFile(process.env.SERVER_FOLDER+ `/${file}`);
-      var sheet_name_list = workbook.SheetNames;
-      // console.log(XLSX.utils.sheet_to_txt(workbook.Sheets[sheet_name_list[0]]));
-      var importData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-        // console.log(xlData[0])
-      return await Promise.all([importData.forEach((data:Server) => {
-        this.serversRepository.query(`SET DATEFORMAT dmy
-        EXECUTE dbo.[ServerAlter]
-          @ServerId = '${data.Id}'
-          ,@ServerName = '${data.Name}'
-          ,@ServerIp = '${data.IpAddress}'
-          ,@StartDate = '${data.StartDate}'
-          ,@EndDate = '${data.EndDate}'
-          ,@CreatedDate = '${data.CreatedDate}'
-          ,@CreatedBy = '${data.CreatedBy}'
-          ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-          ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-          ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-          ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-          ,@IsDeleted = ${data.IsDeleted?1:0}
-          ,@IsActive = ${data.IsActive?1:0}` 
-        )})
-      ])
-      .then(res => {
-        return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
-        .then(res => {
-          return  {sucessful: true, status: HttpStatus.OK}
-        }).
-        catch(err => {console.log(err);
-        })
-      })
-      .catch(err => {
-          throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
-      })
-    }
+  async importServerList(request: ImportServerDto){
+    return await Promise.all([request.listServer.forEach((data:Server) => {
+      this.serversRepository.query(`SET DATEFORMAT dmy
+      EXECUTE dbo.[ServerAlter]
+        @ServerId = '${data.Id}'
+        ,@ServerName = '${data.Name}'
+        ,@ServerIp = '${data.IpAddress}'
+        ,@StartDate = '${data.StartDate}'
+        ,@EndDate = '${data.EndDate}'
+        ,@CreatedDate = '${data.CreatedDate}'
+        ,@CreatedBy = '${data.CreatedBy}'
+        ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+        ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+        ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+        ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+        ,@IsDeleted = ${data.IsDeleted}
+        ,@IsActive = ${data.IsActive}` 
+      )})
+    ])
   }
+  // async importFile(file){
+  //   if(file.includes('.csv')){
+  //     const converter=csv().fromFile(process.env.SERVER_FOLDER+ `/${file}`)
+  //     .then( async (json) =>{
+  //       console.log(json);
+  //       return await Promise.all([
+  //         json.forEach((data:Server) => {
+  //         this.serversRepository.query(`SET DATEFORMAT dmy
+  //         EXECUTE dbo.[ServerAlter]
+  //           @ServerId = '${data.Id}'
+  //           ,@ServerName = '${data.Name}'
+  //           ,@ServerIp = '${data.IpAddress}'
+  //           ,@StartDate = '${data.StartDate}'
+  //           ,@EndDate = '${data.EndDate}'
+  //           ,@CreatedDate = '${data.CreatedDate}'
+  //           ,@CreatedBy = '${data.CreatedBy}'
+  //           ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+  //           ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+  //           ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+  //           ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+  //           ,@IsDeleted = ${data.IsDeleted?1:0}
+  //           ,@IsActive = ${data.IsActive?1:0}` 
+  //         )})
+  //       ])
+  //       .then(res => {
+  //         return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
+  //         .then(res => {
+  //           return  {sucessful: true, status: HttpStatus.OK}
+  //         }).
+  //         catch(err => {console.log(err);
+  //         })
+  //       })
+  //       .catch(err => {
+  //           throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
+  //         })
+  //      });
+  //   }
+  //   else{
+  //     var workbook = XLSX.readFile(process.env.SERVER_FOLDER+ `/${file}`);
+  //     var sheet_name_list = workbook.SheetNames;
+  //     // console.log(XLSX.utils.sheet_to_txt(workbook.Sheets[sheet_name_list[0]]));
+  //     var importData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+  //       // console.log(xlData[0])
+  //     return await Promise.all([importData.forEach((data:Server) => {
+  //       this.serversRepository.query(`SET DATEFORMAT dmy
+  //       EXECUTE dbo.[ServerAlter]
+  //         @ServerId = '${data.Id}'
+  //         ,@ServerName = '${data.Name}'
+  //         ,@ServerIp = '${data.IpAddress}'
+  //         ,@StartDate = '${data.StartDate}'
+  //         ,@EndDate = '${data.EndDate}'
+  //         ,@CreatedDate = '${data.CreatedDate}'
+  //         ,@CreatedBy = '${data.CreatedBy}'
+  //         ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+  //         ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+  //         ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+  //         ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+  //         ,@IsDeleted = ${data.IsDeleted?1:0}
+  //         ,@IsActive = ${data.IsActive?1:0}` 
+  //       )})
+  //     ])
+  //     .then(res => {
+  //       return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
+  //       .then(res => {
+  //         return  {sucessful: true, status: HttpStatus.OK}
+  //       }).
+  //       catch(err => {console.log(err);
+  //       })
+  //     })
+  //     .catch(err => {
+  //         throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
+  //     })
+  //   }
+  // }
 }
