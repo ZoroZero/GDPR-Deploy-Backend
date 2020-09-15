@@ -86,11 +86,11 @@ export class CustomersService {
     if (!customer) {
       console.error("customer doesn't exist");
     }
-    await this.customersRepository.update(id, {
-      IsDeleted: true,
-      DeletedBy: deletedById,
-      DeletedDate: new Date(),
-    });
+    await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerDeleteCustomer] 
+   @DeletedBy ='${deletedById}', @List='${id}'`,
+    );
+
     return await this.customersRepository.findOne({ Id: id });
   }
 }
