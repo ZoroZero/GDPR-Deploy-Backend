@@ -205,6 +205,25 @@ export class UsersService {
     // console.log('insertResult', insertResult);
   }
 
+  async acdeacListUser(IdList: String, CreatedBy: String, IsActive: Boolean) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    const qResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[acdeacListUsers]  
+      @UserIdList= '${IdList}'
+      ,@IsActive ='${IsActive}'` + String(qCreatedBy),
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+    // if (!insertResult) {
+    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
+    // }
+    // console.log('insertResult', insertResult);
+  }
+
   async updateAccount(
     Id: String,
     Email: String,

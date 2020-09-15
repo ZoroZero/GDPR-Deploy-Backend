@@ -114,6 +114,18 @@ export class UsersController {
     );
   }
 
+  // @SetMetadata('roles', ['admin'])
+  // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  // @Post('/acdeac')
+  // acdeacListUsers(@Request() req1, @Body() req: InsertUserDto) {
+  //   console.log('BugReq', req);
+  //   return this.usersService.acdeacListUser(
+  //     req.idlist,
+  //     req1.user.UserId,
+  //     req.isactive
+  //   );
+  // }
+
   @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
@@ -134,6 +146,19 @@ export class UsersController {
       req.lastname,
       req1.user.UserId,
       req.IsActive,
+    );
+  }
+
+  @SetMetadata('roles', ['admin'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Put('/acdeac')
+  acdeacListUsers(@Request() req1, @Body() req) {
+    // console.log('user', req1.user);
+    // console.log('BugReq', req.IsActive);
+    return this.usersService.acdeacListUser(
+      req.listid,
+      req1.user.UserId,
+      req.isactive,
     );
   }
 
