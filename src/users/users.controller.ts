@@ -34,6 +34,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
 import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
+const fs = require('fs');
+const { promisify } = require('util');
+const unlinkAsync = promisify(fs.unlink);
 @Controller('/api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -181,7 +184,8 @@ export class UsersController {
       fileFilter: imageFileFilter,
     }),
   )
-  importUser(@Request() req1, @UploadedFile() file) {
+  async importUser(@Request() req1, @UploadedFile() file) {
+    const userdata = await this.usersService.getInfoById(req1.user.UserId);
     // console.log("User:", user);
     console.log('user', req1.user);
     this.usersService.updateAvatar(req1.user.UserId, file.filename);
@@ -190,6 +194,10 @@ export class UsersController {
       originalname: file.originalname,
       filename: file.filename,
     };
+    console.log('userdata', userdata);
+    if (userdata.length == 1) {
+      unlinkAsync(`./files` + `/${userdata[0].AvatarPath}`);
+    }
     return response;
     // return this.service.importServer(file)
   }
