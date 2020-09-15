@@ -87,8 +87,8 @@ export class RequestsService {
             'create new request',
           );
           this.sendMailForNew_Approve_Close_Request(
-            'new',
             'create new request',
+            'new',
             userId,
           );
         }

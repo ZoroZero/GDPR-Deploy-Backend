@@ -14,6 +14,7 @@ import { confirmEmailLink } from '../utils/confirmEmailLink';
 import { sendEmail, sendForgotPassEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
+import { MailService } from 'src/mail/mail.service';
 
 // export type User = any;
 
@@ -24,6 +25,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     private accountService: AccountsService,
+    private readonly mailService: MailService,
   ) {}
 
   async findOne(username: string): Promise<User> {
@@ -103,11 +105,17 @@ export class UsersService {
     const userId = await getConnection().manager.query(
       `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
     );
-    await sendEmail(
-      Email,
-      await confirmEmailLink(userId[0].Id),
+    // await sendEmail(
+    //   Email,
+    //   await confirmEmailLink(userId[0].Id),
+    //   UserName,
+    //   PassWord,
+    // );
+    this.mailService.confirmNewAccount(
       UserName,
       PassWord,
+      await confirmEmailLink(userId[0].Id),
+      Email,
     );
   }
 
@@ -125,7 +133,12 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    sendForgotPassEmail(email, userdata[0].UserName, userdata[0].HashPasswd);
+    // sendForgotPassEmail(email, userdata[0].UserName, userdata[0].HashPasswd);
+    this.mailService.forgotPasswordEmail(
+      userdata[0].UserName,
+      userdata[0].HashPasswd,
+      email,
+    );
   }
 
   async confirmEmail(id: any, res: Response) {

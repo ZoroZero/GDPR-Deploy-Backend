@@ -1,5 +1,12 @@
-import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Repository, getConnection } from 'typeorm';
+import { Subject } from 'rxjs';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class MailService {
@@ -27,10 +34,79 @@ export class MailService {
         },
       })
       .then(success => {
-        console.log(success);
+        console.log('success', success);
+        this.logEmail(listmail.join(','), content, 'GDPR new request ✔');
       })
       .catch(err => {
         console.log(err);
+      });
+  }
+
+  public confirmNewAccount(username, password, link, tomail: string): void {
+    // tmail.push('hdkhang1504@gmail.com');
+    this.mailerService
+      .sendMail({
+        to: tomail, // List of receivers email address
+        from: 'hdkhang1504@outlook.com', // Senders email address
+        subject: 'GDPR new account ✔', // Subject line
+        template: 'confirmemail',
+        context: {
+          username: username,
+          password: password,
+          link: link,
+        },
+      })
+      .then(success => {
+        console.log('success', success);
+        this.logEmail(
+          tomail,
+          `Your new username: ${username}; Your new password: ${password}; Please click link to confirm!`,
+          'GDPR new account ✔',
+        );
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  public forgotPasswordEmail(username, password, tomail: string): void {
+    // tmail.push('hdkhang1504@gmail.com');
+    this.mailerService
+      .sendMail({
+        to: tomail, // List of receivers email address
+        from: 'hdkhang1504@outlook.com', // Senders email address
+        subject: 'GDPR FORGOT PASSWORD ✔', // Subject line
+        template: 'forgotpasswordemail',
+        context: {
+          username: username,
+          password: password,
+        },
+      })
+      .then(success => {
+        console.log('success', success);
+        this.logEmail(
+          tomail,
+          `Your username: ${username}; Your new password: ${password};`,
+          'GDPR FORGOT PASSWORD ✔',
+        );
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  public logEmail(listmail: string, content: string, subject: string): void {
+    console.log('Email da log');
+    getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[insertEmailLog]   
+      @Subject ='${subject}'
+      ,@Receiver='${listmail}'
+      ,@Status=${1}
+      ,@Body='${content}'`,
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
   }
 
