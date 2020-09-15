@@ -24,6 +24,12 @@ export class AuthService {
     return account.UpdatedDate;
   }
 
+  async validateUserById_ForWs(userId: string): Promise<any> {
+    const user = await this.usersService.getById(userId);
+
+    return user;
+  }
+
   async login(user: any) {
     const payload = {
       id: user.UserId,

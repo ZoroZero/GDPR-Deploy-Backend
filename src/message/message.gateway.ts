@@ -8,10 +8,9 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
+import { WsJwtGuard } from 'src/auth/guards/jwt-socket-auth.guard';
 
 @WebSocketGateway()
 export class MessageGateway
@@ -19,9 +18,11 @@ export class MessageGateway
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
 
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
-    this.server.emit('msgToClient', payload);
+  handleMessage(client: Socket, payload: any): void {
+    console.log(payload);
+    this.server.emit(payload.requestId, payload);
   }
 
   afterInit(server: Server) {

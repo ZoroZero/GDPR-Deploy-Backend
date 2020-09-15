@@ -13,10 +13,9 @@ export class SearchDataDto {
   sortColumn: string;
 
   @IsDefined()
-  keyword: string
+  keyword: string;
 
-  filterColumn: string
+  filterColumn: string;
 
-  filterKeys: string
+  filterKeys: string;
 }
-

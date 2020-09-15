@@ -10,6 +10,7 @@ import { AccountsModule } from 'src/accounts/accounts.module';
 import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggingModule } from '../logger/logging.module';
+import { WsJwtGuard } from './guards/jwt-socket-auth.guard';
 @Module({
   imports: [
     UsersModule,

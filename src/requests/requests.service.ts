@@ -87,8 +87,8 @@ export class RequestsService {
             'create new request',
           );
           this.sendMailForNew_Approve_Close_Request(
-            'new',
             'create new request',
+            'new',
             userId,
           );
         }
@@ -169,7 +169,7 @@ export class RequestsService {
 
   async getRequestById(requestId, user): Promise<any> {
     let request = [];
-    if (user.role === 'admin' || user.role === 'dc-memeber') {
+    if (user.role === 'admin' || user.role === 'dc-member') {
       request = await this.RequestRepository.query(`
         EXEC [dbo].[Request_getRequestDetail] 
           @requestId='${requestId}'
@@ -260,6 +260,7 @@ export class RequestsService {
         );
         mailContent = content + ' ' + request.Number;
       } else if (type === 'new') {
+        console.log('BUGGG HEERRRRREEE');
         user = await this.RequestRepository.query(
           `EXEC [dbo].[getInfoFromId] @Id='${userId}'`,
         );
