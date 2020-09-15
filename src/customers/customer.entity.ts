@@ -15,23 +15,32 @@ export class Customer {
   @Column()
   LastName: string;
   @Column()
-  ContractBeginDate: Date;
+  ContractBeginDate?: Date;
   @Column()
-  ContractEndDate: Date;
+  ContractEndDate?: Date;
   @Column()
   IsActive: boolean;
+
+  @Column()
+  CreatedDate: Date;
+
   @Column('uuid')
   CreatedBy: string;
-  @Column('uuid')
-  UpdatedBy: string;
+
   @Column()
-  UpdatedDate: Date;
+  UpdatedDate?: Date; 
+  
+  @Column('uuid')
+  UpdatedBy?: string;
+
   @Column()
   Description: string;
+
   @Column('uuid')
-  DeletedBy: string;
+  DeletedBy?: string;
+
   @Column()
-  DeletedDate: Date;
+  DeletedDate?: Date;
 
   @Column()
   IsDeleted: boolean;

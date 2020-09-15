@@ -8,6 +8,7 @@ import {
   Delete,
   Body,
   ValidationPipe,
+  UploadedFile, 
   Param,
   ParseUUIDPipe,
   HttpException,
@@ -22,6 +23,10 @@ import { UsersService } from '../users/users.service';
 import { query } from 'express';
 import { ExportCustomerDto } from './dto/export-customer.dto';
 import { GetInterceptor } from 'src/interceptors/http-get.interceptor';
+import { multerOptions } from './config/customer.config'
+import { User } from 'src/auth/user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImportCustomerDto } from './dto/import-customer.dto';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard)
@@ -108,4 +113,13 @@ export class CustomersController {
       query.id,
     );
   }
+
+  // Post csv, xlsx file
+  @Post('import')
+  importServer(@Body() body: ImportCustomerDto){
+      return this.customersService.importCustomerList(body)
+      // return response;
+      // return this.service.importServer(file)
+  }
+
 }

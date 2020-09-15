@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { Customer } from './customer.entity';
 import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ExportCustomerDto } from './dto/export-customer.dto';
+import { ImportCustomerDto } from './dto/import-customer.dto';
+import * as XLSX from 'xlsx';
+const fs = require('fs');
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
 
 @Injectable()
 export class CustomersService {
@@ -87,10 +92,15 @@ export class CustomersService {
     return await this.customersRepository.query(`
     [dbo].[CustomerExportCustomerList] 
       @CustomerName = ${request.CustomerName?`'${request.CustomerName}'`:`''`}
-      ,@ContactPoint = '${request.ContactPointEmail}'
+      ,@ContactPoint = ${request.ContactPoint?`'${request.ContactPoint}'`: null}
       ,@ContractStart = ${request.ContractBeginDate?`'${request.ContractBeginDate}'`: null}
       ,@ContractEnd = ${request.ContractEndDate?`'${request.ContractEndDate}'`: null}
-      ,@Status = ${request.IsActive}
+      ,@Status = '${request.IsActive}' 
     `)
+  }
+
+  async importCustomerList(request: ImportCustomerDto){
+    console.log("Data", request.CustomerList);
+    return await this.customersRepository.save(request.CustomerList)
   }
 }

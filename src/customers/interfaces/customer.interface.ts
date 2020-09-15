@@ -6,11 +6,11 @@ export interface Customer {
   FirstName: string;
 
   LastName: string;
-  ContractBeginDate: Date;
-  ContractEndDate: Date;
+  ContractBeginDate?: Date;
+  ContractEndDate?: Date;
   IsActive: boolean;
 
-  UpdatedDate: Date;
+  UpdatedDate?: Date;
 
   IsDeleted: boolean;
 }
