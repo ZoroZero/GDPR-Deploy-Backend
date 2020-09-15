@@ -151,8 +151,8 @@ export class UsersController {
 
   @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-  @Put('/acdeac')
-  acdeacListUsers(@Request() req1, @Body() req) {
+  @Put('')
+  acdeacListUsers(@Request() req1, @Body() req: any) {
     // console.log('user', req1.user);
     // console.log('BugReq', req.IsActive);
     return this.usersService.acdeacListUser(
