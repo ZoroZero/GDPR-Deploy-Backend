@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, UseGuards, Inject } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, UseGuards, Inject, ParseUUIDPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
@@ -7,6 +7,7 @@ import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
+import { request } from 'express';
 // const csv = require('csv-parser');
 
 @Injectable()
@@ -74,19 +75,10 @@ export class ServersService {
   }
 
   async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
-      return await Promise.all([
-        _request.listServer.forEach((server:Server) => {
-          this.serversRepository.query(`SET DATEFORMAT dmy
-          EXECUTE dbo.[ServerAlter]
-          @ServerId = '${server.Id}',
-          @ServerName='${server.Name}',  
-          @ServerIp= '${server.IpAddress}',  
-          @StartDate= '${server.StartDate}', 
-          @EndDate= '${server.EndDate}', 
-          @UpdatedBy= '${_userId}',
-          @IsActive= ${_request.status}
-          `)})
-      ])
+      return await this.serversRepository.query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
+      @ServerIdList = '${_request.listServer}'
+     ,@UpdatedBy = '${_userId}'
+     ,@IsActive = ${_request.status}`)
   }
 
   async deleteServerWithId(_id: string, _userId: string){
@@ -96,6 +88,19 @@ export class ServersService {
     ,@UpdatedBy = '${_userId}'
     ,@DeletedBy = '${_userId}'
   `)
+  }
+
+  async deleteMultiServer(_idList: string, _userId: string){
+    var idList = _idList.split(",")
+    return await Promise.all([idList.forEach((id: string) => {
+        this.serversRepository.query(
+        `EXECUTE dbo.[ServerDeleteServer]
+        @ServerId = '${id}'
+        ,@UpdatedBy = '${_userId}'
+        ,@DeletedBy = '${_userId}'
+        `)
+      })
+    ])
   }
 
 
@@ -131,78 +136,4 @@ export class ServersService {
       )})
     ])
   }
-  // async importFile(file){
-  //   if(file.includes('.csv')){
-  //     const converter=csv().fromFile(process.env.SERVER_FOLDER+ `/${file}`)
-  //     .then( async (json) =>{
-  //       console.log(json);
-  //       return await Promise.all([
-  //         json.forEach((data:Server) => {
-  //         this.serversRepository.query(`SET DATEFORMAT dmy
-  //         EXECUTE dbo.[ServerAlter]
-  //           @ServerId = '${data.Id}'
-  //           ,@ServerName = '${data.Name}'
-  //           ,@ServerIp = '${data.IpAddress}'
-  //           ,@StartDate = '${data.StartDate}'
-  //           ,@EndDate = '${data.EndDate}'
-  //           ,@CreatedDate = '${data.CreatedDate}'
-  //           ,@CreatedBy = '${data.CreatedBy}'
-  //           ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-  //           ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-  //           ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-  //           ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-  //           ,@IsDeleted = ${data.IsDeleted?1:0}
-  //           ,@IsActive = ${data.IsActive?1:0}` 
-  //         )})
-  //       ])
-  //       .then(res => {
-  //         return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
-  //         .then(res => {
-  //           return  {sucessful: true, status: HttpStatus.OK}
-  //         }).
-  //         catch(err => {console.log(err);
-  //         })
-  //       })
-  //       .catch(err => {
-  //           throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
-  //         })
-  //      });
-  //   }
-  //   else{
-  //     var workbook = XLSX.readFile(process.env.SERVER_FOLDER+ `/${file}`);
-  //     var sheet_name_list = workbook.SheetNames;
-  //     // console.log(XLSX.utils.sheet_to_txt(workbook.Sheets[sheet_name_list[0]]));
-  //     var importData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-  //       // console.log(xlData[0])
-  //     return await Promise.all([importData.forEach((data:Server) => {
-  //       this.serversRepository.query(`SET DATEFORMAT dmy
-  //       EXECUTE dbo.[ServerAlter]
-  //         @ServerId = '${data.Id}'
-  //         ,@ServerName = '${data.Name}'
-  //         ,@ServerIp = '${data.IpAddress}'
-  //         ,@StartDate = '${data.StartDate}'
-  //         ,@EndDate = '${data.EndDate}'
-  //         ,@CreatedDate = '${data.CreatedDate}'
-  //         ,@CreatedBy = '${data.CreatedBy}'
-  //         ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-  //         ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-  //         ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-  //         ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-  //         ,@IsDeleted = ${data.IsDeleted?1:0}
-  //         ,@IsActive = ${data.IsActive?1:0}` 
-  //       )})
-  //     ])
-  //     .then(res => {
-  //       return unlinkAsync(process.env.SERVER_FOLDER+ `/${file}`)
-  //       .then(res => {
-  //         return  {sucessful: true, status: HttpStatus.OK}
-  //       }).
-  //       catch(err => {console.log(err);
-  //       })
-  //     })
-  //     .catch(err => {
-  //         throw new HttpException("Failed", HttpStatus.BAD_REQUEST)
-  //     })
-  //   }
-  // }
 }

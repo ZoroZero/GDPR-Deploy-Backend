@@ -93,5 +93,11 @@ export class UsersController {
         return this.service.deleteServerWithId(id, user.UserId);
     }
 
+    // Delete multiple server
+    @Delete('multi')
+    @UseInterceptors(UpdateInterceptor)
+    deleteMultiServer(@User() user, @Query('id') id: string) {
+        return this.service.deleteMultiServer(id, user.UserId);
+    }
 
 }

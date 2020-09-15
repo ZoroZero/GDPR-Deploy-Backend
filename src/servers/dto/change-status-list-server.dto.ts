@@ -1,7 +1,7 @@
 import { Server } from "../server.entity";
 
 export class ChangeStatusListServerDto{
-    listServer: Server[]
+    listServer: string
 
     status?: boolean
 }
