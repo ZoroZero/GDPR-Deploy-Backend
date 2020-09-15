@@ -146,9 +146,11 @@ export class UsersService {
       @UserId= '${userId}'
       ,@IsActive =true `,
     );
-    res.send(
-      'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
-    );
+    res.send({
+      message:
+        'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
+      success: true,
+    });
   }
 
   async updateUser(

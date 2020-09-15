@@ -81,8 +81,8 @@ export class UsersController {
     console.log(req);
     return this.usersService.getAllUser(
       req.SearchKey,
-      req.SortBy,
-      req.SortOrder,
+      'Email',
+      'ascend',
       req.Role,
       req.IsActive,
     );

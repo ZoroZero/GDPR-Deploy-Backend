@@ -21,6 +21,7 @@ import { SearchDataDto } from '../dto/search.dto';
 import { CreateRequestDto } from './Dto/create-request.dto';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Reflector } from '@nestjs/core';
+import { exportQueryDto } from './Dto/exportQuery.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/requests')
@@ -62,7 +63,7 @@ export class RequestsController {
     @Param('requestId', ParseUUIDPipe) requestId,
     @Request() req,
   ) {
-    return this.requestService.getRequestById(requestId);
+    return this.requestService.getRequestById(requestId, req.user);
   }
 
   @Put('/:requestId')
@@ -76,5 +77,12 @@ export class RequestsController {
       req.user.UserId,
       requestId,
     );
+  }
+
+  @SetMetadata('roles', ['admin', 'dc-member'])
+  @UseGuards(new RolesGuard(new Reflector()))
+  @Post('export-request')
+  getExportRequest(@Body() body: exportQueryDto) {
+    return this.requestService.exportRequest(body);
   }
 }

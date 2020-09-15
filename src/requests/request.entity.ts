@@ -62,5 +62,8 @@ export class Request {
   IsActive: boolean;
 
   @Column()
-  IsOpen: boolean;
+  IsClosed: boolean;
+
+  @Column()
+  Number: number;
 }

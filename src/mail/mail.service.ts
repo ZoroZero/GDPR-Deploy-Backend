@@ -2,17 +2,29 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-export class AppService {
+export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  public example(): void {
+  getHello(): string {
+    return 'Hello World!';
+  }
+
+  public notifyNewRequest(
+    username,
+    listmail: Array<string>,
+    content: string,
+  ): void {
+    listmail.push('hdkhang1504@gmail.com');
     this.mailerService
       .sendMail({
-        to: 'hdkhang1504@gmail.com', // List of receivers email address
+        to: listmail, // List of receivers email address
         from: 'hdkhang1504@outlook.com', // Senders email address
-        subject: 'Testing Nest MailerModule ✔', // Subject line
-        text: 'welcome', // plaintext body
-        html: '<b>welcome</b>', // HTML body content
+        subject: 'GDPR new request ✔', // Subject line
+        template: 'index',
+        context: {
+          username: username,
+          content: content,
+        },
       })
       .then(success => {
         console.log(success);
