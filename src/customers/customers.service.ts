@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { Customer } from './customer.entity';
 import { Repository, Connection, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { ExportCustomerDto } from './dto/export-customer.dto';
+import { ImportCustomerDto } from './dto/import-customer.dto';
+import * as XLSX from 'xlsx';
+const fs = require('fs');
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
 
 @Injectable()
 export class CustomersService {
@@ -44,6 +50,13 @@ export class CustomersService {
     );
   }
 
+  async findOtherServers(filter, status, id): Promise<any> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[GetOtherServers] 
+   @Id ='${id}', @Status ='${status}'`,
+    );
+  }
+
   async update(
     id: string,
     newValue: CreateCustomerDto,
@@ -72,5 +85,22 @@ export class CustomersService {
       DeletedDate: new Date(),
     });
     return await this.customersRepository.findOne({ Id: id });
+  }
+
+
+  async exportCustomerList(request: ExportCustomerDto){
+    return await this.customersRepository.query(`
+    [dbo].[CustomerExportCustomerList] 
+      @CustomerName = ${request.CustomerName?`'${request.CustomerName}'`:`''`}
+      ,@ContactPoint = ${request.ContactPoint?`'${request.ContactPoint}'`: null}
+      ,@ContractStart = ${request.ContractBeginDate?`'${request.ContractBeginDate}'`: null}
+      ,@ContractEnd = ${request.ContractEndDate?`'${request.ContractEndDate}'`: null}
+      ,@Status = '${request.IsActive}' 
+    `)
+  }
+
+  async importCustomerList(request: ImportCustomerDto){
+    console.log("Data", request.CustomerList);
+    return await this.customersRepository.save(request.CustomerList)
   }
 }

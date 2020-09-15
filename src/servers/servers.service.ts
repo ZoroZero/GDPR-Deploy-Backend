@@ -1,10 +1,15 @@
-import { Injectable, HttpException, HttpStatus, UseGuards, Inject } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, UseGuards, Inject, ParseUUIDPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
 import { CreateServerDto } from './dto/create-server-post.dto';
 import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
+import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
+import { ImportServerDto } from './dto/import-server-list.dto';
+import { request } from 'express';
+// const csv = require('csv-parser');
+
 @Injectable()
 export class ServersService {
 
@@ -44,7 +49,9 @@ export class ServersService {
 
   async addNewServer(_server: CreateServerDto, _userId: string) {
     // return await this.serversRepository.save(_server);
-    return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
+    return this.serversRepository.query(`
+    SET DATEFORMAT dmy
+    EXECUTE dbo.[ServerAlter]
       @ServerName='${_server.serverName}',  
       @ServerIp= '${_server.ipAddress}',  
       @StartDate= '${_server.startDate}', 
@@ -54,7 +61,9 @@ export class ServersService {
   }
 
   async updateServer(_server: Server, _userId: string){
-    return this.serversRepository.query(`EXECUTE dbo.[ServerAlter]
+    return this.serversRepository.query(`
+    SET DATEFORMAT dmy
+    EXECUTE dbo.[ServerAlter]
       @ServerId = '${_server.Id}',
       @ServerName='${_server.Name}',  
       @ServerIp= '${_server.IpAddress}',  
@@ -63,6 +72,13 @@ export class ServersService {
       @UpdatedBy= '${_userId}',
       @IsActive= ${_server.IsActive}
     `)
+  }
+
+  async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
+      return await this.serversRepository.query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
+      @ServerIdList = '${_request.listServer}'
+     ,@UpdatedBy = '${_userId}'
+     ,@IsActive = ${_request.status}`)
   }
 
   async deleteServerWithId(_id: string, _userId: string){
@@ -74,22 +90,50 @@ export class ServersService {
   `)
   }
 
+  async deleteMultiServer(_idList: string, _userId: string){
+    var idList = _idList.split(",")
+    return await Promise.all([idList.forEach((id: string) => {
+        this.serversRepository.query(
+        `EXECUTE dbo.[ServerDeleteServer]
+        @ServerId = '${id}'
+        ,@UpdatedBy = '${_userId}'
+        ,@DeletedBy = '${_userId}'
+        `)
+      })
+    ])
+  }
+
 
   async exportServerList(_request: ExportDto){
     console.log(_request);
     return await this.serversRepository.query(
-    `EXECUTE [dbo].[ServerExportServerList] 
+    `SET DATEFORMAT dmy
+    EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIp =  ${_request.ipAddress? `'${_request.ipAddress}'` : `''`}
+     ,@ServerIp =  ${_request.serverIp? `'${_request.serverIp}'` : `''`}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
-     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
-   `
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
     )
   }
 
-
-  async importServer(data){
-    console.log("File upload", data);
-    return null;
+  async importServerList(request: ImportServerDto){
+    return await Promise.all([request.listServer.forEach((data:Server) => {
+      this.serversRepository.query(`SET DATEFORMAT dmy
+      EXECUTE dbo.[ServerAlter]
+        @ServerId = '${data.Id}'
+        ,@ServerName = '${data.Name}'
+        ,@ServerIp = '${data.IpAddress}'
+        ,@StartDate = '${data.StartDate}'
+        ,@EndDate = '${data.EndDate}'
+        ,@CreatedDate = '${data.CreatedDate}'
+        ,@CreatedBy = '${data.CreatedBy}'
+        ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+        ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+        ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+        ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+        ,@IsDeleted = ${data.IsDeleted}
+        ,@IsActive = ${data.IsActive}` 
+      )})
+    ])
   }
 }
