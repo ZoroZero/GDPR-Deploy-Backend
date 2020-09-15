@@ -84,10 +84,8 @@ export class CustomersController {
     return await this.usersService.getContactPointList();
   }
   @Get('/servers')
-  async findServersByCustomerId(
-    @Query('Id', ParseUUIDPipe) id: string,
-  ): Promise<any> {
-    return await this.customersService.findServers(id);
+  async findServersByCustomerId(@Query() query): Promise<any> {
+    return await this.customersService.findServers(query.Id, query.keyword);
   }
 
   @Get('/other-servers')
@@ -97,6 +95,30 @@ export class CustomersController {
       query.status,
       query.id,
       query.page,
+      query.keyword,
+    );
+  }
+
+  @Post('/servers')
+  async addServersForCustomer(
+    @Query('Id', ParseUUIDPipe) id: string,
+    @Body() body,
+  ) {
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', body);
+    return await this.customersService.addServersForCustomer(
+      id,
+      body.params.AddedServers,
+    );
+  }
+  @Put('/servers')
+  async deleteServersOfCustomer(
+    @Query('Id', ParseUUIDPipe) id: string,
+    @Body() body,
+  ) {
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', body);
+    return await this.customersService.deleteServersOfCustomer(
+      id,
+      body.params.DeletedServers,
     );
   }
 }

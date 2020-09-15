@@ -37,17 +37,30 @@ export class CustomersService {
       `EXECUTE [dbo].[CustomerGetCustomerById] @Id ='${res.Id}'`,
     );
   }
-  async findServers(id: string): Promise<any> {
+  async findServers(id: string, keyword): Promise<any> {
     return await this.customersRepository.query(
       `EXECUTE [dbo].[GetServersCustomer] 
-   @Id ='${id}'`,
+   @Id ='${id}', @KeyWord='${keyword}'`,
     );
   }
 
-  async findOtherServers(filter, status, id, page): Promise<any> {
+  async findOtherServers(filter, status, id, page, keyword): Promise<any> {
     return await this.customersRepository.query(
       `EXECUTE [dbo].[GetOtherServers] 
-   @Id ='${id}', @Status ='${status}', @PageNumber='${page}'`,
+   @Id ='${id}', @Status ='${status}', @PageNumber='${page}', @KeyWord='${keyword}'`,
+    );
+  }
+
+  async addServersForCustomer(id, addedServers): Promise<any> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerServerAddServersForCustomer] 
+   @Id ='${id}', @List='${addedServers}'`,
+    );
+  }
+  async deleteServersOfCustomer(id, deletedServers): Promise<any> {
+    return await this.customersRepository.query(
+      `EXECUTE [dbo].[CustomerServerDeleteServersOfCustomer] 
+   @Id ='${id}', @List='${deletedServers}'`,
     );
   }
 
