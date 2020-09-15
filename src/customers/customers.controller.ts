@@ -12,7 +12,7 @@ import {
   ParseUUIDPipe,
   HttpException,
   HttpStatus,
-  Query,
+  Query, UseInterceptors
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
@@ -20,6 +20,8 @@ import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UsersService } from '../users/users.service';
 import { query } from 'express';
+import { ExportCustomerDto } from './dto/export-customer.dto';
+import { GetInterceptor } from 'src/interceptors/http-get.interceptor';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard)
@@ -38,6 +40,13 @@ export class CustomersController {
       query.keyword,
     );
   }
+
+  @Get('export')
+  @UseInterceptors(GetInterceptor)
+  exportCustomer(@Query() query: ExportCustomerDto){
+      return this.customersService.exportCustomerList(query)
+  }
+
   @Post()
   async create(
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
@@ -70,6 +79,7 @@ export class CustomersController {
       );
     }
   }
+
 
   @Delete('')
   async remove(

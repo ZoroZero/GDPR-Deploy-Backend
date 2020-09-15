@@ -21,9 +21,9 @@ import { RoleAuthGuard } from 'src/auth/guards/role-auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Reflector } from '@nestjs/core';
 import { request } from 'express';
-import { SearchUserDto } from 'src/dto/searchUser.dto';
-import { InsertUserDto } from 'src/dto/insertUser.dto';
-import { UpdateUserDto } from 'src/dto/updateUser.dto';
+import { SearchUserDto } from '../dto/searchUser.dto';
+import { InsertUserDto } from '../dto/insertUser.dto';
+import { UpdateUserDto } from '../dto/updateUser.dto';
 
 @Controller('/api/users')
 export class UsersController {
