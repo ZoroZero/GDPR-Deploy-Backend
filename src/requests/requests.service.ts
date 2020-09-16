@@ -59,6 +59,10 @@ export class RequestsService {
     return response;
   }
 
+  async findOne(requestId): Promise<any> {
+    return await this.RequestRepository.findOneOrFail(requestId);
+  }
+
   async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
     if (
       new Date(data.endDate) > new Date(data.startDate) &&

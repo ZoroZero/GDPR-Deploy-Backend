@@ -17,15 +17,16 @@ export class WsJwtGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext) {
-    const client = context.switchToWs().getClient();
-    const authToken: string = client.handshake.query.token;
-    const jwtPayload: any = <any>jwt.verify(authToken, this.SecretKey);
-    const user = await this.authService.validateUserById_ForWs(jwtPayload.id);
-    if (user) {
-      context.switchToWs().getData().user = user;
-      return Boolean(user);
-    } else {
-      throw new UnauthorizedException();
-    }
+    const client = context.switchToWs().getData();
+    if (client.headers && client.headers.Authorization) {
+      const authToken: string = client.headers.Authorization;
+      const jwtPayload: any = <any>jwt.verify(authToken, this.SecretKey);
+      const user = await this.authService.validateUserById_ForWs(jwtPayload.id);
+      if (user) {
+        context.switchToWs().getData().user = user;
+        return Boolean(user);
+      } else {
+      }
+    } else throw new UnauthorizedException();
   }
 }
