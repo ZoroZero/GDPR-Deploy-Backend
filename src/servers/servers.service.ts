@@ -110,7 +110,7 @@ export class ServersService {
   async exportServerList(_request: ExportDto){
     console.log(_request);
     return await this.serversRepository.query(
-    `SET DATEFORMAT dmy
+    `
     EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
      ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList}'` : null}

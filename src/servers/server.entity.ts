@@ -32,14 +32,13 @@ export class Server {
   @Column()
   UpdatedDate?: Date
 
-  @IsUUID()
   @Column('uuid')
   UpdatedBy?: string
 
   @Column()
   DeletedDate?: Date
 
-  @IsUUID()
+
   @Column('uuid')
   DeletedBy?: string
 
