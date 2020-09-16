@@ -78,7 +78,7 @@ export class ServersService {
 
   async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
       return await this.serversRepository.query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
-      @ServerIdList = '${_request.listServer}'
+      @ServerIdList = '${_request.listServer.join(',')}'
      ,@UpdatedBy = '${_userId}'
      ,@IsActive = ${_request.status}`)
   }
