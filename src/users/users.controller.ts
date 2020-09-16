@@ -193,7 +193,7 @@ export class UsersController {
   async importUser(@Request() req1, @UploadedFile() file) {
     try {
       sharp(req1.file.path)
-        .resize(100, 100)
+        .resize(50, 50)
         .toFile(
           `./files/` + 'thumbnails-' + req1.file.filename,
           (err, resizeImage) => {
