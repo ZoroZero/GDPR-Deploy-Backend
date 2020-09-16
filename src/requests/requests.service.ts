@@ -59,6 +59,10 @@ export class RequestsService {
     return response;
   }
 
+  async findOne(requestId): Promise<any> {
+    return await this.RequestRepository.findOneOrFail(requestId);
+  }
+
   async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
     if (
       new Date(data.endDate) > new Date(data.startDate) &&
@@ -169,7 +173,7 @@ export class RequestsService {
 
   async getRequestById(requestId, user): Promise<any> {
     let request = [];
-    if (user.role === 'admin' || user.role === 'dc-memeber') {
+    if (user.role === 'admin' || user.role === 'dc-member') {
       request = await this.RequestRepository.query(`
         EXEC [dbo].[Request_getRequestDetail] 
           @requestId='${requestId}'
@@ -260,6 +264,7 @@ export class RequestsService {
         );
         mailContent = content + ' ' + request.Number;
       } else if (type === 'new') {
+        console.log('BUGGG HEERRRRREEE');
         user = await this.RequestRepository.query(
           `EXEC [dbo].[getInfoFromId] @Id='${userId}'`,
         );

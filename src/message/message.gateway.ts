@@ -7,21 +7,43 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  BaseWsExceptionFilter,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards } from '@nestjs/common';
+import { WsJwtGuard } from 'src/auth/guards/jwt-socket-auth.guard';
+import { MessageService } from './message.service';
 
 @WebSocketGateway()
 export class MessageGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly messageService: MessageService) {}
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
 
+  @UseGuards(WsJwtGuard)
+  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
-    this.server.emit('msgToClient', payload);
+  handleMessage(client: Socket, payload: any): void {
+    console.log(payload);
+    try {
+      this.messageService
+        .saveMessage(payload.user, payload.message, payload.requestId)
+        .then(result => {
+          if (result) {
+            const msg = {
+              Content: payload.message,
+              RequestId: payload.requestId,
+              User: payload.user,
+              CreatedDate: result.CreatedDate,
+              Id: result.Id,
+            };
+            this.server.emit(payload.requestId, msg);
+          }
+        });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   afterInit(server: Server) {
