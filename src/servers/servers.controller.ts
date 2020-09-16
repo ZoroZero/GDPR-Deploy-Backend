@@ -15,6 +15,7 @@ import { UpdateInterceptor } from 'src/interceptors/server/http-update.intercept
 import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
 // import { Request } from 'express';
 
 
@@ -74,7 +75,7 @@ export class UsersController {
 
     // Post csv, xlsx file
     @Post('import')
-    importServer(@Body() body: ImportServerDto){
+    importServer(@Body(ValidationPipe) body: ImportServerDto){
         console.log("File upload", body);
         return this.service.importServerList(body)
     }

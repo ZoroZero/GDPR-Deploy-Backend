@@ -2,6 +2,6 @@ import { IsArray } from "class-validator";
 import { Server } from "../server.entity";
 
 export class ImportServerDto{
-    @IsArray()
+    @IsArray({each:true})
     listServer: Server[]
 }
