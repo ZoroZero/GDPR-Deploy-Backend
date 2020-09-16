@@ -1,7 +1,9 @@
+import { IsUUID } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('Server')
 export class Server {
+  @IsUUID()
   @PrimaryGeneratedColumn()
   Id: string;
 
@@ -22,21 +24,23 @@ export class Server {
 
   @Column()
   CreatedDate: Date
-
+  
+  @IsUUID()
   @Column('uuid')
-  CreatedBy: Date
+  CreatedBy: string
 
   @Column()
-  UpdatedDate: Date
+  UpdatedDate?: Date
 
   @Column('uuid')
-  UpdatedBy: Date
+  UpdatedBy?: string
 
   @Column()
-  DeletedDate: Date
+  DeletedDate?: Date
+
 
   @Column('uuid')
-  DeletedBy: Date
+  DeletedBy?: string
 
   @Column({ default: false })
   IsDeleted: boolean;
