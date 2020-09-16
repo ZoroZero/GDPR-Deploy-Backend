@@ -36,7 +36,6 @@ export class UsersService {
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
-    // console.log("Role id", userRoleId);
 
     if (userRoleId) {
       return userRoleId[0].Name;
@@ -64,7 +63,6 @@ export class UsersService {
 
   async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
-    // console.log(user)
     if (user && !user.IsDeleted && user.IsActive) {
       return user;
     }
@@ -105,12 +103,6 @@ export class UsersService {
     const userId = await getConnection().manager.query(
       `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
     );
-    // await sendEmail(
-    //   Email,
-    //   await confirmEmailLink(userId[0].Id),
-    //   UserName,
-    //   PassWord,
-    // );
     this.mailService.confirmNewAccount(
       UserName,
       PassWord,
@@ -133,7 +125,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // sendForgotPassEmail(email, userdata[0].UserName, userdata[0].HashPasswd);
     this.mailService.forgotPasswordEmail(
       userdata[0].UserName,
       userdata[0].HashPasswd,
@@ -143,14 +134,6 @@ export class UsersService {
 
   async confirmEmail(id: any, res: Response) {
     const userId = await redis.get(`${id}`);
-    // , function(err, reply) {
-    //   console.log(reply);
-    // });
-    // console.log(userId);
-    // for (const prop in userId) {
-    //   console.log(`${prop} = ${userId[prop]}`);
-    // }
-    // console.log('userId: ', JSON.parse(userId));
     if (!userId) {
       throw new NotFoundException();
     }
@@ -199,10 +182,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async acdeacListUser(IdList: String, CreatedBy: String, IsActive: Boolean) {
@@ -218,10 +197,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async updateAccount(
@@ -253,10 +228,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async updateAvatar(Id: String, ImagePath: String) {
@@ -270,10 +241,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async getListUser(
@@ -371,10 +338,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (deleteResult)
-    //   throw new HttpException('Delete Successfully!', HttpStatus.OK);
-    // else
-    //   throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
   }
 
   async getContactPointList() {
