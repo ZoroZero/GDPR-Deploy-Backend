@@ -21,8 +21,7 @@ import { ValidationPipe } from 'src/pipes/validation.pipe';
 
 @Controller('/api/servers')
 @UseFilters(new HttpExceptionFilter())
-// @SetMetadata('roles', ['admin', 'dc-member'])
-// @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
 
@@ -35,6 +34,7 @@ export class UsersController {
     }
 
     // Get server by pagination, sort, search, filter
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('')
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
@@ -43,6 +43,7 @@ export class UsersController {
     }
 
     // Get all active server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('active')
     @UseInterceptors(GetInterceptor)
     getActive(){
