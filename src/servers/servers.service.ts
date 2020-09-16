@@ -110,7 +110,7 @@ export class ServersService {
     `SET DATEFORMAT dmy
     EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIp =  ${_request.serverIp? `'${_request.serverIp}'` : `''`}
+     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList}'` : null}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
      ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
     )

@@ -3,7 +3,7 @@ import { IsUUID, IsIP} from 'class-validator';
 export class ExportDto{
     serverName: string;
     
-    serverIp: string;
+    serverIpList: string;
 
     startDate: any;
 
