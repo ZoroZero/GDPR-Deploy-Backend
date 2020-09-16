@@ -18,7 +18,7 @@ export class ServersService {
   ) {}
 
   async listAllServer(): Promise<Server[]> {
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
+    return await this.serversRepository.find({IsDeleted: false});
   }
 
   async getServerByPage(params: SearchDataDto){

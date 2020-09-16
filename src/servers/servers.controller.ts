@@ -27,6 +27,12 @@ export class UsersController {
 
     constructor(private service: ServersService) { }
 
+    @Get('all')
+    @UseInterceptors(GetInterceptor)
+    getAll(){
+        return this.service.listAllServer()
+    }
+
     // Get server by pagination, sort, search, filter
     @Get('')
     @UseInterceptors(GetInterceptor)
