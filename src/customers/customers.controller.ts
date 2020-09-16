@@ -39,6 +39,7 @@ export class CustomersController {
 
   @Get('')
   async findAll(@Query() query, @Request() req): Promise<Customer[]> {
+    console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^filter', query);
     const role = req.user.role;
     if (role == 'contact-point') {
       return await this.customersService.findAll(
@@ -47,6 +48,7 @@ export class CustomersController {
         query.sortColumn,
         query.sortOrder,
         query.keyword,
+        query.filterValue,
         req.user.UserId,
       );
     } else {
@@ -56,6 +58,7 @@ export class CustomersController {
         query.sortColumn,
         query.sortOrder,
         query.keyword,
+        query.filterValue,
       );
     }
   }

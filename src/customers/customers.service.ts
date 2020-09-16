@@ -23,17 +23,19 @@ export class CustomersService {
     sortColumn = '',
     sortOrder = '',
     keyWord = '',
+    filterValue = '',
+
     contactpointID = null,
   ): Promise<Customer[]> {
     if (contactpointID)
       return await this.customersRepository.query(
         `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, 
-      @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}', @ContactPointId='${contactpointID}'`,
+      @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}', @ContactPointId='${contactpointID}', @FilterList ='${filterValue}'`,
       );
     else
       return await this.customersRepository.query(
         `EXECUTE [dbo].[CustomerGetCustomerList] @PageNumber =${pageNumber}, 
-      @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}'`,
+      @PageSize=${pageSize}, @SortColumn =${sortColumn}, @SortOrder=${sortOrder}, @KeyWord='${keyWord}', @FilterList='${filterValue}'`,
       );
   }
 
