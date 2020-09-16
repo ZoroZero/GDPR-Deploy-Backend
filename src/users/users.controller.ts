@@ -226,6 +226,11 @@ export class UsersController {
     return res.sendFile(image, { root: './files' });
   }
 
+  @Get('thumbnails/:imgpath')
+  seeThumbFile(@Param('imgpath') image, @Res() res) {
+    return res.sendFile(`thumbnails-${image}`, { root: './files' });
+  }
+
   @Get('/forgot/:email')
   forgotPassword(@Param('email') email: string) {
     return this.usersService.forgotPassword(email);
