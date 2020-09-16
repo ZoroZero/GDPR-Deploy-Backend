@@ -193,14 +193,17 @@ export class UsersController {
   async importUser(@Request() req1, @UploadedFile() file) {
     try {
       sharp(req1.file.path)
-        .resize(200, 200)
-        .toFile('thumbnails-' + req1.file.originalname, (err, resizeImage) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log(resizeImage);
-          }
-        });
+        .resize(100, 100)
+        .toFile(
+          `./files/` + 'thumbnails-' + req1.file.filename,
+          (err, resizeImage) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(resizeImage);
+            }
+          },
+        );
     } catch (error) {
       console.error(error);
     }
@@ -212,6 +215,7 @@ export class UsersController {
     };
     if (userdata.length == 1) {
       unlinkAsync(`./files` + `/${userdata[0].AvatarPath}`);
+      unlinkAsync(`./files/` + 'thumbnails-' + `${userdata[0].AvatarPath}`);
     }
     return response;
     // return this.service.importServer(file)
