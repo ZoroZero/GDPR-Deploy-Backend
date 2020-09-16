@@ -57,6 +57,7 @@ export class MessageService {
           CreatedDate: val.CreatedDate,
           Id: val.Id,
           RequestId: val.RequestId,
+          ReplyId: val.CommentId,
           User: {
             FirstName: val.FirstName,
             LastName: val.LastName,
