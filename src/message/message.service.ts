@@ -61,6 +61,7 @@ export class MessageService {
             FirstName: val.FirstName,
             LastName: val.LastName,
             Email: val.Email,
+            Id: val.UserId,
           },
         };
       });
