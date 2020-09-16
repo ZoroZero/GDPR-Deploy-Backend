@@ -30,7 +30,6 @@ export class AuthService {
       createdDate: new Date(),
     };
 
-
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
       access_token: this.jwtService.sign(payload),
@@ -41,6 +40,7 @@ export class AuthService {
       pic: Info[0].PicName,
       ext: Info[0].Extension,
       path: Info[0].Path,
+      userId: user.UserId,
     };
   }
 }

@@ -34,6 +34,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
 import { editFileName, csvFileFilter, imageFileFilter } from '../helper/helper';
+const fs = require('fs');
+const { promisify } = require('util');
+const unlinkAsync = promisify(fs.unlink);
+const sharp = require('sharp');
+
 @Controller('/api/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -62,7 +67,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/list')
   getListUser(@Query() req: SearchUserDto) {
-    console.log(req);
     return this.usersService.getListUser(
       req.PageNo,
       req.PageSize,
@@ -78,11 +82,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/listall')
   getListAllUser(@Query() req) {
-    console.log(req);
     return this.usersService.getAllUser(
       req.SearchKey,
-      req.SortBy,
-      req.SortOrder,
+      'Email',
+      'ascend',
       req.Role,
       req.IsActive,
     );
@@ -99,7 +102,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/insert')
   insertUser(@Request() req1, @Body() req: InsertUserDto) {
-    console.log('BugReq', req);
     return this.usersService.insertUser(
       req.email,
       req.password,
@@ -119,8 +121,6 @@ export class UsersController {
     @Param('id') userId: String,
     @Body() req: UpdateUserDto,
   ) {
-    console.log('user', req1.user);
-    console.log('BugReq', req.IsActive);
     return this.usersService.updateUser(
       userId,
       req.email,
@@ -134,6 +134,17 @@ export class UsersController {
     );
   }
 
+  @SetMetadata('roles', ['admin'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Put('')
+  acdeacListUsers(@Request() req1, @Body() req: any) {
+    return this.usersService.acdeacListUser(
+      req.listid,
+      req1.user.UserId,
+      req.isactive,
+    );
+  }
+
   @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/account/:id')
@@ -142,8 +153,6 @@ export class UsersController {
     @Param('id') userId: String,
     @Body() req: UpdateAccountDto,
   ) {
-    console.log('user', req1.user);
-    console.log('BugReq', req.IsActive);
     if (userId == req1.user.UserId) {
       return this.usersService.updateAccount(
         userId,
@@ -181,44 +190,45 @@ export class UsersController {
       fileFilter: imageFileFilter,
     }),
   )
-  importUser(@Request() req1, @UploadedFile() file) {
-    // console.log("User:", user);
-    console.log('user', req1.user);
+  async importUser(@Request() req1, @UploadedFile() file) {
+    try {
+      sharp(req1.file.path)
+        .resize(50, 50)
+        .toFile(
+          `./files/` + 'thumbnails-' + req1.file.filename,
+          (err, resizeImage) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(resizeImage);
+            }
+          },
+        );
+    } catch (error) {
+      console.error(error);
+    }
+    const userdata = await this.usersService.getInfoById(req1.user.UserId);
     this.usersService.updateAvatar(req1.user.UserId, file.filename);
-    console.log(file);
     const response = {
       originalname: file.originalname,
       filename: file.filename,
     };
+    if (userdata.length == 1) {
+      unlinkAsync(`./files` + `/${userdata[0].AvatarPath}`);
+      unlinkAsync(`./files/` + 'thumbnails-' + `${userdata[0].AvatarPath}`);
+    }
     return response;
     // return this.service.importServer(file)
   }
 
-  // @Post('multiple')
-  // @UseInterceptors(
-  //   FilesInterceptor('image', 20, {
-  //     storage: diskStorage({
-  //       destination: './files',
-  //       filename: editFileName,
-  //     }),
-  //     fileFilter: imageFileFilter,
-  //   }),
-  // )
-  // async uploadMultipleFiles(@UploadedFiles() files) {
-  //   const response = [];
-  //   files.forEach(file => {
-  //     const fileReponse = {
-  //       originalname: file.originalname,
-  //       filename: file.filename,
-  //     };
-  //     response.push(fileReponse);
-  //   });
-  //   return response;
-  // }
-
   @Get(':imgpath')
   seeUploadedFile(@Param('imgpath') image, @Res() res) {
     return res.sendFile(image, { root: './files' });
+  }
+
+  @Get('thumbnails/:imgpath')
+  seeThumbFile(@Param('imgpath') image, @Res() res) {
+    return res.sendFile(`thumbnails-${image}`, { root: './files' });
   }
 
   @Get('/forgot/:email')
