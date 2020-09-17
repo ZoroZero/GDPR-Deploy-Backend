@@ -28,7 +28,12 @@ export class MessageGateway
     console.log(payload);
     try {
       this.messageService
-        .saveMessage(payload.user, payload.message, payload.requestId)
+        .saveMessage(
+          payload.user,
+          payload.message,
+          payload.requestId,
+          payload.ReplyId,
+        )
         .then(result => {
           if (result) {
             const msg = {
@@ -36,14 +41,33 @@ export class MessageGateway
               RequestId: payload.requestId,
               User: payload.user,
               CreatedDate: result.CreatedDate,
+              ReplyId: payload.ReplyId,
               Id: result.Id,
             };
-            this.server.emit(payload.requestId, msg);
+            this.server.to(payload.requestId).emit(payload.requestId, msg);
           }
         });
     } catch (error) {
       console.log(error);
     }
+  }
+
+  @UseGuards(WsJwtGuard)
+  @UseFilters(new BaseWsExceptionFilter())
+  @SubscribeMessage('joinRoom')
+  joinRoom(client: Socket, payload: any): void {
+    console.log(payload);
+    client.join(payload.requestId);
+    this.logger.log(`Client ${client.id} join room`);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @UseFilters(new BaseWsExceptionFilter())
+  @SubscribeMessage('leaveRoom')
+  leaveRoom(client: Socket, payload: any): void {
+    console.log(payload);
+    client.leave(payload.requestId);
+    this.logger.log(`Client ${client.id} leave room`);
   }
 
   afterInit(server: Server) {

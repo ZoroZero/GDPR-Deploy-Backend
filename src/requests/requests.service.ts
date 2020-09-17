@@ -112,7 +112,7 @@ export class RequestsService {
   async approveRequest(requestId, userId): Promise<any> {
     try {
       const req = await this.RequestRepository.findOne(requestId);
-      if (req && !req.IsClosed) {
+      if (req && !req.IsClosed && new Date(req.EndDate) > new Date()) {
         this.RequestRepository.query(
           `
       EXEC [dbo].[Request_approveOrCloseRequest] 
@@ -134,6 +134,8 @@ export class RequestsService {
             req,
           );
         });
+      } else {
+        throw new HttpException('Invalid action', HttpStatus.FORBIDDEN);
       }
     } catch (error) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
@@ -143,7 +145,7 @@ export class RequestsService {
   async closeRequest(requestId, userId): Promise<any> {
     try {
       const req = await this.RequestRepository.findOne(requestId);
-      if (req && !req.IsClosed) {
+      if (req && !req.IsClosed && new Date(req.EndDate) > new Date()) {
         this.RequestRepository.query(
           `
             EXEC [dbo].[Request_approveOrCloseRequest] 
@@ -165,6 +167,8 @@ export class RequestsService {
             req,
           );
         });
+      } else {
+        throw new HttpException('Invalid action', HttpStatus.FORBIDDEN);
       }
     } catch (error) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
@@ -187,7 +191,7 @@ export class RequestsService {
     }
     if (request && request.length > 0) {
       const logs = await this.requestLogService.getLogsByRequestId(requestId);
-      let response = {
+      const response = {
         detail: request[0],
         logs: logs,
       };
