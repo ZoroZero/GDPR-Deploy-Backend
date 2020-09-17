@@ -165,21 +165,27 @@ export class UsersService {
     CreatedBy: String,
     IsActive: Boolean,
   ) {
-    var qCreatedBy;
-    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
-    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
-    var qIsActive;
-    if (IsActive === undefined) qIsActive = ',@IsActive = null';
-    else qIsActive = ',@IsActive =' + IsActive;
-    var qPassWord;
-    if (PassWord === undefined) qPassWord = ',@PassWord = null';
-    else {
-      const hashedPassword = await bcrypt.hash(PassWord, 10);
-      qPassWord = ",@PassWord ='" + hashedPassword + "'";
-    }
-    const insertResult = await getConnection()
-      .manager.query(
-        `EXECUTE [dbo].[updateUser]  
+    if (IsActive === false && Id == CreatedBy) {
+      throw new HttpException(
+        'Cannot deactive yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      var qCreatedBy;
+      if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+      else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+      var qIsActive;
+      if (IsActive === undefined) qIsActive = ',@IsActive = null';
+      else qIsActive = ',@IsActive =' + IsActive;
+      var qPassWord;
+      if (PassWord === undefined) qPassWord = ',@PassWord = null';
+      else {
+        const hashedPassword = await bcrypt.hash(PassWord, 10);
+        qPassWord = ",@PassWord ='" + hashedPassword + "'";
+      }
+      const insertResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
@@ -187,12 +193,13 @@ export class UsersService {
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
-          String(qCreatedBy) +
-          qIsActive,
-      )
-      .catch(err => {
-        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-      });
+            String(qCreatedBy) +
+            qIsActive,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    }
   }
 
   async acdeacListUser(IdList: String, CreatedBy: String, IsActive: Boolean) {
@@ -373,13 +380,17 @@ export class UsersService {
     var qDeletedBy;
     if (DeletedBy === undefined) qDeletedBy = ',@DeletedBy = null';
     else qDeletedBy = ",@DeletedBy ='" + DeletedBy + "'";
-    const deleteResult = await getConnection()
-      .manager.query(
-        `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
-      )
-      .catch(err => {
-        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-      });
+    if (DeletedBy && DeletedBy == UserId) {
+      throw new HttpException('Cannot delete yourself', HttpStatus.BAD_REQUEST);
+    } else {
+      const deleteResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    }
   }
 
   async getContactPointList() {
