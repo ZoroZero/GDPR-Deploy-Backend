@@ -14,8 +14,14 @@ import { MessageService } from './message.service';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Get('/:requestId')
+  @Get('/by-request/:requestId')
   getAllMessage(@Param('requestId', ParseUUIDPipe) requestId, @Req() req) {
     return this.messageService.getMessageByRequestId(requestId, req.user);
+  }
+
+  @Get('/:msgId')
+  getMessage(@Param('msgId', ParseUUIDPipe) msgId, @Req() req) {
+    console.log('BUGGGG HEREEEE');
+    return this.messageService.getMessageByMsgId(msgId, req.user);
   }
 }

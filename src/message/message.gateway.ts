@@ -26,10 +26,14 @@ export class MessageGateway
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: any): void {
     console.log(payload);
-    client.join(payload.requestId);
     try {
       this.messageService
-        .saveMessage(payload.user, payload.message, payload.requestId)
+        .saveMessage(
+          payload.user,
+          payload.message,
+          payload.requestId,
+          payload.ReplyId,
+        )
         .then(result => {
           if (result) {
             const msg = {
@@ -37,6 +41,7 @@ export class MessageGateway
               RequestId: payload.requestId,
               User: payload.user,
               CreatedDate: result.CreatedDate,
+              ReplyId: payload.ReplyId,
               Id: result.Id,
             };
             this.server.to(payload.requestId).emit(payload.requestId, msg);

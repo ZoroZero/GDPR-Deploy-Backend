@@ -71,4 +71,26 @@ export class MessageService {
       throw new HttpException('Invalid credentials.', HttpStatus.NOT_FOUND);
     }
   }
+
+  async getMessageByMsgId(msgId, user) {
+    try {
+      const result = await getConnection().manager.query(`
+        EXEC [dbo].[Message_getMessageById] @msgId='${msgId}'
+      `);
+      if (result.length > 0) {
+        if (['admin', 'dc-member'].includes(user.role)) {
+          return result[0];
+        } else {
+          const req = await this.requestService.findOne(result[0].RequestId);
+          if (req && req.CreatedBy === user.Id) {
+            return result[0];
+          }
+        }
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw new HttpException('Invalid credentials.', HttpStatus.NOT_FOUND);
+    }
+  }
 }
