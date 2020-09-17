@@ -171,6 +171,12 @@ export class UsersService {
     var qIsActive;
     if (IsActive === undefined) qIsActive = ',@IsActive = null';
     else qIsActive = ',@IsActive =' + IsActive;
+    var qPassWord;
+    if (PassWord === undefined) qPassWord = ',@PassWord = null';
+    else {
+      const hashedPassword = await bcrypt.hash(PassWord, 10);
+      qPassWord = ",@PassWord ='" + hashedPassword + "'";
+    }
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[updateUser]  

@@ -4,8 +4,7 @@ export class UpdateUserDto {
   @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
-  password: string;
+  password: any;
 
   @IsNotEmpty()
   username: string;
