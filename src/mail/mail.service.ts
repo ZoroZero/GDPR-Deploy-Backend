@@ -25,7 +25,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: listmail, // List of receivers email address
-        from: 'hdkhang1504@outlook.com', // Senders email address
+        from: 'tu.tran@netpower.no', // Senders email address
         subject: 'GDPR new request ✔', // Subject line
         template: 'index',
         context: {
@@ -47,7 +47,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: tomail, // List of receivers email address
-        from: 'hdkhang1504@outlook.com', // Senders email address
+        from: 'tu.tran@netpower.no', // Senders email address
         subject: 'GDPR new account ✔', // Subject line
         template: 'confirmemail',
         context: {
@@ -74,7 +74,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: tomail, // List of receivers email address
-        from: 'hdkhang1504@outlook.com', // Senders email address
+        from: 'tu.tran@netpower.no', // Senders email address
         subject: 'GDPR FORGOT PASSWORD ✔', // Subject line
         template: 'forgotpasswordemail',
         context: {
@@ -114,7 +114,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: 'hdkhang1504@gmail.com', // List of receivers email address
-        from: 'hdkhang1504@outlook.com', // Senders email address
+        from: 'tu.tran@netpower.no', // Senders email address
         subject: 'Testing Nest Mailermodule with template ✔',
         template: 'index', // The `.pug` or `.hbs` extension is appended automatically.
         context: {
@@ -135,7 +135,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: 'test@nestjs.com',
-        from: 'noreply@nestjs.com',
+        from: 'tu.tran@netpower.no',
         subject: 'Testing Nest Mailermodule with template ✔',
         template: __dirname + '/index', // The `.pug` or `.hbs` extension is appended automatically.
         context: {

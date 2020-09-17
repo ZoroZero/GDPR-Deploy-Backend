@@ -8,10 +8,11 @@ import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
 import { query, request } from 'express';
-import {getManager, getConnection} from "typeorm";
+import { LoggingService } from 'src/logger/logging.service';
+import { EditServerDto } from './dto/edit-server.dto';
 
 // const csv = require('csv-parser');
-
+const LogServer = new LoggingService()
 @Injectable()
 export class ServersService {
 
@@ -62,7 +63,7 @@ export class ServersService {
     `)
   }
 
-  async updateServer(_server: Server, _userId: string){
+  async updateServer(_server: EditServerDto, _userId: string){
     return this.serversRepository.query(`
     SET DATEFORMAT dmy
     EXECUTE dbo.[ServerAlter]
@@ -73,7 +74,10 @@ export class ServersService {
       @EndDate= '${_server.EndDate}', 
       @UpdatedBy= '${_userId}',
       @IsActive= ${_server.IsActive}
-    `)
+    `).then(res => {
+      LogServer.logFile(`[${_userId}]     [${_server.Id}]     [Update server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
+      return res
+    })
   }
 
   async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
@@ -89,7 +93,10 @@ export class ServersService {
     @ServerId = '${_id}'
     ,@UpdatedBy = '${_userId}'
     ,@DeletedBy = '${_userId}'
-  `)
+  `).then(res => {
+      LogServer.logFile(`[${_userId}]     [${_id}]      [Delete server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
+      return res;
+    })
   }
 
   async deleteMultiServer(_idList: string, _userId: string){

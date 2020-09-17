@@ -16,18 +16,18 @@ import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { EditServerDto } from './dto/edit-server.dto';
 // import { Request } from 'express';
 
 
 @Controller('/api/servers')
 @UseFilters(new HttpExceptionFilter())
-// @SetMetadata('roles', ['admin', 'dc-member'])
-// @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 // @UseGuards(JwtAuthGuard)
 export class UsersController {
 
     constructor(private service: ServersService) { }
-
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('all')
     @UseInterceptors(GetInterceptor)
     getAll(){
@@ -35,6 +35,7 @@ export class UsersController {
     }
 
     // Get server by pagination, sort, search, filter
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('')
     @UseInterceptors(GetInterceptor)
     get(@Query() query: SearchDataDto) {
@@ -43,6 +44,7 @@ export class UsersController {
     }
 
     // Get all active server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('active')
     @UseInterceptors(GetInterceptor)
     getActive(){
@@ -51,6 +53,7 @@ export class UsersController {
     }
 
     // Get data export by filter
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('export')
     @UseInterceptors(GetInterceptor)
     getExportData(@Query() query: ExportDto){
@@ -66,6 +69,7 @@ export class UsersController {
     // }
 
     // Create new server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Post('')
     @UseInterceptors(CreateInterceptor)
     post(@User() user, @Body() body: CreateServerDto){
@@ -74,6 +78,7 @@ export class UsersController {
     }
 
     // Post csv, xlsx file
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Post('import')
     importServer(@Body(ValidationPipe) body: ImportServerDto){
         console.log("File upload", body);
@@ -81,12 +86,14 @@ export class UsersController {
     }
 
     // Update server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Put('')
     @UseInterceptors(UpdateInterceptor)
-    put(@User() user, @Body() body: Server){
+    put(@User() user, @Body() body: EditServerDto){
         return this.service.updateServer(body, user.UserId)
     }
 
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Put('multi')
     updateMulti(@User() user, @Body() body: ChangeStatusListServerDto){
         return this.service.updateMultiServer(body, user.UserId)
@@ -94,6 +101,7 @@ export class UsersController {
 
 
     // Delete server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Delete('')
     @UseInterceptors(UpdateInterceptor)
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
@@ -101,6 +109,7 @@ export class UsersController {
     }
 
     // Delete multiple server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Delete('multi')
     @UseInterceptors(UpdateInterceptor)
     deleteMultiServer(@User() user, @Query('id') id: string) {
