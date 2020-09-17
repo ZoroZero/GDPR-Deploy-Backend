@@ -163,13 +163,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/password/update')
   updateAccountPassword(@Request() req1, @Body() req) {
-    return this.usersService.updateAccount(
+    return this.usersService.changeAccountPass(
       req1.user.UserId,
-      req.Email,
-      req.PassWord,
-      req.FirstName,
-      req.LastName,
-      req.IsActive,
+      req.Pass,
+      req.password,
     );
   }
 

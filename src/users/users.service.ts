@@ -87,17 +87,19 @@ export class UsersService {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
+    const hashedPassword = await bcrypt.hash(PassWord, 10);
     const insertResult = await getConnection()
       .manager.query(
         `SET ANSI_WARNINGS  OFF;
         EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${PassWord}'
+      ,@PassWord='${hashedPassword}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
-      ,@Email='${Email}' ` + qCreatedBy
-      +`SET ANSI_WARNINGS ON;`,
+      ,@Email='${Email}' ` +
+          qCreatedBy +
+          `SET ANSI_WARNINGS ON;`,
       )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
@@ -117,11 +119,12 @@ export class UsersService {
     var randomstring = Math.random()
       .toString(36)
       .slice(-8);
+    const hashedPassword = await bcrypt.hash(randomstring, 10);
     const userdata = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[ForgotPassword]  
       @Email= '${email}'
-      ,@NewPass ='${randomstring}'
+      ,@NewPass ='${hashedPassword}'
      `,
       )
       .catch(err => {
@@ -129,7 +132,7 @@ export class UsersService {
       });
     this.mailService.forgotPasswordEmail(
       userdata[0].UserName,
-      userdata[0].HashPasswd,
+      randomstring,
       email,
     );
   }
@@ -240,12 +243,16 @@ export class UsersService {
     NewPassWord: String,
   ) {
     const Info = await this.getInfoById(Id);
+    console.log('dfasdf', Info[0]);
+
     const passwordMatching = await bcrypt.compare(
       OldPassWord,
       Info[0].HashPasswd,
     );
+    console.log('dfasdf', NewPassWord);
     if (passwordMatching) {
       const hashedPassword = await bcrypt.hash(NewPassWord, 10);
+      console.log('dfasdf', hashedPassword);
       const insertResult = await getConnection()
         .manager.query(
           `EXECUTE [dbo].[updateUser]  
