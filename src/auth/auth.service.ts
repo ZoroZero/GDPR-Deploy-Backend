@@ -24,12 +24,17 @@ export class AuthService {
     return account.UpdatedDate;
   }
 
+  async validateUserById_ForWs(userId: string): Promise<any> {
+    const user = await this.usersService.getById(userId);
+
+    return user;
+  }
+
   async login(user: any) {
     const payload = {
       id: user.UserId,
       createdDate: new Date(),
     };
-
 
     const Info = await this.usersService.getInfoById(String(user.UserId));
     return {
@@ -41,6 +46,7 @@ export class AuthService {
       pic: Info[0].PicName,
       ext: Info[0].Extension,
       path: Info[0].Path,
+      userId: user.UserId,
     };
   }
 }

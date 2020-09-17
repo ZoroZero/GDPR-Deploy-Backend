@@ -7,7 +7,9 @@ import { SearchDataDto } from '../dto/search.dto';
 import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
-import { request } from 'express';
+import { query, request } from 'express';
+import {getManager, getConnection} from "typeorm";
+
 // const csv = require('csv-parser');
 
 @Injectable()
@@ -18,7 +20,7 @@ export class ServersService {
   ) {}
 
   async listAllServer(): Promise<Server[]> {
-    return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] `);
+    return await this.serversRepository.find({IsDeleted: false});
   }
 
   async getServerByPage(params: SearchDataDto){
@@ -76,7 +78,7 @@ export class ServersService {
 
   async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
       return await this.serversRepository.query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
-      @ServerIdList = '${_request.listServer}'
+      @ServerIdList = '${_request.listServer.join(',')}'
      ,@UpdatedBy = '${_userId}'
      ,@IsActive = ${_request.status}`)
   }
@@ -92,6 +94,7 @@ export class ServersService {
 
   async deleteMultiServer(_idList: string, _userId: string){
     var idList = _idList.split(",")
+    
     return await Promise.all([idList.forEach((id: string) => {
         this.serversRepository.query(
         `EXECUTE dbo.[ServerDeleteServer]
@@ -107,33 +110,55 @@ export class ServersService {
   async exportServerList(_request: ExportDto){
     console.log(_request);
     return await this.serversRepository.query(
-    `SET DATEFORMAT dmy
+    `
     EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIp =  ${_request.serverIp? `'${_request.serverIp}'` : `''`}
+     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList}'` : null}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
      ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
     )
   }
 
   async importServerList(request: ImportServerDto){
-    return await Promise.all([request.listServer.forEach((data:Server) => {
-      this.serversRepository.query(`SET DATEFORMAT dmy
-      EXECUTE dbo.[ServerAlter]
-        @ServerId = '${data.Id}'
-        ,@ServerName = '${data.Name}'
-        ,@ServerIp = '${data.IpAddress}'
-        ,@StartDate = '${data.StartDate}'
-        ,@EndDate = '${data.EndDate}'
-        ,@CreatedDate = '${data.CreatedDate}'
-        ,@CreatedBy = '${data.CreatedBy}'
-        ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-        ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-        ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-        ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-        ,@IsDeleted = ${data.IsDeleted}
-        ,@IsActive = ${data.IsActive}` 
-      )})
-    ])
+    // var queryStatement = ``;
+    // request.listServer.forEach((data:Server) => {
+    //   queryStatement += `\n SET DATEFORMAT dmy
+    //   EXECUTE dbo.[ServerAlter]
+    //     @ServerId = '${data.Id}'
+    //     ,@ServerName = '${data.Name}'
+    //     ,@ServerIp = '${data.IpAddress}'
+    //     ,@StartDate = '${data.StartDate}'
+    //     ,@EndDate = '${data.EndDate}'
+    //     ,@CreatedDate = '${data.CreatedDate}'
+    //     ,@CreatedBy = '${data.CreatedBy}'
+    //     ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+    //     ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+    //     ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+    //     ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+    //     ,@IsDeleted = ${data.IsDeleted}
+    //     ,@IsActive = ${data.IsActive}` 
+    // })
+    // return await Promise.all([request.listServer.forEach(async (data:Server) => {
+    //     await this.serversRepository.query(`SET DATEFORMAT dmy
+    //     EXECUTE dbo.[ServerAlter]
+    //       @ServerId = '${data.Id}'
+    //       ,@ServerName = '${data.Name}'
+    //       ,@ServerIp = '${data.IpAddress}'
+    //       ,@StartDate = '${data.StartDate}'
+    //       ,@EndDate = '${data.EndDate}'
+    //       ,@CreatedDate = '${data.CreatedDate}'
+    //       ,@CreatedBy = '${data.CreatedBy}'
+    //       ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
+    //       ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
+    //       ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
+    //       ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
+    //       ,@IsDeleted = ${data.IsDeleted}
+    //       ,@IsActive = ${data.IsActive}` 
+    //     )})
+    //   ]).catch(
+    //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
+    //   )
+    // return await this.serversRepository.query(queryStatement)
+    return this.serversRepository.save(request.listServer)
   }
 }

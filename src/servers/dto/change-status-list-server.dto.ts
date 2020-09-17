@@ -1,7 +1,9 @@
-import { Server } from "../server.entity";
+import { IsUUID} from "class-validator";
+
 
 export class ChangeStatusListServerDto{
-    listServer: string
+    @IsUUID('4', {each:true})
+    listServer: String[]
 
     status?: boolean
 }

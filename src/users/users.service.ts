@@ -14,6 +14,7 @@ import { confirmEmailLink } from '../utils/confirmEmailLink';
 import { sendEmail, sendForgotPassEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
+import { MailService } from 'src/mail/mail.service';
 
 // export type User = any;
 
@@ -24,6 +25,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     private accountService: AccountsService,
+    private readonly mailService: MailService,
   ) {}
 
   async findOne(username: string): Promise<User> {
@@ -34,7 +36,6 @@ export class UsersService {
     const userRoleId = await getConnection().manager.query(
       `EXECUTE [dbo].[getRoleFromId] @Id ='${id}' `,
     );
-    // console.log("Role id", userRoleId);
 
     if (userRoleId) {
       return userRoleId[0].Name;
@@ -62,7 +63,6 @@ export class UsersService {
 
   async getById(id: string) {
     const user = await this.usersRepository.findOne({ Id: id });
-    // console.log(user)
     if (user && !user.IsDeleted && user.IsActive) {
       return user;
     }
@@ -103,11 +103,11 @@ export class UsersService {
     const userId = await getConnection().manager.query(
       `EXECUTE [dbo].[getUserIdFromEmail] @Email ='${Email}' `,
     );
-    await sendEmail(
-      Email,
-      await confirmEmailLink(userId[0].Id),
+    this.mailService.confirmNewAccount(
       UserName,
       PassWord,
+      await confirmEmailLink(userId[0].Id),
+      Email,
     );
   }
 
@@ -125,19 +125,15 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    sendForgotPassEmail(email, userdata[0].UserName, userdata[0].HashPasswd);
+    this.mailService.forgotPasswordEmail(
+      userdata[0].UserName,
+      userdata[0].HashPasswd,
+      email,
+    );
   }
 
   async confirmEmail(id: any, res: Response) {
     const userId = await redis.get(`${id}`);
-    // , function(err, reply) {
-    //   console.log(reply);
-    // });
-    // console.log(userId);
-    // for (const prop in userId) {
-    //   console.log(`${prop} = ${userId[prop]}`);
-    // }
-    // console.log('userId: ', JSON.parse(userId));
     if (!userId) {
       throw new NotFoundException();
     }
@@ -146,9 +142,11 @@ export class UsersService {
       @UserId= '${userId}'
       ,@IsActive =true `,
     );
-    res.send(
-      'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
-    );
+    res.send({
+      message:
+        'OK! Confirm successfully! Now you can log in to GDPR website with the new account!',
+      success: true,
+    });
   }
 
   async updateUser(
@@ -184,10 +182,21 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
+  }
+
+  async acdeacListUser(IdList: String, CreatedBy: String, IsActive: Boolean) {
+    var qCreatedBy;
+    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    const qResult = await getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[acdeacListUsers]  
+      @UserIdList= '${IdList}'
+      ,@IsActive ='${IsActive}'` + String(qCreatedBy),
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
   }
 
   async updateAccount(
@@ -219,10 +228,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async updateAvatar(Id: String, ImagePath: String) {
@@ -236,10 +241,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (!insertResult) {
-    //   throw new HttpException('Cannot update user', HttpStatus.BAD_REQUEST);
-    // }
-    // console.log('insertResult', insertResult);
   }
 
   async getListUser(
@@ -337,10 +338,6 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-    // if (deleteResult)
-    //   throw new HttpException('Delete Successfully!', HttpStatus.OK);
-    // else
-    //   throw new HttpException('Error: Cannot delete!', HttpStatus.BAD_REQUEST);
   }
 
   async getContactPointList() {

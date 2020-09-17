@@ -1,8 +1,9 @@
-import { IsArray } from "class-validator";
 import { Customer } from "../customer.entity";
-
+import { Type } from "class-transformer";
+import { ValidateNested } from "class-validator";
 export class ImportCustomerDto {
-    @IsArray()
+    @Type(() => Customer)
+    @ValidateNested({each:true})
     CustomerList: Customer[]
   
 }
