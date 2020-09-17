@@ -6,17 +6,19 @@ import { AuthService } from '../auth.service';
 import { request } from 'http';
 import { UsersService } from 'src/users/users.service';
 import { date } from '@hapi/joi';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
+    private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly userService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secret,
+      secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 

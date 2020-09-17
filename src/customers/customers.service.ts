@@ -60,7 +60,7 @@ export class CustomersService {
 
   async findOtherServers(filter, status, id, page, keyword): Promise<any> {
     return await this.customersRepository.query(
-      `EXECUTE [dbo].[GetOtherServers] 
+      `EXECUTE [dbo].[CustomerGetOtherServers] 
    @Id ='${id}', @Status ='${status}', @PageNumber='${page}', @KeyWord='${keyword}'`,
     );
   }
