@@ -1,12 +1,11 @@
 import { Injectable, Logger, Scope, ParseUUIDPipe } from '@nestjs/common'
-import { ErrorLog } from './error-log.entity'
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { getConnection } from 'typeorm';
+const fs = require('fs') 
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggingService extends Logger {
   constructor(
-    @InjectRepository(ErrorLog)private errorRepository: Repository<ErrorLog>
   ) {
     super()
   }
@@ -36,8 +35,39 @@ export class LoggingService extends Logger {
     super.verbose(message, context)
   }
 
-  errorlog(id: string, detail: string, general: string): void{
-    this.errorRepository.insert({CreatedBy: id,CreatedDate: new Date(), Detail: detail, General: general});
-    this.error(id, detail, general);
+  errDBLog(id: string, general: string, detail: string, time: string): void{
+    
+    getConnection()
+      .manager.query(
+        `EXECUTE [dbo].[ErrorLogError] 
+          @UserId = '${id}'
+          ,@Status = '${general}'
+          ,@Detail = '${detail}'
+          ,@Date = '${time}'
+      `
+      )
+      .catch(err => {
+        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      });
+
+
+   
+  }
+
+  errorFileLog(message: string){
+    // Data which will write in a file. 
+    fs.appendFile('./files/log/errorlog.txt', `\n${message}`, (err) => {
+      if (err) throw err;
+      console.log('The error log were updated!');
+    });
+  }
+
+
+  logFile(message:string, filename: string){
+    // Data which will write in a file. 
+    fs.appendFile(filename, `\n${message}`, (err) => {
+      if (err) throw err;
+      console.log(`The ${filename} were updated!`);
+    });
   }
 }

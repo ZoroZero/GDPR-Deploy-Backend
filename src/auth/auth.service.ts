@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from '../accounts/accounts.service';
+const bcrypt = require('bcrypt');
 @Injectable()
 export class AuthService {
   constructor(
@@ -11,11 +12,31 @@ export class AuthService {
   ) {}
   async validateUser(username: string, pass: string): Promise<any> {
     const account = await this.accountsService.findOneByUsername(username);
-    if (account && !account.IsDeleted && account.HashPasswd == pass) {
+    const passwordMatching = await this.verifyPassword(pass, account.HashPasswd);
+    if (
+      account &&
+      !account.IsDeleted &&
+      passwordMatching
+    ) {
       const { HashPasswd, ...result } = account;
       return result;
     }
     return null;
+  }
+
+  private async verifyPassword(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ) {
+    return await bcrypt.compare(
+      plainTextPassword,
+      hashedPassword,
+    ).then(
+      result => {
+        console.log("Compare password",  result);
+        return result
+      }
+    );
   }
 
   async validateUserById(userId: string): Promise<any> {

@@ -8,12 +8,13 @@ import {
   Delete,
   Body,
   ValidationPipe,
-  UploadedFile, 
+  UploadedFile,
   Param,
   ParseUUIDPipe,
   HttpException,
   HttpStatus,
-  Query, UseInterceptors
+  Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
@@ -23,7 +24,7 @@ import { UsersService } from '../users/users.service';
 import { query } from 'express';
 import { ExportCustomerDto } from './dto/export-customer.dto';
 import { GetInterceptor } from 'src/interceptors/http-get.interceptor';
-import { multerOptions } from './config/customer.config'
+import { multerOptions } from './config/customer.config';
 import { User } from 'src/auth/user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportCustomerDto } from './dto/import-customer.dto';
@@ -35,21 +36,34 @@ export class CustomersController {
     private customersService: CustomersService,
     private usersService: UsersService,
   ) {}
+
   @Get('')
-  async findAll(@Query() query): Promise<Customer[]> {
-    return await this.customersService.findAll(
-      query.pageSize,
-      query.current,
-      query.sortColumn,
-      query.sortOrder,
-      query.keyword,
-    );
+  async findAll(@Query() query, @Request() req): Promise<Customer[]> {
+    const role = req.user.role;
+    if (role == 'contact-point') {
+      return await this.customersService.findAll(
+        query.pageSize,
+        query.current,
+        query.sortColumn,
+        query.sortOrder,
+        query.keyword,
+        req.user.UserId,
+      );
+    } else {
+      return await this.customersService.findAll(
+        query.pageSize,
+        query.current,
+        query.sortColumn,
+        query.sortOrder,
+        query.keyword,
+      );
+    }
   }
 
   @Get('export')
   @UseInterceptors(GetInterceptor)
-  exportCustomer(@Query() query: ExportCustomerDto){
-      return this.customersService.exportCustomerList(query)
+  exportCustomer(@Query() query: ExportCustomerDto) {
+    return this.customersService.exportCustomerList(query);
   }
 
   @Post()
@@ -85,13 +99,34 @@ export class CustomersController {
     }
   }
 
-
   @Delete('')
   async remove(
     @Query('Id', ParseUUIDPipe) id: string,
     @Request() req,
   ): Promise<any> {
     const res = await this.customersService.remove(id, req.user.UserId);
+  }
+
+  @Put('/deactive-multi')
+  async deactiveMulti(@Body() body, @Request() req): Promise<any> {
+    const res = await this.customersService.deactiveMulti(
+      body.params.deactivedCustomers,
+      req.user.UserId,
+    );
+  }
+  @Put('/active-multi')
+  async activeMulti(@Body() body, @Request() req): Promise<any> {
+    const res = await this.customersService.activeMulti(
+      body.params.activedCustomers,
+      req.user.UserId,
+    );
+  }
+  @Put('/delete-multi')
+  async removeMulti(@Body() body, @Request() req): Promise<any> {
+    const res = await this.customersService.removeMulti(
+      body.params.deletedCustomers,
+      req.user.UserId,
+    );
   }
 
   @Get('/contactPoints')
@@ -139,10 +174,9 @@ export class CustomersController {
 
   // Post csv, xlsx file
   @Post('import')
-  importServer(@Body() body: ImportCustomerDto){
-      return this.customersService.importCustomerList(body)
-      // return response;
-      // return this.service.importServer(file)
+  importServer(@Body() body: ImportCustomerDto) {
+    return this.customersService.importCustomerList(body);
+    // return response;
+    // return this.service.importServer(file)
   }
-
 }
