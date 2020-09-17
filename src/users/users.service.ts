@@ -15,7 +15,7 @@ import { sendEmail, sendForgotPassEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
 import { MailService } from 'src/mail/mail.service';
-
+const bcrypt = require('bcrypt');
 // export type User = any;
 
 @Injectable()
@@ -87,12 +87,13 @@ export class UsersService {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
+    const hashedPassword = await bcrypt.hash(PassWord, 10);
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${PassWord}'
+      ,@PassWord='${hashedPassword}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}' ` + qCreatedBy,
@@ -115,11 +116,12 @@ export class UsersService {
     var randomstring = Math.random()
       .toString(36)
       .slice(-8);
+    const hashedPassword = await bcrypt.hash(randomstring, 10);
     const userdata = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[ForgotPassword]  
       @Email= '${email}'
-      ,@NewPass ='${randomstring}'
+      ,@NewPass ='${hashedPassword}'
      `,
       )
       .catch(err => {
@@ -127,7 +129,7 @@ export class UsersService {
       });
     this.mailService.forgotPasswordEmail(
       userdata[0].UserName,
-      userdata[0].HashPasswd,
+      randomstring,
       email,
     );
   }
@@ -166,16 +168,22 @@ export class UsersService {
     var qIsActive;
     if (IsActive === undefined) qIsActive = ',@IsActive = null';
     else qIsActive = ',@IsActive =' + IsActive;
+    var qHashpass;
+    if (PassWord === undefined) qHashpass = ',@PassWord = null';
+    else {
+      const hashedPassword = await bcrypt.hash(PassWord, 10);
+      qHashpass = ',@PassWord =' + hashedPassword;
+    }
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
+          String(qHashpass) +
           String(qCreatedBy) +
           qIsActive,
       )
@@ -214,14 +222,20 @@ export class UsersService {
     var qIsActive;
     if (IsActive === undefined) qIsActive = ',@IsActive = null';
     else qIsActive = ',@IsActive =' + IsActive;
+    var qHashpass;
+    if (PassWord === undefined) qHashpass = ',@PassWord = null';
+    else {
+      const hashedPassword = await bcrypt.hash(PassWord, 10);
+      qHashpass = ',@PassWord =' + hashedPassword;
+    }
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
-      ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
+          String(qHashpass) +
           String(qCreatedBy) +
           qIsActive,
       )
