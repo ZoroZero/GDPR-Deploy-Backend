@@ -46,13 +46,13 @@ export class UsersService {
     );
   }
   async getInfoById(id: string) {
-    // console.log('UsersService -> getInfoById -> getInfoById(');
+    console.log('UsersService -> getInfoById -> getInfoById(');
     const userInfo = await getConnection().manager.query(
       `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
     );
 
     if (userInfo) {
-      // console.log('UsersService -> getInfoById -> userInfo)', userInfo);
+      console.log('UsersService -> getInfoById -> userInfo)', userInfo);
       return userInfo;
     }
     throw new HttpException(
@@ -87,19 +87,19 @@ export class UsersService {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
-    const saltRounds = 10
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hashedPassword = bcrypt.hashSync(PassWord, salt);
+    const hashedPassword = await bcrypt.hash(PassWord, 10);
     const insertResult = await getConnection()
       .manager.query(
-        `EXECUTE [dbo].[insertUser]   
+        `SET ANSI_WARNINGS  OFF;
+        EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${String(hashedPassword)}'
-      ,@Salt= '${salt}'
+      ,@PassWord='${hashedPassword}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
-      ,@Email='${Email}' ${qCreatedBy}`,
+      ,@Email='${Email}' ` +
+          qCreatedBy +
+          `SET ANSI_WARNINGS ON;`,
       )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
@@ -165,34 +165,41 @@ export class UsersService {
     CreatedBy: String,
     IsActive: Boolean,
   ) {
-    var qCreatedBy;
-    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
-    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
-    var qIsActive;
-    if (IsActive === undefined) qIsActive = ',@IsActive = null';
-    else qIsActive = ',@IsActive =' + IsActive;
-    var qHashpass;
-    if (PassWord === undefined) qHashpass = ',@PassWord = null';
-    else {
-      const hashedPassword = await bcrypt.hash(PassWord, 10);
-      qHashpass = ',@PassWord =' + hashedPassword;
-    }
-    const insertResult = await getConnection()
-      .manager.query(
-        `EXECUTE [dbo].[updateUser]  
+    if (IsActive === false && Id == CreatedBy) {
+      throw new HttpException(
+        'Cannot deactive yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      var qCreatedBy;
+      if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
+      else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+      var qIsActive;
+      if (IsActive === undefined) qIsActive = ',@IsActive = null';
+      else qIsActive = ',@IsActive =' + IsActive;
+      var qPassWord;
+      if (PassWord === undefined) qPassWord = ',@PassWord = null';
+      else {
+        const hashedPassword = await bcrypt.hash(PassWord, 10);
+        qPassWord = ",@PassWord ='" + hashedPassword + "'";
+      }
+      const insertResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[updateUser]  
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
+      ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
-          String(qHashpass) +
-          String(qCreatedBy) +
-          qIsActive,
-      )
-      .catch(err => {
-        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-      });
+            String(qCreatedBy) +
+            qIsActive,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    }
   }
 
   async acdeacListUser(IdList: String, CreatedBy: String, IsActive: Boolean) {
@@ -216,21 +223,17 @@ export class UsersService {
     PassWord: String,
     FirstName: String,
     LastName: String,
-    CreatedBy: String,
     IsActive: Boolean,
   ) {
     var qCreatedBy;
-    if (CreatedBy === undefined) qCreatedBy = ',@UpdatedBy = null';
-    else qCreatedBy = ",@UpdatedBy ='" + CreatedBy + "'";
+    if (Id === undefined) qCreatedBy = ',@UpdatedBy = null';
+    else qCreatedBy = ",@UpdatedBy ='" + Id + "'";
+    var qPassWord;
+    if (PassWord === undefined) qPassWord = ',@PassWord = null';
+    else qPassWord = ",@PassWord ='" + PassWord + "'";
     var qIsActive;
     if (IsActive === undefined) qIsActive = ',@IsActive = null';
     else qIsActive = ',@IsActive =' + IsActive;
-    var qHashpass;
-    if (PassWord === undefined) qHashpass = ',@PassWord = null';
-    else {
-      const hashedPassword = await bcrypt.hash(PassWord, 10);
-      qHashpass = ',@PassWord =' + hashedPassword;
-    }
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[updateUser]  
@@ -238,13 +241,42 @@ export class UsersService {
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
-          String(qHashpass) +
           String(qCreatedBy) +
+          String(qPassWord) +
           qIsActive,
       )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
+  }
+
+  async changeAccountPass(
+    Id: string,
+    OldPassWord: String,
+    NewPassWord: String,
+  ) {
+    const Info = await this.getInfoById(Id);
+    console.log('dfasdf', Info[0]);
+
+    const passwordMatching = await bcrypt.compare(
+      OldPassWord,
+      Info[0].HashPasswd,
+    );
+    console.log('dfasdf', NewPassWord);
+    if (passwordMatching) {
+      const hashedPassword = await bcrypt.hash(NewPassWord, 10);
+      console.log('dfasdf', hashedPassword);
+      const insertResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[updateUser]  
+      @UserId= '${Id}', @PassWord='${hashedPassword}'`,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    } else {
+      throw new HttpException('Incorrect old password', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async updateAvatar(Id: String, ImagePath: String) {
@@ -348,13 +380,17 @@ export class UsersService {
     var qDeletedBy;
     if (DeletedBy === undefined) qDeletedBy = ',@DeletedBy = null';
     else qDeletedBy = ",@DeletedBy ='" + DeletedBy + "'";
-    const deleteResult = await getConnection()
-      .manager.query(
-        `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
-      )
-      .catch(err => {
-        throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-      });
+    if (DeletedBy && DeletedBy == UserId) {
+      throw new HttpException('Cannot delete yourself', HttpStatus.BAD_REQUEST);
+    } else {
+      const deleteResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[deleteUser] @UserId ='${UserId}' ` + qDeletedBy,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    }
   }
 
   async getContactPointList() {
