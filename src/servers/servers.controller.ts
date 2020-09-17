@@ -26,7 +26,7 @@ import { ValidationPipe } from 'src/pipes/validation.pipe';
 export class UsersController {
 
     constructor(private service: ServersService) { }
-
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('all')
     @UseInterceptors(GetInterceptor)
     getAll(){
@@ -52,6 +52,7 @@ export class UsersController {
     }
 
     // Get data export by filter
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('export')
     @UseInterceptors(GetInterceptor)
     getExportData(@Query() query: ExportDto){
@@ -67,6 +68,7 @@ export class UsersController {
     // }
 
     // Create new server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Post('')
     @UseInterceptors(CreateInterceptor)
     post(@User() user, @Body() body: CreateServerDto){
@@ -75,6 +77,7 @@ export class UsersController {
     }
 
     // Post csv, xlsx file
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Post('import')
     importServer(@Body(ValidationPipe) body: ImportServerDto){
         console.log("File upload", body);
@@ -82,12 +85,14 @@ export class UsersController {
     }
 
     // Update server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Put('')
     @UseInterceptors(UpdateInterceptor)
     put(@User() user, @Body() body: Server){
         return this.service.updateServer(body, user.UserId)
     }
 
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Put('multi')
     updateMulti(@User() user, @Body() body: ChangeStatusListServerDto){
         return this.service.updateMultiServer(body, user.UserId)
@@ -95,6 +100,7 @@ export class UsersController {
 
 
     // Delete server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Delete('')
     @UseInterceptors(UpdateInterceptor)
     deleteServer(@User() user, @Query('id', new ParseUUIDPipe()) id: string) {
@@ -102,6 +108,7 @@ export class UsersController {
     }
 
     // Delete multiple server
+    @SetMetadata('roles', ['admin', 'dc-member'])
     @Delete('multi')
     @UseInterceptors(UpdateInterceptor)
     deleteMultiServer(@User() user, @Query('id') id: string) {

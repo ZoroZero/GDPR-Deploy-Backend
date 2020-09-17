@@ -35,7 +35,7 @@ export class LoggingService extends Logger {
     super.verbose(message, context)
   }
 
-  errorlog(id: string, general: string, detail: string, time: string): void{
+  errDBLog(id: string, general: string, detail: string, time: string): void{
     
     getConnection()
       .manager.query(
@@ -51,13 +51,23 @@ export class LoggingService extends Logger {
       });
 
 
+   
+  }
+
+  errorFileLog(message: string){
     // Data which will write in a file. 
-    let data = "Learning how to write in a file."
-      
-    // Write data in 'Output.txt' . 
-    fs.writeFile(`./files/log/errorlog.txt`, data, (err) => { 
-      // In case of a error throw err. 
-      if (err) throw err; 
-    }) 
+    fs.appendFile('./files/log/errorlog.txt', `\n${message}`, (err) => {
+      if (err) throw err;
+      console.log('The error log were updated!');
+    });
+  }
+
+
+  logFile(message:string, filename: string){
+    // Data which will write in a file. 
+    fs.appendFile(filename, `\n${message}`, (err) => {
+      if (err) throw err;
+      console.log(`The ${filename} were updated!`);
+    });
   }
 }
