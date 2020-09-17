@@ -39,14 +39,14 @@ import { MessageModule } from './message/message.module';
         transport: {
           host: process.env.EMAIL_HOST,
           port: Number(process.env.EMAIL_PORT),
-          secure: false, // true for 465, false for other ports
+          secure: true, // true for 465, false for other ports
           auth: {
             user: process.env.EMAIL_ID, // generated ethereal user
             pass: process.env.EMAIL_PASS, // generated ethereal password
           },
         },
         defaults: {
-          from: '"nest-modules" <hdkhang1504@outlook.com>', // outgoing email ID
+          from: '"GDPR" <tu.tran@netpower.no>', // outgoing email ID
         },
         template: {
           dir: process.cwd() + '/template/',

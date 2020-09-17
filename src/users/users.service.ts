@@ -90,13 +90,15 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(PassWord, 10);
     const insertResult = await getConnection()
       .manager.query(
-        `EXECUTE [dbo].[insertUser]   
+        `SET ANSI_WARNINGS  OFF;
+        EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
       ,@PassWord='${hashedPassword}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
-      ,@Email='${Email}' ` + qCreatedBy,
+      ,@Email='${Email}' ` + qCreatedBy
+      +`SET ANSI_WARNINGS ON;`,
       )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
