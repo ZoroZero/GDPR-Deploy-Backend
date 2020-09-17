@@ -43,6 +43,8 @@ export class CustomersController {
       filterList = [1, 0];
     } else if (query.filterValue == ['0']) {
       filterList = [0];
+    } else {
+      filterList = [0, 1];
     }
     const role = req.user.role;
     if (role == 'contact-point') {
