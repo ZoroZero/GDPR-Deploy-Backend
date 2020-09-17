@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from '../accounts/accounts.service';
+const bcrypt = require('bcrypt');
 @Injectable()
 export class AuthService {
   constructor(
@@ -11,11 +12,31 @@ export class AuthService {
   ) {}
   async validateUser(username: string, pass: string): Promise<any> {
     const account = await this.accountsService.findOneByUsername(username);
-    if (account && !account.IsDeleted && account.HashPasswd == pass) {
+    if (
+      account &&
+      !account.IsDeleted &&
+      this.verifyPassword(pass, account.HashPasswd)
+    ) {
       const { HashPasswd, ...result } = account;
       return result;
     }
     return null;
+  }
+
+  private async verifyPassword(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainTextPassword,
+      hashedPassword,
+    );
+    if (!isPasswordMatching) {
+      throw new HttpException(
+        'Wrong credentials provided',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async validateUserById(userId: string): Promise<any> {
