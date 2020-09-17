@@ -4,7 +4,7 @@ export class UpdateAccountDto {
   @IsNotEmpty()
   Email: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   PassWord: string;
 
   @IsNotEmpty()

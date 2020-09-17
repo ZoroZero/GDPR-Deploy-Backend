@@ -147,8 +147,22 @@ export class UsersController {
 
   @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-  @Put('/account')
+  @Put('/account/update')
   updateAccount(@Request() req1, @Body() req: UpdateAccountDto) {
+    return this.usersService.updateAccount(
+      req1.user.UserId,
+      req.Email,
+      req.PassWord,
+      req.FirstName,
+      req.LastName,
+      req.IsActive,
+    );
+  }
+
+  @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Put('/password/update')
+  updateAccountPassword(@Request() req1, @Body() req) {
     return this.usersService.updateAccount(
       req1.user.UserId,
       req.Email,

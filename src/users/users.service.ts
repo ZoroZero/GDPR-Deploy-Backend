@@ -15,7 +15,7 @@ import { sendEmail, sendForgotPassEmail } from '../utils/sendEmail';
 import { AccountsService } from '../accounts/accounts.service';
 import { Account } from '../accounts/account.entity';
 import { MailService } from 'src/mail/mail.service';
-
+const bcrypt = require('bcrypt');
 // export type User = any;
 
 @Injectable()
@@ -230,6 +230,31 @@ export class UsersService {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
+  }
+
+  async changeAccountPass(
+    Id: string,
+    OldPassWord: String,
+    NewPassWord: String,
+  ) {
+    const Info = await this.getInfoById(Id);
+    const passwordMatching = await bcrypt.compare(
+      OldPassWord,
+      Info[0].HashPasswd,
+    );
+    if (passwordMatching) {
+      const hashedPassword = await bcrypt.hash(NewPassWord, 10);
+      const insertResult = await getConnection()
+        .manager.query(
+          `EXECUTE [dbo].[updateUser]  
+      @UserId= '${Id}', @PassWord='${hashedPassword}'`,
+        )
+        .catch(err => {
+          throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        });
+    } else {
+      throw new HttpException('Incorrect old password', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async updateAvatar(Id: String, ImagePath: String) {
