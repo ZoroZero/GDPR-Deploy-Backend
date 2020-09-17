@@ -16,6 +16,7 @@ import { ExportDto } from './dto/export-server.dto';
 import { ChangeStatusListServerDto } from './dto/change-status-list-server.dto';
 import { ImportServerDto } from './dto/import-server-list.dto';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { EditServerDto } from './dto/edit-server.dto';
 // import { Request } from 'express';
 
 
@@ -88,7 +89,7 @@ export class UsersController {
     @SetMetadata('roles', ['admin', 'dc-member'])
     @Put('')
     @UseInterceptors(UpdateInterceptor)
-    put(@User() user, @Body() body: Server){
+    put(@User() user, @Body() body: EditServerDto){
         return this.service.updateServer(body, user.UserId)
     }
 
