@@ -46,13 +46,13 @@ export class UsersService {
     );
   }
   async getInfoById(id: string) {
-    console.log('UsersService -> getInfoById -> getInfoById(');
+    // console.log('UsersService -> getInfoById -> getInfoById(');
     const userInfo = await getConnection().manager.query(
       `EXECUTE [dbo].[getInfoFromId] @Id ='${id}' `,
     );
 
     if (userInfo) {
-      console.log('UsersService -> getInfoById -> userInfo)', userInfo);
+      // console.log('UsersService -> getInfoById -> userInfo)', userInfo);
       return userInfo;
     }
     throw new HttpException(

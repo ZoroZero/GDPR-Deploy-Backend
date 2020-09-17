@@ -12,10 +12,11 @@ export class AuthService {
   ) {}
   async validateUser(username: string, pass: string): Promise<any> {
     const account = await this.accountsService.findOneByUsername(username);
+    const passwordMatching = await this.verifyPassword(pass, account.HashPasswd);
     if (
       account &&
       !account.IsDeleted &&
-      this.verifyPassword(pass, account.HashPasswd)
+      passwordMatching
     ) {
       const { HashPasswd, ...result } = account;
       return result;
@@ -27,7 +28,7 @@ export class AuthService {
     plainTextPassword: string,
     hashedPassword: string,
   ) {
-    const isPasswordMatching = await bcrypt.compare(
+    return await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
     ).then(
