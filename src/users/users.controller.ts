@@ -147,28 +147,16 @@ export class UsersController {
 
   @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-  @Put('/account/:id')
-  updateAccount(
-    @Request() req1,
-    @Param('id') userId: String,
-    @Body() req: UpdateAccountDto,
-  ) {
-    if (userId == req1.user.UserId) {
-      return this.usersService.updateAccount(
-        userId,
-        req.Email,
-        req.PassWord,
-        req.FirstName,
-        req.LastName,
-        req1.user.UserId,
-        req.IsActive,
-      );
-    } else {
-      throw new HttpException(
-        'Cannot update! You only can update yourself',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  @Put('/account')
+  updateAccount(@Request() req1, @Body() req: UpdateAccountDto) {
+    return this.usersService.updateAccount(
+      req1.user.UserId,
+      req.Email,
+      req.PassWord,
+      req.FirstName,
+      req.LastName,
+      req.IsActive,
+    );
   }
 
   @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
