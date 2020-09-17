@@ -21,12 +21,8 @@ import { Customer } from './interfaces/customer.interface';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UsersService } from '../users/users.service';
-import { query } from 'express';
 import { ExportCustomerDto } from './dto/export-customer.dto';
 import { GetInterceptor } from 'src/interceptors/http-get.interceptor';
-import { multerOptions } from './config/customer.config';
-import { User } from 'src/auth/user.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportCustomerDto } from './dto/import-customer.dto';
 
 @Controller('customers')
@@ -39,7 +35,15 @@ export class CustomersController {
 
   @Get('')
   async findAll(@Query() query, @Request() req): Promise<Customer[]> {
-    console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^filter', query);
+    let filterList = [];
+    if (query.filterValue == ['1']) {
+      filterList = [1];
+    }
+    if (query.filterValue == ['1', '0']) {
+      filterList = [1, 0];
+    } else if (query.filterValue == ['0']) {
+      filterList = [0];
+    }
     const role = req.user.role;
     if (role == 'contact-point') {
       return await this.customersService.findAll(
@@ -48,7 +52,7 @@ export class CustomersController {
         query.sortColumn,
         query.sortOrder,
         query.keyword,
-        query.filterValue,
+        filterList,
         req.user.UserId,
       );
     } else {
