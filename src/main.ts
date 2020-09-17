@@ -10,7 +10,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(5000);
+  await app.listen(process.env.BACKEND_PORT);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
