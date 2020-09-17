@@ -55,7 +55,7 @@ export class CustomersService {
   }
   async findServers(id: string, keyword): Promise<any> {
     return await this.customersRepository.query(
-      `EXECUTE [dbo].[GetServersCustomer] 
+      `EXECUTE [dbo].[CustomerGetServersCustomer] 
    @Id ='${id}', @KeyWord='${keyword}'`,
     );
   }

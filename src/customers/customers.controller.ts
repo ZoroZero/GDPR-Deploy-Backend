@@ -15,6 +15,8 @@ import {
   HttpStatus,
   Query,
   UseInterceptors,
+  UseFilters,
+  SetMetadata,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Customer } from './interfaces/customer.interface';
@@ -24,28 +26,34 @@ import { UsersService } from '../users/users.service';
 import { ExportCustomerDto } from './dto/export-customer.dto';
 import { GetInterceptor } from 'src/interceptors/http-get.interceptor';
 import { ImportCustomerDto } from './dto/import-customer.dto';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Reflector } from '@nestjs/core';
+import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
 
 @Controller('customers')
-@UseGuards(JwtAuthGuard)
+@UseFilters(new HttpExceptionFilter())
+@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 export class CustomersController {
   constructor(
     private customersService: CustomersService,
     private usersService: UsersService,
   ) {}
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('')
   async findAll(@Query() query, @Request() req): Promise<Customer[]> {
-    let filterList = [];
-    if (query.filterValue == ['1']) {
-      filterList = [1];
-    }
-    if (query.filterValue == ['1', '0']) {
-      filterList = [1, 0];
-    } else if (query.filterValue == ['0']) {
-      filterList = [0];
-    } else {
-      filterList = [0, 1];
-    }
+    // let filterList = [];
+    console.log('FIELD VALUE -> CONTROLLER', query.filterValue);
+    // if (query.filterValue == ['1']) {
+    //   filterList = [1];
+    // }
+    // if (query.filterValue == ['1', '0']) {
+    //   filterList = [1, 0];
+    // } else if (query.filterValue == ['0']) {
+    //   filterList = [0];
+    // } else {
+    //   filterList = [0, 1];
+    // }
     const role = req.user.role;
     if (role == 'contact-point') {
       return await this.customersService.findAll(
@@ -54,7 +62,7 @@ export class CustomersController {
         query.sortColumn,
         query.sortOrder,
         query.keyword,
-        filterList,
+        query.filterValue,
         req.user.UserId,
       );
     } else {
@@ -69,12 +77,14 @@ export class CustomersController {
     }
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('export')
   @UseInterceptors(GetInterceptor)
   exportCustomer(@Query() query: ExportCustomerDto) {
     return this.customersService.exportCustomerList(query);
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Post()
   async create(
     @Body(ValidationPipe) createCustomerDto: CreateCustomerDto,
@@ -83,6 +93,7 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto, req.user.UserId);
   } // return result ??????
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Put('')
   async update(
     @Query('Id', ParseUUIDPipe) id: string,
@@ -108,6 +119,7 @@ export class CustomersController {
     }
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Delete('')
   async remove(
     @Query('Id', ParseUUIDPipe) id: string,
@@ -116,6 +128,7 @@ export class CustomersController {
     const res = await this.customersService.remove(id, req.user.UserId);
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Put('/deactive-multi')
   async deactiveMulti(@Body() body, @Request() req): Promise<any> {
     const res = await this.customersService.deactiveMulti(
@@ -123,6 +136,8 @@ export class CustomersController {
       req.user.UserId,
     );
   }
+
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Put('/active-multi')
   async activeMulti(@Body() body, @Request() req): Promise<any> {
     const res = await this.customersService.activeMulti(
@@ -130,6 +145,8 @@ export class CustomersController {
       req.user.UserId,
     );
   }
+
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Put('/delete-multi')
   async removeMulti(@Body() body, @Request() req): Promise<any> {
     const res = await this.customersService.removeMulti(
@@ -138,15 +155,19 @@ export class CustomersController {
     );
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('/contactPoints')
   async findAllContactPoints(@Query() query): Promise<any> {
     return await this.usersService.getContactPointList();
   }
+
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('/servers')
   async findServersByCustomerId(@Query() query): Promise<any> {
     return await this.customersService.findServers(query.Id, query.keyword);
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('/other-servers')
   async findOtherServers(@Query() query): Promise<any> {
     return await this.customersService.findOtherServers(
@@ -158,6 +179,7 @@ export class CustomersController {
     );
   }
 
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Post('/servers')
   async addServersForCustomer(
     @Query('Id', ParseUUIDPipe) id: string,
@@ -169,6 +191,8 @@ export class CustomersController {
       body.params.AddedServers,
     );
   }
+
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Put('/servers')
   async deleteServersOfCustomer(
     @Query('Id', ParseUUIDPipe) id: string,
@@ -182,6 +206,7 @@ export class CustomersController {
   }
 
   // Post csv, xlsx file
+  @SetMetadata('roles', ['admin', 'contact-point'])
   @Post('import')
   importServer(@Body() body: ImportCustomerDto) {
     return this.customersService.importCustomerList(body);
