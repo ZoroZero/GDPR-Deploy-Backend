@@ -55,8 +55,9 @@ export class LoggingService extends Logger {
   }
 
   errorFileLog(message: string){
-    // Data which will write in a file. 
-    fs.appendFile('./files/log/errorlog.txt', `\n${message}`, (err) => {
+    // Data which will write in a file
+     
+    fs.appendFileSync(process.env.ERROR_LOG_FILE, `\n${message}`, (err) => {
       if (err) throw err;
       console.log('The error log were updated!');
     });
@@ -65,7 +66,7 @@ export class LoggingService extends Logger {
 
   logFile(message:string, filename: string){
     // Data which will write in a file. 
-    fs.appendFile(filename, `\n${message}`, (err) => {
+    fs.appendFileSync(filename, `\n${message}`, (err) => {
       if (err) throw err;
       console.log(`The ${filename} were updated!`);
     });
