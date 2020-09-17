@@ -30,13 +30,12 @@ export class AuthService {
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
+    ).then(
+      result => {
+        console.log("Compare password",  result);
+        return result
+      }
     );
-    if (!isPasswordMatching) {
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
   }
 
   async validateUserById(userId: string): Promise<any> {

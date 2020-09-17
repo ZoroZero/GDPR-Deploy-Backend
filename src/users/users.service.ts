@@ -87,16 +87,19 @@ export class UsersService {
     var qCreatedBy;
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
-    const hashedPassword = await bcrypt.hash(PassWord, 10);
+    const saltRounds = 10
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(PassWord, salt);
     const insertResult = await getConnection()
       .manager.query(
         `EXECUTE [dbo].[insertUser]   
       @Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${hashedPassword}'
+      ,@PassWord='${String(hashedPassword)}'
+      ,@Salt= '${salt}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
-      ,@Email='${Email}' ` + qCreatedBy,
+      ,@Email='${Email}' ${qCreatedBy}`,
       )
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
