@@ -10,7 +10,7 @@ import { ImportServerDto } from './dto/import-server-list.dto';
 import { query, request } from 'express';
 import { LoggingService } from 'src/logger/logging.service';
 import { EditServerDto } from './dto/edit-server.dto';
-
+import { ServerInformation } from './server-import.entity'
 // const csv = require('csv-parser');
 const LogServer = new LoggingService()
 @Injectable()
@@ -166,6 +166,24 @@ export class ServersService {
     //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
     //   )
     // return await this.serversRepository.query(queryStatement)
+    var listSer = request.listServer.map(server => this.convert(server))
     return this.serversRepository.save(request.listServer)
+  }
+
+  convert = (serverBasic: ServerInformation): Server => {
+    var server = new Server()
+    server.Name = serverBasic.Name
+    server.IpAddress = serverBasic.IpAddress
+    server.StartDate = serverBasic.StartDate
+    server.EndDate = serverBasic.EndDate
+    server.IsActive = serverBasic.IsActive
+    server.CreatedDate = serverBasic.CreatedDate
+    server.CreatedBy = serverBasic.CreatedBy
+    server.UpdatedDate = serverBasic.UpdatedDate
+    server.UpdatedBy = serverBasic.UpdatedBy
+    server.DeletedDate = serverBasic.DeletedDate
+    server.DeletedBy = serverBasic.DeletedBy
+    server.IsDeleted = serverBasic.IsDeleted
+    return server 
   }
 }

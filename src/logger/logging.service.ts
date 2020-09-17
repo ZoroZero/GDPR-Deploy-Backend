@@ -36,7 +36,6 @@ export class LoggingService extends Logger {
   }
 
   errDBLog(id: string, general: string, detail: string, time: string): void{
-    
     getConnection()
       .manager.query(
         `EXECUTE [dbo].[ErrorLogError] 
@@ -49,9 +48,6 @@ export class LoggingService extends Logger {
       .catch(err => {
         throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
       });
-
-
-   
   }
 
   errorFileLog(message: string){

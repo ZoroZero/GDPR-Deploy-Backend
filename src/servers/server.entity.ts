@@ -1,10 +1,13 @@
 import { IsUUID } from 'class-validator';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Generated, BeforeInsert } from 'typeorm';
 
 @Entity('Server')
 export class Server {
   @IsUUID()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid', {
+    name: "Id"
+  })
+  @Generated("uuid")
   Id: string;
 
   @Column()
