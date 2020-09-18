@@ -25,7 +25,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: listmail, // List of receivers email address
-        from: 'tu.tran@netpower.no', // Senders email address
+        from: process.env.EMAIL_SEND, // Senders email address
         subject: 'GDPR new request ✔', // Subject line
         template: 'index',
         context: {
@@ -47,7 +47,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: tomail, // List of receivers email address
-        from: 'tu.tran@netpower.no', // Senders email address
+        from: process.env.EMAIL_SEND, // Senders email address
         subject: 'GDPR new account ✔', // Subject line
         template: 'confirmemail',
         context: {
@@ -74,7 +74,7 @@ export class MailService {
     this.mailerService
       .sendMail({
         to: tomail, // List of receivers email address
-        from: 'tu.tran@netpower.no', // Senders email address
+        from: process.env.EMAIL_SEND, // Senders email address
         subject: 'GDPR FORGOT PASSWORD ✔', // Subject line
         template: 'forgotpasswordemail',
         context: {
@@ -88,6 +88,31 @@ export class MailService {
           tomail,
           `Your username: ${username}; Your new password: ${password};`,
           'GDPR FORGOT PASSWORD ✔',
+        );
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  public changePasswordEmail(password, tomail: string): void {
+    // tmail.push('hdkhang1504@gmail.com');
+    this.mailerService
+      .sendMail({
+        to: tomail, // List of receivers email address
+        from: process.env.EMAIL_SEND, // Senders email address
+        subject: 'GDPR CHANGE PASSWORD ✔', // Subject line
+        template: 'changepassemail',
+        context: {
+          password: password,
+        },
+      })
+      .then(success => {
+        console.log('success', success);
+        this.logEmail(
+          tomail,
+          `Your password has been change; Your new password: ${password};`,
+          'GDPR CHANGE PASSWORD ✔',
         );
       })
       .catch(err => {

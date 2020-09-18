@@ -157,7 +157,7 @@ export class UsersService {
 
   async updateUser(
     Id: String,
-    Email: String,
+    Email: string,
     PassWord: String,
     UserName: String,
     Role: String,
@@ -181,6 +181,7 @@ export class UsersService {
       var qPassWord;
       if (PassWord === undefined) qPassWord = ',@PassWord = null';
       else {
+        this.mailService.changePasswordEmail(PassWord, Email);
         const hashedPassword = await bcrypt.hash(PassWord, 10);
         qPassWord = ",@PassWord ='" + hashedPassword + "'";
       }
