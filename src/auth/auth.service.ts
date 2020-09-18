@@ -36,7 +36,7 @@ export class AuthService {
         console.log("Compare password",  result);
         return result
       }
-    );
+    ).catch(err => {throw new HttpException("Login fail", HttpStatus.BAD_REQUEST)});
   }
 
   async validateUserById(userId: string): Promise<any> {
