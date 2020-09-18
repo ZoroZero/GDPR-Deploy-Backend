@@ -1,4 +1,11 @@
-import { Injectable, HttpException, HttpStatus, UseGuards, Inject, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  UseGuards,
+  Inject,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server } from './server.entity';
@@ -12,26 +19,37 @@ import { LoggingService } from 'src/logger/logging.service';
 import { EditServerDto } from './dto/edit-server.dto';
 
 // const csv = require('csv-parser');
-const LogServer = new LoggingService()
+const LogServer = new LoggingService();
 @Injectable()
 export class ServersService {
-
   constructor(
-    @InjectRepository(Server) private serversRepository: Repository<Server>
+    @InjectRepository(Server) private serversRepository: Repository<Server>,
   ) {}
 
   async listAllServer(): Promise<Server[]> {
-    return await this.serversRepository.find({IsDeleted: false});
+    return await this.serversRepository.find({ IsDeleted: false });
   }
 
-  async getServerByPage(params: SearchDataDto){
-    console.log("Query ", `EXEC [dbo].[ServerGetServerList] 
+  async checkServerStatus(serverId) {
+    const server = await this.serversRepository.findOne({
+      Id: serverId,
+      IsActive: true,
+      IsDeleted: false,
+    });
+    return server !== null;
+  }
+
+  async getServerByPage(params: SearchDataDto) {
+    console.log(
+      'Query ',
+      `EXEC [dbo].[ServerGetServerList] 
     @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
     @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
     @KeyWord = '${params.keyword}',
     @@FilterList = '${params.filterKeys}',
-    @FilterColumn= '${params.filterColumn}'`);
-    
+    @FilterColumn= '${params.filterColumn}'`,
+    );
+
     return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] 
       @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
       @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
@@ -40,14 +58,17 @@ export class ServersService {
       @FilterColumn= '${params.filterColumn}'`);
   }
 
-  async getAllActiveServer(){
+  async getAllActiveServer() {
     return await this.serversRepository.query(`
       EXECUTE [dbo].[ServerGetActiveServerList] 
-    `)
+    `);
   }
 
-  async getIdFromIpAndName(serverIp: string, serverName: string){
-    return await this.serversRepository.findOne({IpAddress: serverIp, Name: serverName})
+  async getIdFromIpAndName(serverIp: string, serverName: string) {
+    return await this.serversRepository.findOne({
+      IpAddress: serverIp,
+      Name: serverName,
+    });
   }
 
   async addNewServer(_server: CreateServerDto, _userId: string) {
@@ -60,11 +81,13 @@ export class ServersService {
       @StartDate= '${_server.startDate}', 
       @EndDate= '${_server.endDate}', 
       @CreatedBy= '${_userId}'
-    `)
+    `);
   }
 
-  async updateServer(_server: EditServerDto, _userId: string){
-    return this.serversRepository.query(`
+  async updateServer(_server: EditServerDto, _userId: string) {
+    return this.serversRepository
+      .query(
+        `
     SET DATEFORMAT dmy
     EXECUTE dbo.[ServerAlter]
       @ServerId = '${_server.Id}',
@@ -74,59 +97,77 @@ export class ServersService {
       @EndDate= '${_server.EndDate}', 
       @UpdatedBy= '${_userId}',
       @IsActive= ${_server.IsActive}
-    `).then(res => {
-      LogServer.logFile(`[${_userId}]     [${_server.Id}]     [Update server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
-      return res
-    })
+    `,
+      )
+      .then(res => {
+        LogServer.logFile(
+          `[${_userId}]     [${_server.Id}]     [Update server]     [${res[0].UpdatedDate}]`,
+          process.env.SERVER_LOG_FILE,
+        );
+        return res;
+      });
   }
 
-  async updateMultiServer(_request: ChangeStatusListServerDto, _userId: string){
-      return await this.serversRepository.query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
+  async updateMultiServer(
+    _request: ChangeStatusListServerDto,
+    _userId: string,
+  ) {
+    return await this.serversRepository
+      .query(`EXECUTE [dbo].[ServerAlterServerListStatus] 
       @ServerIdList = '${_request.listServer.join(',')}'
      ,@UpdatedBy = '${_userId}'
-     ,@IsActive = ${_request.status}`)
+     ,@IsActive = ${_request.status}`);
   }
 
-  async deleteServerWithId(_id: string, _userId: string){
-    return this.serversRepository.query(
-    `EXECUTE dbo.[ServerDeleteServer]
+  async deleteServerWithId(_id: string, _userId: string) {
+    return this.serversRepository
+      .query(
+        `EXECUTE dbo.[ServerDeleteServer]
     @ServerId = '${_id}'
     ,@UpdatedBy = '${_userId}'
     ,@DeletedBy = '${_userId}'
-  `).then(res => {
-      LogServer.logFile(`[${_userId}]     [${_id}]      [Delete server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
-      return res;
-    })
+  `,
+      )
+      .then(res => {
+        LogServer.logFile(
+          `[${_userId}]     [${_id}]      [Delete server]     [${res[0].UpdatedDate}]`,
+          process.env.SERVER_LOG_FILE,
+        );
+        return res;
+      });
   }
 
-  async deleteMultiServer(_idList: string, _userId: string){
-    var idList = _idList.split(",")
-    
-    return await Promise.all([idList.forEach((id: string) => {
+  async deleteMultiServer(_idList: string, _userId: string) {
+    var idList = _idList.split(',');
+
+    return await Promise.all([
+      idList.forEach((id: string) => {
         this.serversRepository.query(
-        `EXECUTE dbo.[ServerDeleteServer]
+          `EXECUTE dbo.[ServerDeleteServer]
         @ServerId = '${id}'
         ,@UpdatedBy = '${_userId}'
         ,@DeletedBy = '${_userId}'
-        `)
-      })
-    ])
+        `,
+        );
+      }),
+    ]);
   }
 
-
-  async exportServerList(_request: ExportDto){
+  async exportServerList(_request: ExportDto) {
     console.log(_request);
     return await this.serversRepository.query(
-    `
+      `
     EXECUTE [dbo].[ServerExportServerList] 
-      @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList}'` : null}
-     ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
-     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
-    )
+      @ServerName = ${_request.serverName ? `'${_request.serverName}'` : `''`} 
+     ,@ServerIpList =  ${
+       _request.serverIpList ? `'${_request.serverIpList}'` : null
+     }
+     ,@FromDate = ${_request.startDate ? `'${_request.startDate}'` : null}
+     ,@ToDate = ${_request.endDate ? `'${_request.endDate}'` : null}`,
+    );
   }
 
-  async importServerList(request: ImportServerDto){
+  async importServerList(request: ImportServerDto) {
     // var queryStatement = ``;
     // request.listServer.forEach((data:Server) => {
     //   queryStatement += `\n SET DATEFORMAT dmy
@@ -143,7 +184,7 @@ export class ServersService {
     //     ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
     //     ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
     //     ,@IsDeleted = ${data.IsDeleted}
-    //     ,@IsActive = ${data.IsActive}` 
+    //     ,@IsActive = ${data.IsActive}`
     // })
     // return await Promise.all([request.listServer.forEach(async (data:Server) => {
     //     await this.serversRepository.query(`SET DATEFORMAT dmy
@@ -160,12 +201,12 @@ export class ServersService {
     //       ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
     //       ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
     //       ,@IsDeleted = ${data.IsDeleted}
-    //       ,@IsActive = ${data.IsActive}` 
+    //       ,@IsActive = ${data.IsActive}`
     //     )})
     //   ]).catch(
     //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
     //   )
     // return await this.serversRepository.query(queryStatement)
-    return this.serversRepository.save(request.listServer)
+    return this.serversRepository.save(request.listServer);
   }
 }

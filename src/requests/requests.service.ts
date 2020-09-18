@@ -126,7 +126,15 @@ export class RequestsService {
   async approveRequest(requestId, userId): Promise<any> {
     try {
       const req = await this.RequestRepository.findOne(requestId);
-      if (req && !req.IsClosed && new Date(req.EndDate) > new Date()) {
+      const checkserver = await this.serverService.checkServerStatus(
+        req.ServerId,
+      );
+      if (
+        req &&
+        !req.IsClosed &&
+        new Date(req.EndDate) > new Date() &&
+        checkserver
+      ) {
         this.RequestRepository.query(
           `
       EXEC [dbo].[Request_approveOrCloseRequest] 
@@ -149,10 +157,16 @@ export class RequestsService {
           );
         });
       } else {
-        throw new HttpException('Invalid action', HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          'Invalid action because of server status or range of start date and end date',
+          HttpStatus.FORBIDDEN,
+        );
       }
     } catch (error) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Invalid action because of server status or range of start date and end date',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
