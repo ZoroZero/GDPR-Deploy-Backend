@@ -88,6 +88,7 @@ export class UsersService {
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
     const hashedPassword = await bcrypt.hash(PassWord, 10);
+    console.log('hashpass', hashedPassword);
     const insertResult = await getConnection()
       .manager.query(
         `SET ANSI_WARNINGS  OFF;
@@ -189,11 +190,11 @@ export class UsersService {
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
             String(qCreatedBy) +
+            String(qPassWord) +
             qIsActive,
         )
         .catch(err => {

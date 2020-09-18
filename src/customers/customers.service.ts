@@ -132,8 +132,8 @@ export class CustomersService {
       @CustomerName = ${
         request.CustomerName ? `'${request.CustomerName}'` : `''`
       }
-      ,@ContactPoint = ${
-        request.ContactPoint ? `'${request.ContactPoint}'` : null
+      ,@ContactPointIdList = ${
+        request.ContactPoint ? `'${request.ContactPoint.join(',')}'` : null
       }
       ,@ContractStart = ${
         request.ContractBeginDate ? `'${request.ContractBeginDate}'` : null
