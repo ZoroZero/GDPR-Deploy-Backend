@@ -6,7 +6,7 @@
 export class ExportCustomerDto {
   CustomerName?: string;
 
-  ContactPoint?: string;
+  ContactPoint?: string[];
 
   ContractBeginDate?: Date;
 
