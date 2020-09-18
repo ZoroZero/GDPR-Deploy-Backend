@@ -3,10 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, Generated, BeforeInsert } from 
 
 @Entity('Server')
 export class Server {
-  @IsUUID()
-  @PrimaryGeneratedColumn('uuid', {
-    name: "Id"
-  })
+  @PrimaryGeneratedColumn('uuid')
   @Generated("uuid")
   Id: string;
 
