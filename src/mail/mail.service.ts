@@ -95,6 +95,31 @@ export class MailService {
       });
   }
 
+  public changePasswordEmail(password, tomail: string): void {
+    // tmail.push('hdkhang1504@gmail.com');
+    this.mailerService
+      .sendMail({
+        to: tomail, // List of receivers email address
+        from: process.env.EMAIL_SEND, // Senders email address
+        subject: 'GDPR CHANGE PASSWORD ✔', // Subject line
+        template: 'changepassemail',
+        context: {
+          password: password,
+        },
+      })
+      .then(success => {
+        console.log('success', success);
+        this.logEmail(
+          tomail,
+          `Your password has been change; Your new password: ${password};`,
+          'GDPR CHANGE PASSWORD ✔',
+        );
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   public logEmail(listmail: string, content: string, subject: string): void {
     console.log('Email da log');
     getConnection()
