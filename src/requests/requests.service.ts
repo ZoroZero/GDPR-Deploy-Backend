@@ -7,6 +7,7 @@ import { CreateRequestDto } from './Dto/create-request.dto';
 import { MailService } from 'src/mail/mail.service';
 import { RequestLogService } from './requestLog.service';
 import { exportQueryDto } from './Dto/exportQuery.dto';
+import { filter } from 'rxjs/operators';
 
 @Injectable()
 export class RequestsService {
@@ -25,26 +26,39 @@ export class RequestsService {
     sortColumn,
     sortOrder,
     keyword,
+    filterKeys,
   }): Promise<any> {
     let requests = null;
+    let filterKeyParam = '';
+    if (filterKeys === 'pending') {
+      filterKeyParam = `, @IsApproved=0, @IsClosed=0`;
+    }
+    if (filterKeys === 'approved') {
+      filterKeyParam = `, @IsApproved=1, @IsClosed=0`;
+    }
+    if (filterKeys === 'closed') {
+      filterKeyParam = `, @IsClosed=1`;
+    }
     if (role === 'admin' || role === 'dc-member') {
       requests = await this.RequestRepository.query(
-        `EXEC [dbo].[RequestgetListRequests] 
+        `EXEC [dbo].[RequestgetListRequests_2] 
           @PageSize=${pageSize},
           @SortOrder='${sortOrder}',
           @SortBy='${sortColumn}',
           @PageNumber=${pageNumber},
-          @SearchKey='${keyword}'`,
+          @SearchKey='${keyword}'
+          ${filterKeyParam}`,
       );
     } else
       requests = await this.RequestRepository.query(
-        `EXEC [dbo].[RequestgetListRequests] 
+        `EXEC [dbo].[RequestgetListRequests_2] 
           @UserId='${UserId}', 
           @PageSize=${pageSize}, 
           @SortOrder='${sortOrder}', 
           @SortBy='${sortColumn}', 
           @PageNumber=${pageNumber}, 
-          @SearchKey='${keyword}'`,
+          @SearchKey='${keyword}'
+          ${filterKeyParam}`,
       );
     const response = {
       data: requests,
@@ -268,7 +282,6 @@ export class RequestsService {
         );
         mailContent = content + ' ' + request.Number;
       } else if (type === 'new') {
-        console.log('BUGGG HEERRRRREEE');
         user = await this.RequestRepository.query(
           `EXEC [dbo].[getInfoFromId] @Id='${userId}'`,
         );
