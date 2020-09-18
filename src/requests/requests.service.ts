@@ -356,22 +356,30 @@ export class RequestsService {
 
   async exportRequest(body: exportQueryDto): Promise<any> {
     const approveParam =
-      !body.approvedBy || body.approvedBy === ''
+      !body.approvedBy || body.approvedBy.length <= 0
         ? ''
-        : `@ApprovedBy='${body.approvedBy}',`;
+        : `@ApprovedBy='${body.approvedBy.join(',')}',`;
     const requesterParam =
-      !body.createdBy || body.createdBy === ''
+      !body.createdBy || body.createdBy.length <= 0
         ? ''
-        : `@CreatedBy='${body.createdBy}',`;
-    const listServerIp = body.server.map(val => {
-      return val.split('-')[1];
-    });
+        : `@CreatedBy='${body.createdBy.join(',')}',`;
+    const listServerIp =
+      body.server && body.server.length > 0
+        ? body.server.map(val => {
+            return val.split('-')[1];
+          })
+        : [];
     const listServerIpParam =
       listServerIp.length > 0
         ? `@ListServerIp='${listServerIp.join(',')}',`
         : '';
     return await this.RequestRepository.query(`
-      EXEC [dbo].[Request_exportRequestByServer] ${approveParam} ${requesterParam} ${listServerIpParam} @StartDate='${body.fromDate}', @EndDate='${body.toDate}'
+      EXEC [dbo].[Request_exportRequestByServer] 
+      ${approveParam}
+      ${requesterParam} 
+      ${listServerIpParam} 
+      @StartDate='${body.fromDate}', 
+      @EndDate='${body.toDate}'
     `);
   }
 }

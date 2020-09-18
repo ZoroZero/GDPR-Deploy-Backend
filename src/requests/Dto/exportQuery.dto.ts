@@ -12,9 +12,9 @@ export class exportQueryDto {
 
   toDate: Date;
 
-  approvedBy: string;
+  approvedBy: Array<string>;
 
-  createdBy: string;
+  createdBy: Array<string>;
 
   server: Array<string>;
 }
