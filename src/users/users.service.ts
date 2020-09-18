@@ -395,7 +395,7 @@ export class UsersService {
 
   async getContactPointList() {
     return await getConnection().manager.query(
-      `EXECUTE [dbo].[GetListContactPoint] `,
+      `EXECUTE [dbo].[UserGetContactPointList]`,
     );
   }
 }
