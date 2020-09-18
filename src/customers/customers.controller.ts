@@ -42,18 +42,6 @@ export class CustomersController {
   @SetMetadata('roles', ['admin', 'contact-point'])
   @Get('')
   async findAll(@Query() query, @Request() req): Promise<Customer[]> {
-    // let filterList = [];
-    console.log('FIELD VALUE -> CONTROLLER', query.filterValue);
-    // if (query.filterValue == ['1']) {
-    //   filterList = [1];
-    // }
-    // if (query.filterValue == ['1', '0']) {
-    //   filterList = [1, 0];
-    // } else if (query.filterValue == ['0']) {
-    //   filterList = [0];
-    // } else {
-    //   filterList = [0, 1];
-    // }
     const role = req.user.role;
     if (role == 'contact-point') {
       return await this.customersService.findAll(
@@ -105,7 +93,6 @@ export class CustomersController {
       updateCustomerDto,
       req.user.UserId,
     );
-    // console.log('RETURN FROM UPDATE', res);
     if (res) {
       return res;
     } else {
@@ -185,7 +172,6 @@ export class CustomersController {
     @Query('Id', ParseUUIDPipe) id: string,
     @Body() body,
   ) {
-    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', body);
     return await this.customersService.addServersForCustomer(
       id,
       body.params.AddedServers,
@@ -198,7 +184,6 @@ export class CustomersController {
     @Query('Id', ParseUUIDPipe) id: string,
     @Body() body,
   ) {
-    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', body);
     return await this.customersService.deleteServersOfCustomer(
       id,
       body.params.DeletedServers,

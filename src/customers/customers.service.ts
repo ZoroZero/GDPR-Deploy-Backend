@@ -85,7 +85,6 @@ export class CustomersService {
     newValue: CreateCustomerDto,
     updatedById: string,
   ): Promise<Customer> {
-    console.log('DTO UPDATE : ', newValue);
     const customer = await this.customersRepository.findOne({ Id: id });
     if (!customer) {
       console.error("customer doesn't exist");
@@ -146,7 +145,6 @@ export class CustomersService {
   }
 
   async importCustomerList(request: ImportCustomerDto) {
-    console.log('Data', request.CustomerList);
     return await this.customersRepository.save(request.CustomerList);
   }
 }
