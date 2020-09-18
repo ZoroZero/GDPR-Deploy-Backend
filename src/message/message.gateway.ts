@@ -43,6 +43,7 @@ export class MessageGateway
               Avatar: payload.avatar,
               CreatedDate: result.CreatedDate,
               ReplyId: payload.ReplyId,
+              ReplyMsg: payload.ReplyMsg,
               Id: result.Id,
             };
             this.server.to(payload.requestId).emit(payload.requestId, msg);

@@ -65,6 +65,20 @@ export class MessageService {
             Email: val.Email,
             Id: val.UserId,
           },
+          ReplyMsg: {
+            Content: val.ReplyContent,
+            CreatedDate: val.ReplyCreatedDate,
+            Id: val.ReplyId,
+            RequestId: val.RequestId,
+            ReplyId: val.ReplyCommentId,
+            Avatar: val.ReplyAvatarPath,
+            User: {
+              FirstName: val.ReplyFirstName,
+              LastName: val.ReplyLastName,
+              Email: val.ReplyEmail,
+              Id: val.ReplyUserId,
+            },
+          },
         };
       });
       return response;
