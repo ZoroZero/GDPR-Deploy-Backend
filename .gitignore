@@ -39,4 +39,5 @@ lerna-debug.log*
 .env
 /files
 
-files/
+/files
+avatar/

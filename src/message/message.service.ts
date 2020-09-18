@@ -58,6 +58,7 @@ export class MessageService {
           Id: val.Id,
           RequestId: val.RequestId,
           ReplyId: val.CommentId,
+          Avatar: val.AvatarPath,
           User: {
             FirstName: val.FirstName,
             LastName: val.LastName,

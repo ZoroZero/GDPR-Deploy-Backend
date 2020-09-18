@@ -40,6 +40,7 @@ export class MessageGateway
               Content: payload.message,
               RequestId: payload.requestId,
               User: payload.user,
+              Avatar: payload.avatar,
               CreatedDate: result.CreatedDate,
               ReplyId: payload.ReplyId,
               Id: result.Id,
