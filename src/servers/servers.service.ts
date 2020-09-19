@@ -126,47 +126,15 @@ export class ServersService {
   }
 
   async importServerList(request: ImportServerDto){
-    // var queryStatement = ``;
-    // request.listServer.forEach((data:Server) => {
-    //   queryStatement += `\n SET DATEFORMAT dmy
-    //   EXECUTE dbo.[ServerAlter]
-    //     @ServerId = '${data.Id}'
-    //     ,@ServerName = '${data.Name}'
-    //     ,@ServerIp = '${data.IpAddress}'
-    //     ,@StartDate = '${data.StartDate}'
-    //     ,@EndDate = '${data.EndDate}'
-    //     ,@CreatedDate = '${data.CreatedDate}'
-    //     ,@CreatedBy = '${data.CreatedBy}'
-    //     ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-    //     ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-    //     ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-    //     ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-    //     ,@IsDeleted = ${data.IsDeleted}
-    //     ,@IsActive = ${data.IsActive}` 
-    // })
-    // return await Promise.all([request.listServer.forEach(async (data:Server) => {
-    //     await this.serversRepository.query(`SET DATEFORMAT dmy
-    //     EXECUTE dbo.[ServerAlter]
-    //       @ServerId = '${data.Id}'
-    //       ,@ServerName = '${data.Name}'
-    //       ,@ServerIp = '${data.IpAddress}'
-    //       ,@StartDate = '${data.StartDate}'
-    //       ,@EndDate = '${data.EndDate}'
-    //       ,@CreatedDate = '${data.CreatedDate}'
-    //       ,@CreatedBy = '${data.CreatedBy}'
-    //       ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-    //       ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-    //       ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-    //       ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-    //       ,@IsDeleted = ${data.IsDeleted}
-    //       ,@IsActive = ${data.IsActive}` 
-    //     )})
-    //   ]).catch(
-    //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
-    //   )
-    // return await this.serversRepository.query(queryStatement)
-    // var listSer = request.listServer.map(server => this.convert(server))
     return this.serversRepository.save(request.listServer)
   }
 
+
+  async recoverServerWithId(_id: string, _userId: string){
+    return this.serversRepository.query(`EXECUTE dbo.[ServerRecoverServer]
+    @ServerId = '${_id}'
+    ,@UpdatedBy = '${_userId}'
+    ,@DeletedBy = '${_userId}'
+    `)
+  }
 }
