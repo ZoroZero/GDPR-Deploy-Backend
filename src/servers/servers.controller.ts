@@ -44,7 +44,7 @@ export class UsersController {
     }
 
     // Get all active server
-    @SetMetadata('roles', ['admin', 'dc-member'])
+    // @SetMetadata('roles', ['admin', 'dc-member'])
     @Get('active')
     @UseInterceptors(GetInterceptor)
     getActive(){

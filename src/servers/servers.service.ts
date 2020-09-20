@@ -17,7 +17,6 @@ import { ImportServerDto } from './dto/import-server-list.dto';
 import { query, request } from 'express';
 import { LoggingService } from 'src/logger/logging.service';
 import { EditServerDto } from './dto/edit-server.dto';
-
 // const csv = require('csv-parser');
 const LogServer = new LoggingService();
 @Injectable()
@@ -207,6 +206,7 @@ export class ServersService {
     //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
     //   )
     // return await this.serversRepository.query(queryStatement)
+    // var listSer = request.listServer.map(server => this.convert(server))
     return this.serversRepository.save(request.listServer);
   }
 }

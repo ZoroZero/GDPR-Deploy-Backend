@@ -88,6 +88,7 @@ export class UsersService {
     if (CreatedBy === undefined) qCreatedBy = ',@CreateBy = null';
     else qCreatedBy = ",@CreateBy ='" + CreatedBy + "'";
     const hashedPassword = await bcrypt.hash(PassWord, 10);
+    console.log('hashpass', hashedPassword);
     const insertResult = await getConnection()
       .manager.query(
         `SET ANSI_WARNINGS  OFF;
@@ -156,7 +157,7 @@ export class UsersService {
 
   async updateUser(
     Id: String,
-    Email: String,
+    Email: string,
     PassWord: String,
     UserName: String,
     Role: String,
@@ -180,6 +181,7 @@ export class UsersService {
       var qPassWord;
       if (PassWord === undefined) qPassWord = ',@PassWord = null';
       else {
+        this.mailService.changePasswordEmail(PassWord, Email);
         const hashedPassword = await bcrypt.hash(PassWord, 10);
         qPassWord = ",@PassWord ='" + hashedPassword + "'";
       }
@@ -189,11 +191,11 @@ export class UsersService {
       @UserId= '${Id}'
       ,@Role ='${Role}'
       ,@UserName='${UserName}'
-      ,@PassWord='${PassWord}'
       ,@FirstName='${FirstName}'
       ,@LastName='${LastName}'
       ,@Email='${Email}'` +
             String(qCreatedBy) +
+            String(qPassWord) +
             qIsActive,
         )
         .catch(err => {
@@ -395,7 +397,7 @@ export class UsersService {
 
   async getContactPointList() {
     return await getConnection().manager.query(
-      `EXECUTE [dbo].[GetListContactPoint] `,
+      `EXECUTE [dbo].[UserGetContactPointList] `,
     );
   }
 }
