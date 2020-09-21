@@ -78,9 +78,12 @@ export class RequestsService {
   }
 
   async createNewRequest(data: CreateRequestDto, userId): Promise<any> {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
     if (
       new Date(data.endDate) > new Date(data.startDate) &&
-      new Date(data.endDate) > new Date()
+      new Date(data.endDate) > new Date() &&
+      new Date(data.startDate) >= today
     ) {
       const [serverName, serverIp] = data.server.split('-');
       const server = await this.serverService.getIdFromIpAndName(
@@ -229,9 +232,12 @@ export class RequestsService {
   }
 
   async updateRequestDetail(requestDetail, userId, requestId): Promise<any> {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
     if (
       new Date(requestDetail.startDate) < new Date(requestDetail.endDate) &&
-      new Date(requestDetail.endDate) > new Date()
+      new Date(requestDetail.endDate) > new Date() &&
+      new Date(requestDetail.startDate) >= today
     ) {
       const oldReq = await this.RequestRepository.findOne(requestId);
       if (oldReq && !oldReq.IsClosed && !oldReq.IsApproved) {
@@ -270,13 +276,20 @@ export class RequestsService {
               'Server is invalid',
               HttpStatus.EXPECTATION_FAILED,
             );
+        } else {
+          throw new HttpException(
+            'Nothing different',
+            HttpStatus.EXPECTATION_FAILED,
+          );
         }
       }
-    } else
+    } else {
+      console.log('BUGGG HEREEEEE');
       throw new HttpException(
         'Invalid start date and end date',
         HttpStatus.EXPECTATION_FAILED,
       );
+    }
   }
 
   async sendMailForNew_Approve_Close_Request(
