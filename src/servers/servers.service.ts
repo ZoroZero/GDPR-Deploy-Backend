@@ -134,7 +134,9 @@ export class ServersService {
     return this.serversRepository.query(`EXECUTE dbo.[ServerRecoverServer]
     @ServerId = '${_id}'
     ,@UpdatedBy = '${_userId}'
-    ,@DeletedBy = '${_userId}'
-    `)
+    `).then(res => {
+      LogServer.logFile(`[${_userId}]     [${_id}]      [Recover server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
+      return res;
+    })
   }
 }
