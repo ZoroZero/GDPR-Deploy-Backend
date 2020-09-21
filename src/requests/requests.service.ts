@@ -400,13 +400,20 @@ export class RequestsService {
       listServerIp.length > 0
         ? `@ListServerIp='${listServerIp.join(',')}',`
         : '';
+    const fromDateParam = body.fromDate
+      ? `@StartDate='${body.fromDate}',`
+      : `@StartDate=null,`;
+    const toDateParam = body.toDate
+      ? `@EndDate='${body.toDate}'`
+      : `@EndDate=null`;
+
     return await this.RequestRepository.query(`
       EXEC [dbo].[Request_exportRequestByServer] 
       ${approveParam}
       ${requesterParam} 
       ${listServerIpParam} 
-      @StartDate='${body.fromDate}', 
-      @EndDate='${body.toDate}'
+      ${fromDateParam}
+      ${toDateParam}
     `);
   }
 }
