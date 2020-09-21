@@ -119,9 +119,12 @@ export class ServersService {
     `
     EXECUTE [dbo].[ServerExportServerList] 
       @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
-     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList}'` : null}
+     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList.join(',')}'` : null}
      ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
-     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}`
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
+     ,@FilterList = '${_request.filterKeys}',
+     @FilterColumn = '${_request.filterColumn}'`
+
     )
   }
 
