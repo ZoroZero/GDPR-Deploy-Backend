@@ -101,7 +101,7 @@ export class ServersService {
       .then(res => {
         LogServer.logFile(process.env.SERVER_FOLDER,
           `[${_userId}]     [${_server.Id}]     [Update server]     [${res[0].UpdatedDate}]`,
-          `${process.env.SERVER_FOLDER}/${process.env.SERVER_LOG_FILE}`,
+          process.env.SERVER_LOG_FILE,
         );
         return res;
       });
@@ -130,7 +130,7 @@ export class ServersService {
       .then(res => {
         LogServer.logFile(process.env.SERVER_FOLDER,
           `[${_userId}]     [${_id}]      [Delete server]     [${res[0].UpdatedDate}]`,
-          `${process.env.SERVER_FOLDER}/${process.env.SERVER_LOG_FILE}`,
+          process.env.SERVER_LOG_FILE,
         );
         return res;
       });
@@ -178,7 +178,7 @@ export class ServersService {
     ,@UpdatedBy = '${_userId}'
     `).then(res => {
       LogServer.logFile(process.env.SERVER_FOLDER,`[${_userId}]     [${_id}]      [Recover server]     [${res[0].UpdatedDate}]`,
-      `${process.env.SERVER_FOLDER}/${process.env.SERVER_LOG_FILE}`)
+      process.env.SERVER_LOG_FILE)
       return res;
     })
   }

@@ -67,7 +67,7 @@ export class LoggingService extends Logger {
     if (!fs.existsSync(directory)){
       fs.mkdirSync(directory);
   }
-    fs.appendFileSync(filename, `\n${message}`, (err) => {
+    fs.appendFileSync(`${directory}/${filename}`, `\n${message}`, (err) => {
       if (err) throw err;
       console.log(`The ${filename} were updated!`);
     });
