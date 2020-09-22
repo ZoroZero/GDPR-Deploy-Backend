@@ -1,4 +1,4 @@
-import { IsUUID } from 'class-validator';
+import { IsIP, IsUUID } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 
@@ -8,6 +8,7 @@ export class EditServerDto {
 
   Name: string;
 
+  @IsIP(4)
   IpAddress: string;
 
   StartDate: Date;

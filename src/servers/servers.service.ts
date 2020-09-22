@@ -157,56 +157,28 @@ export class ServersService {
     return await this.serversRepository.query(
       `
     EXECUTE [dbo].[ServerExportServerList] 
-      @ServerName = ${_request.serverName ? `'${_request.serverName}'` : `''`} 
-     ,@ServerIpList =  ${
-       _request.serverIpList ? `'${_request.serverIpList}'` : null
-     }
-     ,@FromDate = ${_request.startDate ? `'${_request.startDate}'` : null}
-     ,@ToDate = ${_request.endDate ? `'${_request.endDate}'` : null}`,
-    );
+      @ServerName = ${_request.serverName? `'${_request.serverName}'` : `''`} 
+     ,@ServerIpList =  ${_request.serverIpList? `'${_request.serverIpList.join(',')}'` : null}
+     ,@FromDate = ${_request.startDate? `'${_request.startDate}'`: null}
+     ,@ToDate = ${_request.endDate? `'${_request.endDate}'`: null}
+     ,@FilterList = '${_request.filterKeys}',
+     @FilterColumn = '${_request.filterColumn}'`
+
+    )
   }
 
-  async importServerList(request: ImportServerDto) {
-    // var queryStatement = ``;
-    // request.listServer.forEach((data:Server) => {
-    //   queryStatement += `\n SET DATEFORMAT dmy
-    //   EXECUTE dbo.[ServerAlter]
-    //     @ServerId = '${data.Id}'
-    //     ,@ServerName = '${data.Name}'
-    //     ,@ServerIp = '${data.IpAddress}'
-    //     ,@StartDate = '${data.StartDate}'
-    //     ,@EndDate = '${data.EndDate}'
-    //     ,@CreatedDate = '${data.CreatedDate}'
-    //     ,@CreatedBy = '${data.CreatedBy}'
-    //     ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-    //     ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-    //     ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-    //     ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-    //     ,@IsDeleted = ${data.IsDeleted}
-    //     ,@IsActive = ${data.IsActive}`
-    // })
-    // return await Promise.all([request.listServer.forEach(async (data:Server) => {
-    //     await this.serversRepository.query(`SET DATEFORMAT dmy
-    //     EXECUTE dbo.[ServerAlter]
-    //       @ServerId = '${data.Id}'
-    //       ,@ServerName = '${data.Name}'
-    //       ,@ServerIp = '${data.IpAddress}'
-    //       ,@StartDate = '${data.StartDate}'
-    //       ,@EndDate = '${data.EndDate}'
-    //       ,@CreatedDate = '${data.CreatedDate}'
-    //       ,@CreatedBy = '${data.CreatedBy}'
-    //       ,@UpdatedDate = ${data.UpdatedDate? `'${data.UpdatedDate}'`: null}
-    //       ,@UpdatedBy = ${data.UpdatedBy? `'${data.UpdatedBy}'`: null}
-    //       ,@DeletedDate = ${data.DeletedDate? `'${data.DeletedDate}'`: null}
-    //       ,@DeletedBy = ${data.DeletedBy? `'${data.DeletedBy}'`: null}
-    //       ,@IsDeleted = ${data.IsDeleted}
-    //       ,@IsActive = ${data.IsActive}`
-    //     )})
-    //   ]).catch(
-    //     err => {throw new HttpException("Error", HttpStatus.BAD_REQUEST)}
-    //   )
-    // return await this.serversRepository.query(queryStatement)
-    // var listSer = request.listServer.map(server => this.convert(server))
-    return this.serversRepository.save(request.listServer);
+  async importServerList(request: ImportServerDto){
+    return this.serversRepository.save(request.listServer)
+  }
+
+
+  async recoverServerWithId(_id: string, _userId: string){
+    return this.serversRepository.query(`EXECUTE dbo.[ServerRecoverServer]
+    @ServerId = '${_id}'
+    ,@UpdatedBy = '${_userId}'
+    `).then(res => {
+      LogServer.logFile(`[${_userId}]     [${_id}]      [Recover server]     [${res[0].UpdatedDate}]`, process.env.SERVER_LOG_FILE)
+      return res;
+    })
   }
 }

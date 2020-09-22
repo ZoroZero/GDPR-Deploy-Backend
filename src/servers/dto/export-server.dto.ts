@@ -1,11 +1,17 @@
-import { IsUUID, IsIP} from 'class-validator';
+import { IsUUID, IsIP, IsOptional} from 'class-validator';
 
 export class ExportDto{
-    serverName: string;
+    serverName?: string;
     
-    serverIpList: string;
+    @IsOptional()
+    @IsIP(4, {each:true})
+    serverIpList?: string[];
 
-    startDate: any;
+    startDate?: Date;
 
-    endDate: any; 
+    endDate?: Date; 
+
+    filterColumn: string;
+
+    filterKeys: string;
 }

@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { Request, Response } from 'express';
 import { LoggingService } from 'src/logger/logging.service';
 import { getConnection } from 'typeorm';
+const logService = new LoggingService(); 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -12,12 +13,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const user = request.user;
     const timestamp = new Date().toISOString()
     
-    
     if(user){
-      new LoggingService().errDBLog(user['UserId'], String(status), request.url, timestamp)
-      
+      logService.errDBLog(user['UserId'], String(status), request.url, timestamp)
     }
-    new LoggingService().errorFileLog(`[${timestamp}]   [${status}]   [${request.url}]      ${exception}`)
+    logService.errorFileLog(`[${timestamp}]   [${status}]   [${request.url}]      ${exception}`)
     
     response
       .status(status)

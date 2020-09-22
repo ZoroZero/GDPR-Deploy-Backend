@@ -116,4 +116,11 @@ export class UsersController {
         return this.service.deleteMultiServer(id, user.UserId);
     }
 
+    // Recover server
+    @SetMetadata('roles', ['admin', 'dc-member'])
+    @Put('recover')
+    @UseInterceptors(UpdateInterceptor)
+    recoverServer(@User() user, @Body('id', new ParseUUIDPipe()) id: string) {
+        return this.service.recoverServerWithId(id, user.UserId);
+    }
 }
