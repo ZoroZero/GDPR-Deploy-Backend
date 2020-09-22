@@ -52,16 +52,21 @@ export class LoggingService extends Logger {
 
   errorFileLog(message: string){
     // Data which will write in a file
-     
-    fs.appendFileSync(process.env.ERROR_LOG_FILE, `\n${message}`, (err) => {
-      if (err) throw err;
-      console.log('The error log were updated!');
+    if (!fs.existsSync(process.env.ERROR_FOLDER)){
+        fs.mkdirSync(process.env.ERROR_FOLDER);
+    }
+    fs.appendFileSync( `${process.env.ERROR_FOLDER}/${process.env.ERROR_LOG_FILE}`, `\n${message}`, (err) => {
+    if (err) throw err;
+    console.log('The error log were updated!');
     });
   }
 
 
-  logFile(message:string, filename: string){
+  logFile(directory:string, message:string, filename: string){
     // Data which will write in a file. 
+    if (!fs.existsSync(directory)){
+      fs.mkdirSync(directory);
+  }
     fs.appendFileSync(filename, `\n${message}`, (err) => {
       if (err) throw err;
       console.log(`The ${filename} were updated!`);
