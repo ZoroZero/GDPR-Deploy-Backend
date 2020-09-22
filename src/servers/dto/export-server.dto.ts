@@ -4,7 +4,7 @@ export class ExportDto{
     serverName?: string;
     
     @IsOptional()
-    @IsIP('4', {each:true})
+    @IsIP(4, {each:true})
     serverIpList?: string[];
 
     startDate?: Date;
