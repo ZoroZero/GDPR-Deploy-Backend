@@ -310,19 +310,19 @@ export class UsersService {
     var qSortOrder;
     var qRole;
     var qIsActive;
-    if (PageNo === undefined) qPageNo = '@PageNumber = null,';
+    if (PageNo === undefined|| IsActive===null) qPageNo = '@PageNumber = null,';
     else qPageNo = '@PageNumber =' + Number(PageNo) + ',';
-    if (PageSize === undefined) qPageSize = '@PageSize =null,';
+    if (PageSize === undefined|| IsActive===null) qPageSize = '@PageSize =null,';
     else qPageSize = '@PageSize =' + Number(PageSize) + ',';
-    if (SearchKey === undefined) qSearchKey = '@SearchKey =null,';
+    if (SearchKey === undefined|| IsActive===null) qSearchKey = '@SearchKey =null,';
     else qSearchKey = "@SearchKey ='" + SearchKey + "',";
-    if (SortBy === undefined) qSortBy = '@SortBy =null,';
+    if (SortBy === undefined|| IsActive===null) qSortBy = '@SortBy =null,';
     else qSortBy = "@SortBy ='" + SortBy + "',";
-    if (SortOrder === undefined) qSortOrder = '@SortOrder =null,';
+    if (SortOrder === undefined|| IsActive===null) qSortOrder = '@SortOrder =null,';
     else qSortOrder = '@SortOrder =' + SortOrder + ',';
-    if (Role === undefined) qRole = "@RoleList ='',";
+    if (Role === undefined|| IsActive===null) qRole = "@RoleList ='',";
     else qRole = "@RoleList ='" + Role + "',";
-    if (IsActive === undefined) qIsActive = '@IsActive = null';
+    if (IsActive === undefined || IsActive===null) qIsActive = '@IsActive = null';
     else qIsActive = '@IsActive =' + IsActive + '';
     const userList = await getConnection()
       .manager.query(
