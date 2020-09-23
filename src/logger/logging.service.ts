@@ -57,7 +57,7 @@ export class LoggingService extends Logger {
     }
     fs.appendFileSync( `${process.env.ERROR_FOLDER}/${process.env.ERROR_LOG_FILE}`, `\n${message}`, (err) => {
     if (err) throw err;
-    console.log('The error log were updated!');
+    // console.log('The error log were updated!');
     });
   }
 
@@ -69,7 +69,7 @@ export class LoggingService extends Logger {
   }
     fs.appendFileSync(`${directory}/${filename}`, `\n${message}`, (err) => {
       if (err) throw err;
-      console.log(`The ${filename} were updated!`);
+      // console.log(`The ${filename} were updated!`);
     });
   }
 }

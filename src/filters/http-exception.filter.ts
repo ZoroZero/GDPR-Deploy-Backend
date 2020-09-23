@@ -16,7 +16,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if(user){
       logService.errDBLog(user['UserId'], String(status), request.url, timestamp)
     }
-    logService.errorFileLog(`[${timestamp}]   [${status}]   [${request.url}]      ${exception}`)
+    logService.errorFileLog(`[Time:${timestamp}]   [Status:${status}]   [${request.url}]      [${exception}]`)
     
     response
       .status(status)

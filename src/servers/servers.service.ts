@@ -39,15 +39,15 @@ export class ServersService {
   }
 
   async getServerByPage(params: SearchDataDto) {
-    console.log(
-      'Query ',
-      `EXEC [dbo].[ServerGetServerList] 
-    @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
-    @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
-    @KeyWord = '${params.keyword}',
-    @@FilterList = '${params.filterKeys}',
-    @FilterColumn= '${params.filterColumn}'`,
-    );
+    // // console.log(
+    //   'Query ',
+    //   `EXEC [dbo].[ServerGetServerList] 
+    // @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
+    // @SortColumn='${params.sortColumn}', @SortOrder = '${params.sortOrder}', 
+    // @KeyWord = '${params.keyword}',
+    // @@FilterList = '${params.filterKeys}',
+    // @FilterColumn= '${params.filterColumn}'`,
+    // );
 
     return await this.serversRepository.query(`EXEC [dbo].[ServerGetServerList] 
       @PageNumber =${params.pageNumber}, @PageSize=${params.pageSize}, 
@@ -100,7 +100,7 @@ export class ServersService {
       )
       .then(res => {
         LogServer.logFile(process.env.SERVER_FOLDER,
-          `[${_userId}]     [${_server.Id}]     [Update server]     [${res[0].UpdatedDate}]`,
+          `[User: ${_userId}]     [Server: ${_server.Id}]     [Update server]     [Time: ${res[0].UpdatedDate}]`,
           process.env.SERVER_LOG_FILE,
         );
         return res;
@@ -129,7 +129,7 @@ export class ServersService {
       )
       .then(res => {
         LogServer.logFile(process.env.SERVER_FOLDER,
-          `[${_userId}]     [${_id}]      [Delete server]     [${res[0].UpdatedDate}]`,
+          `[User: ${_userId}]     [Server: ${_id}]      [Delete server]     [Time: ${res[0].UpdatedDate}]`,
           process.env.SERVER_LOG_FILE,
         );
         return res;
@@ -153,7 +153,7 @@ export class ServersService {
   }
 
   async exportServerList(_request: ExportDto) {
-    console.log(_request);
+    // console.log(_request);
     return await this.serversRepository.query(
       `
     EXECUTE [dbo].[ServerExportServerList] 
@@ -177,7 +177,7 @@ export class ServersService {
     @ServerId = '${_id}'
     ,@UpdatedBy = '${_userId}'
     `).then(res => {
-      LogServer.logFile(process.env.SERVER_FOLDER,`[${_userId}]     [${_id}]      [Recover server]     [${res[0].UpdatedDate}]`,
+      LogServer.logFile(process.env.SERVER_FOLDER,`[User: ${_userId}]     [Server: ${_id}]      [Recover server]     [Time: ${res[0].UpdatedDate}]`,
       process.env.SERVER_LOG_FILE)
       return res;
     })

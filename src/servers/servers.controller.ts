@@ -81,7 +81,7 @@ export class UsersController {
     @SetMetadata('roles', ['admin', 'dc-member'])
     @Post('import')
     importServer(@Body(ValidationPipe) body: ImportServerDto){
-        console.log("File upload", body);
+        // console.log("File upload", body);
         return this.service.importServerList(body)
     }
 
