@@ -117,7 +117,7 @@ export class UsersService {
   }
 
   async forgotPassword(email: string) {
-    var randomstring = Math.random()
+    var randomstring = 'G1'+ Math.random()
       .toString(36)
       .slice(-8);
     const hashedPassword = await bcrypt.hash(randomstring, 10);
