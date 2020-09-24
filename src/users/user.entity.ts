@@ -3,21 +3,24 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('User')
 export class User {
   @PrimaryGeneratedColumn()
-  id: string;
+  Id: string;
 
   @Column()
-  firstName: string;
+  FirstName: string;
 
   @Column()
-  lastName: string;
+  LastName: string;
 
   @Column()
-  username: string;
+  RoleId: string;
 
   @Column()
-  password: string;
-
+  Email: string;
+  @Column()
+  IsDeleted: boolean;
+  @Column()
+  UpdatedDate: Date;
 
   @Column({ default: true })
-  isActive: boolean;
+  IsActive: boolean;
 }
