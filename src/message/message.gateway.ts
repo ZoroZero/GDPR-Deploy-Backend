@@ -56,7 +56,6 @@ export class MessageGateway
           }
         });
       const req = await this.requestsService.findOne(payload.requestId);
-      console.log('BUGG HEREEEE ', req);
       this.notificationsService
         .saveNotification(
           `You have new message in request ${req.Number}`,
@@ -78,16 +77,13 @@ export class MessageGateway
             this.server.emit(lstIdAdminDc[i], result[0]);
           }
         });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
 
   @UseGuards(WsJwtGuard)
   @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('joinRoom')
   joinRoom(client: Socket, payload: any): void {
-    console.log(payload);
     client.join(payload.requestId);
     this.logger.log(`Client ${client.id} join room`);
   }
@@ -96,7 +92,6 @@ export class MessageGateway
   @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('leaveRoom')
   leaveRoom(client: Socket, payload: any): void {
-    console.log(payload);
     client.leave(payload.requestId);
     this.logger.log(`Client ${client.id} leave room`);
   }

@@ -30,7 +30,6 @@ export class RequestsController {
 
   @Get('')
   getAllRequest(@Query() searchQueryDto: SearchDataDto, @Request() req) {
-    console.log(searchQueryDto);
     return this.requestService.findAll({
       ...req.user,
       ...searchQueryDto,
@@ -46,7 +45,6 @@ export class RequestsController {
   @UseGuards(new RolesGuard(new Reflector()))
   @Put('approve-request')
   approveRequest(@Body('requestId', ParseUUIDPipe) requestId, @Request() req) {
-    console.log(requestId);
     return this.requestService.approveRequest(requestId, req.user.UserId);
   }
 
@@ -54,7 +52,6 @@ export class RequestsController {
   @UseGuards(new RolesGuard(new Reflector()))
   @Put('cancel-request')
   closeRequest(@Body('requestId', ParseUUIDPipe) requestId, @Request() req) {
-    console.log(requestId);
     return this.requestService.closeRequest(requestId, req.user.UserId);
   }
 
