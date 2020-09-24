@@ -46,7 +46,7 @@ import { MessageModule } from './message/message.module';
           },
         },
         defaults: {
-          from: '"GDPR" <tu.tran@netpower.no>', // outgoing email ID
+          from: '"GDPR" <'+process.env.EMAIL_SEND+'>', // outgoing email ID
         },
         template: {
           dir: process.cwd() + '/template/',
