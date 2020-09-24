@@ -22,7 +22,7 @@
 
 module.exports = {
   type: process.env.type,
-  host: process.env.host,
+  host: String(process.env.host),
   port: parseInt(process.env.port),
   database: process.env.database,
   username: process.env.usernamedb,
