@@ -40,14 +40,14 @@ import { NotificationsModule } from './notifications/notifications.module';
         transport: {
           host: process.env.EMAIL_HOST,
           port: Number(process.env.EMAIL_PORT),
-          secure: true, // true for 465, false for other ports
+          secure: false, // true for 465, false for other ports
           auth: {
             user: process.env.EMAIL_ID, // generated ethereal user
             pass: process.env.EMAIL_PASS, // generated ethereal password
           },
         },
         defaults: {
-          from: '"GDPR" <tu.tran@netpower.no>', // outgoing email ID
+          from: '"GDPR" <'+process.env.EMAIL_SEND+'>', // outgoing email ID
         },
         template: {
           dir: process.cwd() + '/template/',
