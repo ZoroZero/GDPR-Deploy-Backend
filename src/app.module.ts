@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailService } from './mail/mail.service';
 import { MessageModule } from './message/message.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { MessageModule } from './message/message.module';
       dest: './files',
     }),
     MessageModule,
+    NotificationsModule,
   ],
 
   controllers: [AppController],

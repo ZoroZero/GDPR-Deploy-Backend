@@ -13,19 +13,25 @@ import { Server, Socket } from 'socket.io';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { WsJwtGuard } from 'src/auth/guards/jwt-socket-auth.guard';
 import { MessageService } from './message.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { getConnection } from 'typeorm';
+import { RequestsService } from 'src/requests/requests.service';
 
 @WebSocketGateway()
 export class MessageGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly notificationsService: NotificationsService,
+    private readonly requestsService: RequestsService,
+  ) {}
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
 
   @UseGuards(WsJwtGuard)
   @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: any): void {
-    console.log(payload);
+  async handleMessage(client: Socket, payload: any): Promise<any> {
     try {
       this.messageService
         .saveMessage(
@@ -47,6 +53,29 @@ export class MessageGateway
               Id: result.Id,
             };
             this.server.to(payload.requestId).emit(payload.requestId, msg);
+          }
+        });
+      const req = await this.requestsService.findOne(payload.requestId);
+      console.log('BUGG HEREEEE ', req);
+      this.notificationsService
+        .saveNotification(
+          `You have new message in request ${req.Number}`,
+          payload.requestId,
+          payload.user,
+        )
+        .then(async result => {
+          const lstAdminDc = await getConnection().manager.query(`
+            EXEC [dbo].[Request_getListEmailAdminDcmember]
+          `);
+          const lstIdAdminDc = lstAdminDc.map((val, index) => {
+            return val.Id;
+          });
+          if (!lstIdAdminDc.includes(req.CreatedBy)) {
+            lstIdAdminDc.push(req.CreatedBy);
+          }
+
+          for (let i in lstIdAdminDc) {
+            this.server.emit(lstIdAdminDc[i], result[0]);
           }
         });
     } catch (error) {
