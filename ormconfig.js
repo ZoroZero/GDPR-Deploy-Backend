@@ -22,7 +22,7 @@
 
 module.exports = {
   type: process.env.type,
-  host: String(process.env.host),
+  host: "ADMIN\\SQLEXPRESS",
   port: parseInt(process.env.port),
   database: process.env.database,
   username: process.env.usernamedb,
