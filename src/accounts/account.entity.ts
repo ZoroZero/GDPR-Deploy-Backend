@@ -7,7 +7,7 @@ export class Account {
 
   @Column('uuid')
   UserId: string;
-  
+
   @Column()
   UserName: string;
 
@@ -16,6 +16,9 @@ export class Account {
 
   @Column()
   Salt: string;
+
+  @Column()
+  UpdatedDate: Date;
 
   @Column({ default: true })
   IsDeleted: boolean;

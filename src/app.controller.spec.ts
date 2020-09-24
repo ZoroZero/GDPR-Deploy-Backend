@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { AccountsModule } from './users/accounts/accounts.module';
+import { AccountsModule } from './accounts/accounts.module';
 
 describe('AppController', () => {
   let appController: AppController;
