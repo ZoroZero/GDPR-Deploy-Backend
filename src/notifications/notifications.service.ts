@@ -13,28 +13,30 @@ export class NotificationsService {
         `);
   }
   async saveNotification(Content: String, RequestId, User): Promise<any> {
-    const req = await this.requestsService.findOne(RequestId);
-    const lstAdminDc = await getConnection().manager.query(`
+    try {
+      const req = await this.requestsService.findOne(RequestId);
+      const lstAdminDc = await getConnection().manager.query(`
       EXEC [dbo].[Request_getListEmailAdminDcmember]
     `);
-    const lstIdAdminDc = lstAdminDc.map((val, index) => {
-      return val.Id;
-    });
-    const user = await getConnection().manager.query(`
+      const lstIdAdminDc = lstAdminDc.map((val, index) => {
+        return val.Id;
+      });
+      const user = await getConnection().manager.query(`
       EXEC [dbo].[getInfoFromId]
       @Id='${User.Id}'
     `);
-    if (['admin', 'dc-member'].includes(user[0].RoleName)) {
-    } else {
-      lstIdAdminDc.push(User.Id);
-    }
-    return await getConnection().manager.query(`
+      if (['admin', 'dc-member'].includes(user[0].RoleName)) {
+      } else {
+        lstIdAdminDc.push(User.Id);
+      }
+      return await getConnection().manager.query(`
       EXEC [dbo].[Notification_createNotification]
       @Content='${Content}',
       @Link='${`/request-management/${RequestId}`}',
       @RequestId='${RequestId}',
       @LstUserId='${lstIdAdminDc.join(',')}'
     `);
+    } catch (error) {}
   }
 
   async setNotificationIsRead(notifId, user): Promise<any> {
