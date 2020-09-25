@@ -45,7 +45,7 @@ export class MessageService {
         `);
       } else {
         const req = await this.requestService.findOne(requestId);
-        if (req && req.CreatedBy === user.Id) {
+        if (req && req.CreatedBy === user.UserId) {
           result = await getConnection().manager.query(`
             EXEC [dbo].[Message_getMessagesByRequest] @requestId='${requestId}'
         `);

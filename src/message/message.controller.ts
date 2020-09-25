@@ -21,7 +21,6 @@ export class MessageController {
 
   @Get('/:msgId')
   getMessage(@Param('msgId', ParseUUIDPipe) msgId, @Req() req) {
-    console.log('BUGGGG HEREEEE');
     return this.messageService.getMessageByMsgId(msgId, req.user);
   }
 }
