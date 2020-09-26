@@ -100,7 +100,6 @@ export class RequestsService {
           @ServerId='${server.Id}',
           @CreatedBy='${userId}'`,
         );
-        console.log(result);
         if (result[0] && result[0].Id) {
           this.requestLogService.logNew_Approve_Close_Request(
             result[0].Id,
@@ -284,7 +283,6 @@ export class RequestsService {
         }
       }
     } else {
-      console.log('BUGGG HEREEEEE');
       throw new HttpException(
         'Invalid start date and end date',
         HttpStatus.EXPECTATION_FAILED,

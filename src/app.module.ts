@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailService } from './mail/mail.service';
 import { MessageModule } from './message/message.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { MessageModule } from './message/message.module';
           },
         },
         defaults: {
-          from: '"GDPR" <tu.tran@netpower.no>', // outgoing email ID
+          from: '"GDPR" <'+process.env.EMAIL_SEND+'>', // outgoing email ID
         },
         template: {
           dir: process.cwd() + '/template/',
@@ -61,6 +62,7 @@ import { MessageModule } from './message/message.module';
       dest: './files',
     }),
     MessageModule,
+    NotificationsModule,
   ],
 
   controllers: [AppController],

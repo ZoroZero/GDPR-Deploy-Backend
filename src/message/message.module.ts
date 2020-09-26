@@ -5,9 +5,10 @@ import { MessageGateway } from './message.gateway';
 import { MessageService } from './message.service';
 import { MessageController } from './message.controller';
 import { RequestsModule } from 'src/requests/requests.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  imports: [AuthModule, RequestsModule],
+  imports: [AuthModule, RequestsModule, NotificationsModule],
   controllers: [MessageController],
   providers: [MessageGateway, MessageService],
 })
